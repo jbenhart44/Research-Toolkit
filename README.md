@@ -1,7 +1,7 @@
 # AI-Assisted Research Toolkit
 
-> **PCV methodology by [Dr. Michael Kay](https://mgkay.github.io/pcv/), NC State ISE.**
-> **Toolkit by Jake Benhart, NC State Operations Research.**
+> **By Jake Benhart & Dr. Michael G. Kay**
+> **NC State University — Operations Research & Industrial and Systems Engineering**
 
 A battle-tested collection of Claude Code commands for structured AI-assisted research workflows. Built during a PhD in Operations Research and validated across 40+ sessions, 14 PCV-Research runs, 3 CoA contamination tests, and 20+ PACE verification tasks. Design rationale documented in [DESIGN.md](DESIGN.md).
 
@@ -114,12 +114,11 @@ See [EVIDENCE.md](EVIDENCE.md) for full methodology and metrics.
 If you use this toolkit in your research, please cite:
 
 ```bibtex
-@software{benhart2026toolkit,
-  author = {Benhart, Jake},
+@software{benhart_kay2026toolkit,
+  author = {Benhart, Jake and Kay, Michael G.},
   title = {AI-Assisted Research Toolkit for Claude Code},
   year = {2026},
-  url = {https://github.com/[TBD]/ai-research-toolkit},
-  note = {PCV methodology by Kay, M.G. (https://mgkay.github.io/pcv/)}
+  url = {https://github.com/jbenhart44/Research-Toolkit}
 }
 ```
 

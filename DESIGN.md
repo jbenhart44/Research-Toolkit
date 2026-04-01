@@ -2,7 +2,7 @@
 
 **Version:** 1.0
 **Date:** 2026-03-31
-**Author:** Jake Benhart
+**Authors:** Jake Benhart & Michael G. Kay
 
 This document records every significant design decision in the toolkit: what was chosen, what was rejected, and why. It serves as the authoritative reference when evaluating proposed additions or changes.
 

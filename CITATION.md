@@ -1,35 +1,34 @@
 # Citation and Attribution
 
-## Toolkit Author
+## Authors
+
 **Jake Benhart**, PhD Student, Operations Research
 Edward P. Fitts Department of Industrial and Systems Engineering
 North Carolina State University
 
-## PCV Framework Author
-**Dr. Michael G. Kay**, Professor
+**Dr. Michael G. Kay**, Director of IMSEI & Associate Professor
 Edward P. Fitts Department of Industrial and Systems Engineering
 North Carolina State University
 https://mgkay.github.io/pcv/
 
 ## Attribution
 
-This toolkit was developed by Jake Benhart during his PhD research on strategic driver behavior in ride-hailing markets. The Plan-Construct-Verify (PCV) methodology was created by Dr. Michael G. Kay. Benhart extended PCV with empirical validation (14 PCV-Research runs studying depth-first vs. breadth-first planning strategies) and built the surrounding workflow toolkit (CoA, PACE, PCV-Research, /improve, /startup, /dailysummary, /weeklysummary, /commit, /simplify, /quarto, /pdftotxt).
+This toolkit was developed by Jake Benhart and Dr. Michael G. Kay at NC State University. Kay created the Plan-Construct-Verify (PCV) methodology that serves as the toolkit's foundation. Benhart extended PCV with empirical validation (14 PCV-Research runs studying depth-first vs. breadth-first planning strategies) and built the surrounding workflow toolkit (CoA, PACE, PCV-Research, /improve, /startup, /dailysummary, /weeklysummary, /commit, /simplify, /quarto, /pdftotxt).
 
 ## BibTeX
 
 ```bibtex
-@software{benhart2026toolkit,
-  author = {Benhart, Jake},
+@software{benhart_kay2026toolkit,
+  author = {Benhart, Jake and Kay, Michael G.},
   title = {AI-Assisted Research Toolkit for Claude Code},
   year = {2026},
-  url = {https://github.com/[TBD]/ai-research-toolkit},
-  note = {PCV methodology by Kay, M.G. (https://mgkay.github.io/pcv/)}
+  url = {https://github.com/jbenhart44/Research-Toolkit}
 }
 ```
 
 ## PCV Citation
 
-For PCV itself, cite Dr. Kay's work directly:
+To cite the PCV methodology independently:
 ```bibtex
 @software{kay2026pcv,
   author = {Kay, Michael G.},

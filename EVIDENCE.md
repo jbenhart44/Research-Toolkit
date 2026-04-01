@@ -78,6 +78,28 @@ PACE runs tasks through two independent players with coaching review, then cross
 
 ---
 
+## Evidence Architecture (v1.0, 2026-03-31)
+
+Every PACE, CoA, and PCV-Research run automatically produces a structured run report with YAML frontmatter. Reports accumulate in tool-specific directories and are indexed in a central CSV for cross-tool aggregation.
+
+**How it works:**
+1. You run `/pace`, `/coa`, or `/pcv-research` on a real task
+2. The tool does its work (verification, council analysis, or parallel planning)
+3. As its final step, it auto-generates a run report with structured metadata
+4. The report is saved to a tool-specific directory and a row is appended to `run_log.csv`
+5. Run `/improve --tools` anytime to see aggregate statistics across all runs
+
+**Storage:**
+- PACE reports: `CC_Workflow/evidence/pace_runs/`
+- CoA reports: `CC_Workflow/coa/council_sessions/` (YAML frontmatter added to existing files)
+- PCV-Research reports: `plans/research_runs/{run_id}/run_report.md`
+- CSV index: `CC_Workflow/evidence/run_log.csv`
+- Schema reference: `CC_Workflow/references/run_report_convention.md`
+
+**For new users:** You don't need to understand the schema to use the tools. Evidence collection is automatic. After 5+ runs, run `/improve --tools` to see your first aggregate statistics. After 10+ runs, trends become visible. See [QUICKSTART.md](QUICKSTART.md) for calibration tasks and baseline benchmarks.
+
+---
+
 ## Methodology Notes
 
 - **Same-model caveat:** All agents in PCV-Research, CoA, and PACE use the same underlying Claude model. Convergence between agents does not constitute independent validation — it indicates consistency within the model's reasoning space. Cross-model validation (via Gemini in CoA) partially addresses this.
