@@ -5,6 +5,10 @@ description: PCV Research Protocol — runs parallel depth-first and breadth-fir
 
 # PCV Research Protocol — Parallel Planning with Instrumentation
 
+> **When to use**: You have a complex project charge and want to study how different planning strategies (depth-first vs breadth-first) produce different designs. Research-grade protocol — spawns 4+ subagents, significant token cost.
+>
+> **Cost warning**: This command spawns ~14 subagent calls across 4 parallel instances. Estimated cost: 150K-300K tokens per run depending on charge complexity. If you are on a usage-based API plan, expect this to be one of the most expensive commands in the toolkit.
+
 You are executing the PCV Research Protocol. This is a **research instrument** that runs the PCV planning phase (charge → clarification → MakePlan) through two different agent-answering strategies, each replicated twice, to study how AI agents navigate planning decisions and where they converge or diverge.
 
 **Version**: 1.0 (2026-03-31)

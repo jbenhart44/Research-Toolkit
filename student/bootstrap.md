@@ -5,7 +5,7 @@
 
 ## What This File Does
 
-When you give this file to Claude Code, it installs the full 12-command
+When you give this file to Claude Code, it installs the full 11-command
 research toolkit: structured planning (PCV, PCV-Research), verification
 (CoA, PACE), workflow automation (startup, dailysummary, weeklysummary,
 commit, simplify, improve), and content generation (quarto, pdftotxt).
@@ -83,7 +83,7 @@ command files are present.
 
 > **AI-Assisted Research Toolkit installed.**
 >
-> **12 commands** installed to `~/.claude/commands/`
+> **11 commands** installed to `~/.claude/commands/`
 > **PCV v3.9** installed to `~/.claude/skills/pcv/`
 > **4 PCV agents** installed to `~/.claude/agents/`
 >

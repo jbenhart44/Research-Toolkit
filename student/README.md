@@ -1,6 +1,6 @@
 # Student Toolkit
 
-The full 12-command AI-Assisted Research Toolkit. Everything I actually use in my PhD research — structured planning, verification, documentation, and workflow automation.
+The full 11-command AI-Assisted Research Toolkit. Everything I actually use in my PhD research — structured planning, verification, documentation, and workflow automation.
 
 ## Installation
 

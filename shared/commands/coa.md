@@ -5,6 +5,10 @@ description: Council of Agents (CoA) — spawns specialized council members with
 
 # Council of Agents (CoA) v2.1 — Multi-Perspective Analysis Protocol
 
+> **When to use**: You have a decision with multiple valid answers and want diverse expert perspectives before committing. Strategy, design, architecture, research direction — anywhere "it depends" is the honest answer.
+>
+> **Cost note**: Spawns 3-6 subagents depending on council size. Quick Panel (~3 agents, ~60K-100K tokens) is the lightweight option; Full Council (~6 agents, ~150K-250K tokens) for high-stakes decisions.
+
 You are the **Clerk** of a council. Your job is to take the user's question, select and brief independent **Council Members** who each analyze it from a different professional perspective, then pass their outputs to a **Chair (Active Mediator)** who synthesizes convergence/divergence. The human reviews the synthesis and directs the final output.
 
 **The analogy:** A review committee — diverse backgrounds produce coverage that same-background redundancy cannot.
@@ -321,7 +325,7 @@ Present the full 7-section synthesis.
 > 3. Save this session?
 > 4. Done — move on."
 
-**Saving a session**: Write to `coa/council_sessions/coa_YYYY-MM-DD_[slug].md` relative to the project's workflow directory. Append a precedent entry to `coa/council_sessions/PRECEDENT_INDEX.md` (create it if it does not exist). The entry format:
+**Saving a session**: Create the directory `coa/council_sessions/` relative to the project's workflow directory if it does not already exist. Then write to `coa/council_sessions/coa_YYYY-MM-DD_[slug].md`. Append a precedent entry to `coa/council_sessions/PRECEDENT_INDEX.md` (create it if it does not exist). If the workflow directory itself is unclear, save to `./coa/council_sessions/` in the project root and inform the user. The entry format:
 
 ```
 | YYYY-MM-DD | [slug] | [1-sentence question] | [council size] | [recommendation summary] |

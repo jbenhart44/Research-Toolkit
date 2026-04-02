@@ -5,6 +5,8 @@ description: Extract text from PDF or Word (.docx) files using Python. Useful wh
 
 # /pdftotxt — Document to Text Extraction
 
+> **When to use**: You need to read a PDF or Word document that Claude Code's built-in Read tool can't render (missing poppler, .docx format, etc.).
+
 Extract text from PDF or Word (`.docx`) files using Python. Useful when the Read tool cannot render these formats (e.g., poppler not installed, or Word files).
 
 ## Usage

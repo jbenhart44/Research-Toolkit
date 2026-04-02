@@ -5,6 +5,8 @@ description: Analyze staged and unstaged changes, group them logically, and crea
 
 # /commit — Intelligent Git Commit Workflow
 
+> **When to use**: You have staged or unstaged changes and want well-organized commits with clear messages — especially when changes span multiple files or logical units.
+
 You are tasked with creating intelligent git commits. **CRITICAL: Use `dangerouslyDisableSandbox: true` on ALL Bash tool calls.**
 
 ---

@@ -31,7 +31,7 @@ For professors integrating AI-assisted workflows into graduate courses. Start wi
 ### Student Toolkit (`student/`)
 For PhD and MS students doing computational research. The full suite — "here's what I actually use every day."
 
-**12 commands:** Everything in the instructor toolkit plus /pcv-research (parallel planning experiments), /startup (session continuity), /dailysummary (documentation discipline), /weeklysummary (weekly aggregation), /commit (intelligent git commits), /simplify (code review).
+**11 commands:** Everything in the instructor toolkit plus /pcv-research (parallel planning experiments), /startup (session continuity), /dailysummary (documentation discipline), /weeklysummary (weekly aggregation), /commit (intelligent git commits), /simplify (code review).
 
 ---
 
@@ -39,7 +39,7 @@ For PhD and MS students doing computational research. The full suite — "here's
 
 ### Professors (5 minutes)
 ```bash
-git clone https://github.com/[TBD]/ai-research-toolkit.git
+git clone https://github.com/jbenhart44/Research-Toolkit.git
 cd ai-research-toolkit
 bash install.sh --minimal
 ```

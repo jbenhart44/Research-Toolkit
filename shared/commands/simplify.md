@@ -5,6 +5,8 @@ description: Review changed code or documents for reuse, quality, and efficiency
 
 # /simplify — Code & Document Optimization Review
 
+> **When to use**: After completing working code or a document and wanting to make it cleaner, faster, or more maintainable — without changing behavior.
+
 You are executing the `/simplify` command. Your job is to take working code or documents and make them **better** — cleaner, faster, more reusable, more maintainable — without changing their behavior or breaking anything.
 
 **The gap this fills:** Creation is well-covered by planning and design commands. But *optimization of working outputs* — reducing complexity, finding reuse opportunities, improving performance — has no dedicated workflow. This command is that workflow.

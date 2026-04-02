@@ -5,6 +5,8 @@ description: Self-reflective meta-agent — scans conversation context, git hist
 
 # /improve — Infrastructure Improvement Scanner
 
+> **When to use**: Periodically (weekly or after major sessions) to audit your Claude Code infrastructure — CLAUDE.md, slash commands, JIT references, settings — and get specific improvement recommendations.
+
 You are executing the `/improve` command. Your job is to scan the Claude Code infrastructure (JIT reference files, slash commands, CLAUDE.md, settings) and produce a structured report of specific, actionable improvements. You do NOT auto-edit anything — the user reviews your report and decides what to implement.
 
 **Version**: 1.3 (generalized from project-specific v1.2)

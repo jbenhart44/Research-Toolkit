@@ -5,6 +5,8 @@ description: Session startup — reads recent daily summaries, identifies all ac
 
 # /startup — Session Startup Briefing
 
+> **When to use**: At the start of every work session. Reads your recent daily summaries and orients you on all active workstreams — what's done, what's next.
+
 You are executing the `/startup` command. Your job is to quickly orient the user on the current state of ALL active workstreams by reading recent daily summaries and project state, then presenting a concise action-ready briefing.
 
 **Goal**: Get from "just opened the terminal" to "working on the right thing" in under 60 seconds of reading.

@@ -170,7 +170,7 @@ ai-research-toolkit/                     Total: 33 files
 ├── student/
 │   ├── README.md                        Full suite quick start
 │   └── bootstrap.md                     In-session installer
-├── shared/commands/                     12 generalized commands
+├── shared/commands/                     11 generalized commands
 │   ├── coa.md                           Council of Agents
 │   ├── pace.md                          Parallel Agent Consensus
 │   ├── pcv-research.md                  PCV Research Protocol

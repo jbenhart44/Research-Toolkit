@@ -5,6 +5,8 @@ description: Generate a ~20-slide Quarto RevealJS presentation from background d
 
 # /quarto — Slide Deck Generator
 
+> **When to use**: You need a presentation and have background documents (papers, notes, reports) to build from. Generates a complete Quarto RevealJS slide deck with CSS.
+
 You are generating a Quarto RevealJS slide deck from background documents provided by the user. Your job is to read the source material, design a coherent ~20-slide narrative arc, write production-quality `.qmd` files (with a CSS override as needed), render them, and open in the browser for review.
 
 ---

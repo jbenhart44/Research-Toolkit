@@ -5,6 +5,8 @@ description: Generate an ISO calendar week summary from daily summaries — grou
 
 # /weeklysummary — Weekly Work Summary
 
+> **When to use**: At the end of a work week (Friday/Saturday) or start of the next (Monday). Consolidates daily summaries into a single weekly view grouped by workstream.
+
 ## Timing Recommendation
 
 **Invoke /weeklysummary at the END of a work week (Friday/Saturday) or at the START of a new week (Monday).** Mid-week invocations produce partial summaries, which are labeled as such.

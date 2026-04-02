@@ -1,7 +1,7 @@
 #!/bin/bash
 # AI-Assisted Research Toolkit — Installer
 # Usage:
-#   bash install.sh               # Full student toolkit (12 commands)
+#   bash install.sh               # Full student toolkit (11 commands)
 #   bash install.sh --minimal     # Instructor toolkit (6 commands)
 #   bash install.sh --help        # Show this help
 
@@ -43,7 +43,7 @@ show_help() {
     echo "AI-Assisted Research Toolkit — Installer"
     echo ""
     echo "Usage:"
-    echo "  bash install.sh               Full student toolkit (12 commands)"
+    echo "  bash install.sh               Full student toolkit (11 commands)"
     echo "  bash install.sh --minimal     Instructor toolkit (6 commands)"
     echo "  bash install.sh --help        Show this help"
     echo ""
@@ -164,7 +164,7 @@ echo "================================================"
 if [ "$MINIMAL" = true ]; then
     echo "  Instructor Toolkit installed (6 commands + PCV)"
 else
-    echo "  Student Toolkit installed (12 commands + PCV)"
+    echo "  Student Toolkit installed (11 commands + PCV)"
 fi
 echo "================================================"
 echo ""

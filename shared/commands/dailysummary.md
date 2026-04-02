@@ -5,6 +5,8 @@ description: Create a dated summary of today's work in the daily summaries folde
 
 # /dailysummary — Daily Work Summary
 
+> **When to use**: At the end of a work session to capture what was done, decisions made, and next steps. Creates a dated record that `/startup` and `/weeklysummary` read later.
+
 ## Mode Selection
 
 **Two modes** — pick based on session weight:
