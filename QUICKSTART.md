@@ -33,7 +33,7 @@ PACE spawns two independent agents, has each coached, then cross-compares. You'l
 
 After PACE completes, look at:
 - The run report file it created (path shown at the end of output)
-- The CSV index row appended to `CC_Workflow/evidence/run_log.csv`
+- The CSV index row appended to `evidence/run_log.csv`
 
 That's it. Your first evidence record exists. Every future PACE, CoA, and PCV-Research run adds to it automatically.
 

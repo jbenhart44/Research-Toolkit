@@ -36,7 +36,6 @@ If `~/.claude/toolkit-config.md` does not exist, use these defaults and note it 
 2. **Read MEMORY.md** (if present at project root or `~/.claude/projects/*/memory/MEMORY.md`) — for current project state and key architectural decisions.
 3. **Check git status** — `git status` to see uncommitted changes from a previous session.
 4. **Check for running background processes** — `ps aux | grep -v grep` filtered for any long-running language runtimes (Python, Julia, R, Node, etc.) that may be sweeps or servers still active from a prior session.
-5. **Check available RAM** (optional) — Run `free -h` if the project involves simulations, data analysis, or other memory-intensive work. Report available RAM in the System Status section. Skip this check for documentation-only or writing projects.
 
 ### Step 2: Extract Workstream Status
 
@@ -68,7 +67,6 @@ Output the briefing in this exact format:
 - **Project**: [project_name from config]
 - **Uncommitted changes**: [Yes (N files) / No]
 - **Running background processes**: [None / process description + PID]
-- **Available RAM**: [X.XG free of Y.YG] (if applicable)
 
 ---
 

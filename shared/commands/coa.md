@@ -317,19 +317,71 @@ Present the full 7-section synthesis.
 
 ---
 
-## STEP 6: DELIVER
+## STEP 6: DELIVER + SAVE (AUTOMATIC)
 
-> "Council session complete. Would you like me to:
-> 1. Show any member's full analysis?
-> 2. Run a rebuttal round?
-> 3. Save this session?
-> 4. Done — move on."
+**Session saving is automatic — do not skip or ask permission.** After the Chair synthesis is delivered and the user responds (Step 4/5), always save the session before presenting the menu.
 
-**Saving a session**: Create the directory `coa/council_sessions/` relative to the project's workflow directory if it does not already exist. Then write to `coa/council_sessions/coa_YYYY-MM-DD_[slug].md`. Append a precedent entry to `coa/council_sessions/PRECEDENT_INDEX.md` (create it if it does not exist). If the workflow directory itself is unclear, save to `./coa/council_sessions/` in the project root and inform the user. The entry format:
+### 6a. Generate Run ID and Save Session
 
+1. **Generate `run_id`**: Use the current timestamp formatted as `YYYY-MM-DD_HHMMSS`.
+
+2. **Create session directory**: Create `coa/council_sessions/` relative to the project's workflow directory if it does not already exist. If the workflow directory is unclear, save to `./coa/council_sessions/` in the project root and inform the user.
+
+3. **Write session file** to `coa/council_sessions/coa_{date}_{slug}.md` with YAML frontmatter:
+
+```yaml
+---
+schema_version: "1.0"
+run_id: "{run_id}"
+tool: "coa"
+tool_version: "v2.1"
+date: "{YYYY-MM-DD}"
+model: "{model used, e.g. claude-opus-4-6}"
+task_summary: "{1-line question}"
+outcome: "{complete|partial|failed}"
+council_size: {N}
+seats: ["{Persona1}", "{Persona2}", ...]
+convergence_rate: "{fraction agreed}"
+agree_count: {N}
+diverge_count: {N}
+gemini_crosscheck: {true|false}
+chair_recommendation: "{1-line summary of Chair's synthesis}"
+---
+
+## Task
+{2-3 sentence description of the question.}
+
+## Key Findings
+{2-5 bullets: convergence points, divergence points, surprises.}
+
+## Issues & Limitations
+{Any problems: API failures, partial completions, same-model caveats. "None." if clean.}
+
+[Full session content: Position Map, Chair Synthesis, etc.]
+```
+
+4. **Append precedent entry** to `coa/council_sessions/PRECEDENT_INDEX.md` (create it if it does not exist). Entry format:
 ```
 | YYYY-MM-DD | [slug] | [1-sentence question] | [council size] | [recommendation summary] |
 ```
+
+5. **Append to CSV index**: Add one row to `evidence/run_log.csv` (create file with header row if it does not exist). CSV columns:
+```
+run_id,tool,tool_version,date,task_summary,outcome,model,agent_count,convergence_rate,agree_count,diverge_count,report_path,notes
+```
+Use `council_size` as `agent_count`.
+
+6. **Report to user**:
+> "Session evidence saved to `coa/council_sessions/coa_{date}_{slug}.md`"
+
+### 6b. Menu Options
+
+After saving, present:
+
+> "Council session complete and saved. Would you like me to:
+> 1. Show any member's full analysis?
+> 2. Run a rebuttal round?
+> 3. Done — move on."
 
 ---
 

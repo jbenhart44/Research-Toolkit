@@ -39,7 +39,7 @@ The Council of Agents spawns specialists with distinct professional perspectives
 
 | Metric | Value | Source |
 |--------|-------|--------|
-| Contamination tests conducted | 3 | `CC_Workflow/coa/council_sessions/contamination_test_2026-03-25.md` |
+| Contamination tests conducted | 3 | Contamination test files in `coa/council_sessions/` |
 | Independent perspective rate | Council members produce distinct analyses | ECL-lite scorecard methodology |
 | Cross-model validation | Gemini used as external check (optional) | Cross-model MCP integration |
 
@@ -56,7 +56,7 @@ PACE runs tasks through two independent players with coaching review, then cross
 | Metric | Value | Source |
 |--------|-------|--------|
 | Verification tasks completed | 20+ | Session logs |
-| Error catches (single-agent would miss) | Arithmetic errors on 48+ item scoring, circular logic in model code | CBB session 2026-03-22, Phase 9b review |
+| Error catches (single-agent would miss) | Arithmetic errors on 48+ item scoring, circular logic in model code | verification session, model review task |
 | Convergence rate across players | Typically 70-90% on well-specified tasks | PACE run reports |
 
 **Key finding:** PACE catches errors that single-agent workflows miss. The two-player + two-coach architecture provides redundancy without the overhead of full PCV planning. Most effective for verification tasks (checking existing work) rather than generation tasks (creating new work).
@@ -90,11 +90,12 @@ Every PACE, CoA, and PCV-Research run automatically produces a structured run re
 5. Run `/improve --tools` anytime to see aggregate statistics across all runs
 
 **Storage:**
-- PACE reports: `CC_Workflow/evidence/pace_runs/`
-- CoA reports: `CC_Workflow/coa/council_sessions/` (YAML frontmatter added to existing files)
-- PCV-Research reports: `plans/research_runs/{run_id}/run_report.md`
-- CSV index: `CC_Workflow/evidence/run_log.csv`
-- Schema reference: `CC_Workflow/references/run_report_convention.md`
+- PACE reports: `evidence/pace_runs/`
+- CoA reports: `coa/council_sessions/` (YAML frontmatter added to session files)
+- PCV-Research reports: `plans/research_runs/{run_id}/`
+- CSV index: `evidence/run_log.csv`
+
+> These paths are relative to your project's workflow directory. Create them as needed — commands will create directories automatically on first use.
 
 **For new users:** You don't need to understand the schema to use the tools. Evidence collection is automatic. After 5+ runs, run `/improve --tools` to see your first aggregate statistics. After 10+ runs, trends become visible. See [QUICKSTART.md](QUICKSTART.md) for calibration tasks and baseline benchmarks.
 

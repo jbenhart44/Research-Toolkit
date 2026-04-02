@@ -385,6 +385,59 @@ After delivery, ask:
 
 ---
 
+## STEP 9: RUN REPORT (AUTOMATIC)
+
+**This step runs automatically after every PACE delivery — do not skip or ask permission.**
+
+1. **Generate `run_id`**: Use the current timestamp formatted as `YYYY-MM-DD_HHMMSS`.
+
+2. **Create evidence directory**: Ensure `evidence/pace_runs/` exists (create it and any parent directories if needed).
+
+3. **Write run report** to `evidence/pace_runs/pace_{date}_{slug}.md` where `{slug}` is a 2-4 word kebab-case summary of the task. The file must contain:
+
+```yaml
+---
+schema_version: "1.0"
+run_id: "{run_id}"
+tool: "pace"
+tool_version: "v1.0"
+date: "{YYYY-MM-DD}"
+model: "{model used, e.g. claude-opus-4-6}"
+task_summary: "{1-line from user's task}"
+outcome: "{complete|partial|failed}"
+agent_count: 5
+convergence_rate: "{X/Y substantive items agreed}"
+agree_count: {N}
+diverge_count: "{N items with disagreement}"
+error_catches: {N}
+coach_corrections: {N}
+commissioner_overrides: {N}
+---
+
+## Task
+{2-3 sentence description of the charge.}
+
+## Key Findings
+{2-5 bullets: decisions made, errors caught, insights generated.}
+
+## Issues & Limitations
+{Any problems: API failures, partial completions, same-model caveats. "None." if clean.}
+
+## PACE Protocol Metadata
+
+[Consolidation footer content from Step 7]
+```
+
+4. **Append to CSV index**: Add one row to `evidence/run_log.csv` (create file with header row if it does not exist). CSV columns:
+```
+run_id,tool,tool_version,date,task_summary,outcome,model,agent_count,convergence_rate,agree_count,diverge_count,report_path,notes
+```
+
+5. **Report to user**:
+> "Run evidence saved to `evidence/pace_runs/pace_{date}_{slug}.md`"
+
+---
+
 ## EDGE CASES
 
 ### If subagent spawning is unavailable

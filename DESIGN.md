@@ -89,7 +89,7 @@ The toolkit started with 15 commands built during PhD research. Assessment:
 | `/cite` or `/bib` | Gemini | BibTeX parsing, DOI resolution, PDF matching — each is a deep rabbit hole. Our citation tier system works because it's enforced by CLAUDE.md rules, not a separate tool. A half-built citation manager is worse than no citation manager. | **v3+ backlog (if ever).** |
 | **Per-persona command variants** | Gemini | Student `/coa` vs. instructor `/coa` with different defaults. Doubles the maintenance surface. Commands are generic; context comes from guides and config. | **Rejected permanently.** |
 | **NC State theme bundling** | Internal | University brand assets (SCSS, logos) don't belong in a public MIT-licensed repo. Users bring their own themes. | **BYOT (Bring Your Own Theme).** |
-| **Safety hooks in generic toolkit** | Internal | The `protect_files` / `git_safety` / `no_coauthor` hooks are project-specific safety nets. Generic users don't have the same protected files. Including hooks that reference nonexistent files confuses new users. | **Power users configure their own.** |
+| **Project-specific safety hooks** | Internal | The `protect_files` / `git_safety` / `no_coauthor` hooks are project-specific safety nets. Generic users don't have the same protected files. | **Not bundled.** Generic utility hooks (token budget, folder guard) are shipped as optional opt-in via `--hooks` flag. |
 | **ECL-lite scorecard system** | Internal | Council session scoring requires infrastructure (scorecard templates, precedent index) that most users don't need. Adds complexity for a niche use case. | **v2+ backlog.** |
 | **PRECEDENT_INDEX session tracking** | Internal | Cumulative CoA session history is valuable for longitudinal research but adds file management overhead. Most users run CoA for one-off questions, not multi-session analysis. | **v2+ backlog.** |
 | **Per-task-type cost benchmarks** | Internal | Token cost tables from our 14 PCV-Research runs are specific to our charge types and model versions. Publishing them as general guidance would be misleading. | **Removed from generalized /pace.** |
@@ -110,13 +110,13 @@ Each command was generalized from a project-specific version. Here's what was in
 
 | Command | Removed Feature | Why Acceptable |
 |---------|----------------|----------------|
-| `/coa` | ECL-lite scorecard, PRECEDENT_INDEX, `CC_Workflow/coa/personas/` paths | Built-in roster fallback works out of the box. Session tracking is v2+. |
+| `/coa` | ECL-lite scorecard, PRECEDENT_INDEX, `coa/personas/` paths | Built-in roster fallback works out of the box. Session tracking is v2+. |
 | `/pace` | JIT reference gate, per-task cost benchmarks, citation tier verification | Core 4-agent pattern is fully generic. Cost benchmarks were project-specific. |
 | `/improve` | Read-only file list (Worker Voice .tex), `plans/` folder assumptions | Works on any project with a CLAUDE.md. First-time mode added for projects without one. |
 | `/startup` | Multi-directory summary scanning (4 project folders), priority rules, MCP monitoring | Config-driven: reads `workstreams` and `summary_folder` from toolkit-config.md. |
 | `/dailysummary` | Parameter-specific numerical verification, incident documentation | Generic numerical accuracy check preserved. Sonnet fallback added. |
-| `/commit` | Project folder categorization (Strategic Driver, MVP Class Paper, etc.) | Uses git diff to infer structure. No hardcoded folder names needed. |
-| `/pcv-research` | RAM check, Julia process monitoring, NSF/dissertation purpose framing | Generic "research instrument" framing. Process check simplified to `free -h`. |
+| `/commit` | Project folder categorization (project-specific folder names) | Uses git diff to infer structure. No hardcoded folder names needed. |
+| `/pcv-research` | RAM check, language-specific process monitoring, project-specific purpose framing | Generic "research instrument" framing. Process check simplified to `free -h`. |
 | `/quarto` | NC State theme references | BYOT architecture. Theme is a user-provided SCSS file, not bundled. |
 | `/pdftotxt` | Hardcoded `/tmp/` path | Cross-platform temp path via Python `tempfile`. |
 

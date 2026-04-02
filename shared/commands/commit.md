@@ -7,11 +7,22 @@ description: Analyze staged and unstaged changes, group them logically, and crea
 
 > **When to use**: You have staged or unstaged changes and want well-organized commits with clear messages — especially when changes span multiple files or logical units.
 
-You are tasked with creating intelligent git commits. **CRITICAL: Use `dangerouslyDisableSandbox: true` on ALL Bash tool calls.**
+You are tasked with creating intelligent git commits.
 
 ---
 
-## Step 0: Permission Mode Prompt
+## Step 0: Survey All Changes
+
+Run in parallel:
+- `git status --short` — see all modified, deleted, and untracked files
+- `git diff --stat` — summary of unstaged changes
+- `git log --oneline -5` — recent commit style to match this repository's conventions
+
+If there are **NO changes** (no modified, deleted, staged, or untracked files), report "No changes to commit." and **STOP** — do not proceed to any further steps.
+
+---
+
+## Step 1: Permission Mode Prompt
 
 Ask the user ONE question:
 > "Skip all permission prompts and commit autonomously? (y/n)"
@@ -26,15 +37,6 @@ After this single prompt, do NOT ask any further questions regardless of the ans
 - You may create as many logical commits as needed
 - Use your judgment to group logically related changes
 - Do NOT add pauses or confirmations between git commands — run them back-to-back
-
----
-
-## Step 1: Survey All Changes
-
-Run in parallel:
-- `git status --short` — see all modified, deleted, and untracked files
-- `git diff --stat` — summary of unstaged changes
-- `git log --oneline -5` — recent commit style to match this repository's conventions
 
 ---
 
@@ -105,6 +107,6 @@ New features with supporting tests  → single commit (feat)
 
 ---
 
-Start immediately. Do not ask questions beyond the Step 0 prompt. Use `dangerouslyDisableSandbox: true` on every Bash call.
+Start immediately. Do not ask questions beyond the Step 1 prompt.
 
 $ARGUMENTS

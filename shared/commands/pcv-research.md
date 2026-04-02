@@ -203,9 +203,9 @@ If this session has already run 2+ PCV-Research instances or 1+ PACE runs, warn:
 
 ---
 
-## STEP 1: RUN DEPTH-FIRST INSTANCES (parallel)
+## STEP 1: RUN DEPTH-FIRST INSTANCES (parallel, launched simultaneously with STEP 2)
 
-Spawn **two independent depth-first instances in parallel** using the Agent tool.
+Spawn **two independent depth-first instances in parallel** using the Agent tool. These launch at the same time as the breadth-first instances in STEP 2 — all four instances run concurrently.
 
 ### Instructions for Each Depth-First Instance
 
@@ -263,9 +263,9 @@ Each instance receives the charge file path and the master question list. For ea
 
 ---
 
-## STEP 2: RUN BREADTH-FIRST INSTANCES (parallel)
+## STEP 2: RUN BREADTH-FIRST INSTANCES (parallel, launched simultaneously with STEP 1)
 
-Spawn **two independent breadth-first instances in parallel** using the Agent tool.
+Spawn **two independent breadth-first instances in parallel** using the Agent tool. These launch at the same time as the depth-first instances in STEP 1 — all four instances run concurrently. STEP 3 begins only after all four instances (both DF and BF) have completed.
 
 ### Instructions for Each Breadth-First Instance
 
@@ -530,12 +530,11 @@ Most recent run: [run_id] — [charge name]
   - Document/paper: 6-7 (moderate)
   - Presentation/slides: 5-6 (many independent preferences)
   - Analysis/report: 4-5 (scope and framing)
-- **Parallel execution**: DF instances 1&2 run in parallel. BF instances 1&2 run in parallel. DF and BF modes can run in parallel if the charge is simple (<=4 questions). For complex charges (5+ questions), run DF first, then BF, to manage token load.
+- **Parallel execution**: DF instances 1&2 and BF instances 1&2 can ALL run in parallel. The orchestrator spawns all four instances simultaneously to minimize wall-clock time. On memory-constrained systems (<8GB RAM), users may prefer running DF and BF waves sequentially — but this is the user's choice, not the default.
 - **NEVER run PCV-Research as a single background agent.** Background agents cannot spawn sub-subagents (Agent tool calls from within a background agent produce single-agent fallback). Instead, the MAIN CONVERSATION must orchestrate the instances directly:
   1. Main conversation generates questions and creates run directory
-  2. Main conversation spawns DF Instance 1 + DF Instance 2 as parallel background agents (each is a LEAF agent that does the A/B/C work internally)
-  3. Main conversation spawns BF Instance 1 + BF Instance 2 as parallel background agents
-  4. Main conversation runs comparison after all instances complete
+  2. Main conversation spawns ALL FOUR instances (DF 1, DF 2, BF 1, BF 2) as parallel background agents simultaneously (each is a LEAF agent that does the A/B/C work internally)
+  3. Main conversation waits for all four to complete, then runs comparison
   This ensures each instance agent has full Agent tool access for spawning A/B/C subagents.
 - **Each instance agent is self-contained.** It receives the charge + questions, internally spawns Agents A, B, and C (using the Agent tool), produces its MakePlan, and returns the complete output. The instance agent does NOT need Bash — it only needs Agent, Read, Write, Glob, Grep.
 - **Detect and report single-agent fallback.** If any instance returns without separate A and B perspectives in its output, it ran in single-agent mode. Flag this in the Step 6 report as: "WARNING: Instance [N] ran in single-agent mode. Convergence data is invalid."
