@@ -109,7 +109,7 @@ fi
 
 # Create directories
 if [ "$DRY_RUN" = true ]; then
-    for d in "$COMMANDS_DIR" "$SKILLS_DIR/pcv" "$AGENTS_DIR"; do
+    for d in "$COMMANDS_DIR" "$SKILLS_DIR/pcv" "$SKILLS_DIR/pcvjake" "$AGENTS_DIR"; do
         if [ ! -d "$d" ]; then
             print_success "Would create: $d"
         fi
@@ -117,12 +117,13 @@ if [ "$DRY_RUN" = true ]; then
 else
     mkdir -p "$COMMANDS_DIR"
     mkdir -p "$SKILLS_DIR/pcv"
+    mkdir -p "$SKILLS_DIR/pcvjake"
     mkdir -p "$AGENTS_DIR"
 fi
 
 # Define command sets
 SHARED_COMMANDS=(coa pace improve quarto pdftotxt)
-STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify pcv-research)
+STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify pcv-research pcv-researchJake)
 
 # Install shared commands (both products)
 echo "Installing shared commands..."
@@ -154,6 +155,21 @@ for f in "$TOOLKIT_DIR"/pcv/agents/*; do
     fname=$(basename "$f")
     install_file "$f" "$AGENTS_DIR/$fname" "agents/$fname"
 done
+
+# Install pcvJake skill files (student only)
+if [ "$MINIMAL" = false ]; then
+    echo ""
+    echo "Installing /pcvJake (toolkit-integrated PCV)..."
+    for f in "$TOOLKIT_DIR"/pcvjake/skill/*; do
+        fname=$(basename "$f")
+        install_file "$f" "$SKILLS_DIR/pcvjake/$fname" "pcvjake/$fname"
+    done
+    # pcvJake agents go to the shared agents directory
+    for f in "$TOOLKIT_DIR"/pcvjake/agents/*; do
+        fname="pcvjake-$fname"
+        install_file "$f" "$AGENTS_DIR/pcvjake-$(basename "$f")" "agents/pcvjake-$(basename "$f")"
+    done
+fi
 
 # Install config template (only if not present)
 if [ ! -f "$CONFIG_FILE" ]; then
@@ -218,14 +234,14 @@ else
     echo "Next steps:"
     echo "  1. Edit ~/.claude/toolkit-config.md with your project details"
     echo "  2. Open Claude Code in your project directory"
-    echo "  3. Type /pcv to start structured planning"
+    echo "  3. Type /pcv to start structured planning, or /pcvJake for toolkit-integrated PCV"
 fi
 echo ""
 if [ "$MINIMAL" = true ]; then
     echo "Commands installed: /pcv, /coa, /pace, /improve, /quarto, /pdftotxt"
 else
-    echo "Commands installed: /pcv, /coa, /pace, /pcv-research, /improve,"
-    echo "  /quarto, /pdftotxt, /startup, /dailysummary, /weeklysummary,"
-    echo "  /commit, /simplify"
+    echo "Commands installed: /pcv, /pcvJake, /coa, /pace, /pcv-research,"
+    echo "  /pcv-researchJake, /improve, /quarto, /pdftotxt, /startup,"
+    echo "  /dailysummary, /weeklysummary, /commit, /simplify"
 fi
 echo ""

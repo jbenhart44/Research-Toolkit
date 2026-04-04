@@ -31,7 +31,7 @@ For professors integrating AI-assisted workflows into graduate courses. Start wi
 ### Student Toolkit (`student/`)
 For PhD and MS students doing computational research. The full suite — "here's what I actually use every day."
 
-**11 commands:** Everything in the instructor toolkit plus /pcv-research (parallel planning experiments), /startup (session continuity), /dailysummary (documentation discipline), /weeklysummary (weekly aggregation), /commit (intelligent git commits), /simplify (code review).
+**13 commands:** Everything in the instructor toolkit plus /pcv-research (parallel planning experiments), /startup (session continuity), /dailysummary (documentation discipline), /weeklysummary (weekly aggregation), /commit (intelligent git commits), /simplify (code review).
 
 ---
 
@@ -62,6 +62,7 @@ Read ai-research-toolkit/student/bootstrap.md and follow the installation instru
 | **PCV-Research** | Parallel depth-first vs. breadth-first planning experiments with instrumentation | 14 runs with cross-mode convergence analysis |
 | **CoA** | Council of Agents — spawns specialists with distinct professional perspectives to analyze a question | 3 contamination tests, ECL-lite empirical validation |
 | **PACE** | Parallel Agent Consensus Engine — 4-agent (2 players + 2 coaches) verification through redundancy | 20+ verification tasks with documented convergence rates |
+| **Audit** | Verifies every citation exists on disk and every quoted number matches the source paper | Catches misquoted figures and fabricated citations before publication |
 
 ### Workflow Layer
 | Command | What it does |

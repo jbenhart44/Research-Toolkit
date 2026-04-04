@@ -27,7 +27,7 @@ The test for inclusion is: *Would a PhD student doing computational research use
 
 ## Command Inventory (v1.0)
 
-### Why 11 Commands
+### Why 13 Commands
 
 The toolkit started with 15 commands built during PhD research. Assessment:
 
@@ -38,7 +38,7 @@ The toolkit started with 15 commands built during PhD research. Assessment:
 | **Tier 3 — Content** | /quarto, /pdftotxt | Document generation — included |
 | **Excluded** | /cbb, /chunker, /dualsimrunner | Domain-specific (basketball betting, TLC data extraction, city simulation) — not generalizable |
 
-11 commands. The 12th (pcv-research) was initially omitted from Session 1 and added in Session 2 after confirming it generalizes cleanly.
+13 commands. The 12th (pcv-research) was added in Session 2 after confirming it generalizes cleanly. The 13th (audit) was added on 2026-04-03 after catching 4 numerical mismatches on a dissertation poster — citation verification became a non-negotiable capability.
 
 ### Persona-Command Mapping
 
