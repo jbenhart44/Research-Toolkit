@@ -1,15 +1,16 @@
 # AI-Assisted Research Toolkit
 
-> **By Jake Benhart & Dr. Michael G. Kay**
-> **NC State University — Operations Research**
+13 Claude Code commands that catch errors, prevent bad plans, and keep complex projects on track. Organized into verification, workflow, and content layers. Validated across 40+ production sessions.
 
-A collection of 13 Claude Code commands for structured AI-assisted research workflows. Built during a PhD in Operations Research and validated across 40+ sessions. Design rationale documented in [DESIGN.md](DESIGN.md).
+**Authors:** Jake Benhart & Dr. Michael G. Kay (NC State University — Operations Research)
+
+Design rationale documented in [DESIGN.md](DESIGN.md).
 
 ---
 
 ## What This Solves
 
-AI coding assistants are powerful but unstructured. Three recurring problems:
+AI coding assistants are powerful but unstructured. Three recurring problems when using them for complex work:
 
 1. **Verification gap** — How do you know the AI's output is correct? Especially for citations, numerical results, and analysis?
 2. **Planning gap** — Complex multi-component projects need structured planning, not ad-hoc prompting.
@@ -78,7 +79,7 @@ See [EVIDENCE.md](EVIDENCE.md) for full methodology and metrics.
 
 ## Citation
 
-If you use this toolkit in your research, please cite:
+If you use or build on this toolkit, please cite:
 
 ```bibtex
 @software{benhart_kay2026toolkit,
