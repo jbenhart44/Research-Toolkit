@@ -56,8 +56,9 @@ The toolkit started with 15 commands built during PhD research. Assessment:
 | /commit | — | Yes | Workflow |
 | /simplify | — | Yes | Workflow |
 | /pcv-research | — | Yes | Verification |
+| /audit | — | Yes | Verification |
 
-**Instructor gets 6, student gets 12.** The split logic:
+**Instructor gets 6, student gets 13.** The split logic:
 - Instructors need verification tools (teach methodology) and content tools (create materials).
 - Students also need workflow tools (build research habits: daily documentation, session continuity, clean commits).
 - `/pcv-research` is student-only because it's a research instrument for studying PCV itself — instructors who want it can upgrade with `bash install.sh`.

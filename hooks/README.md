@@ -8,6 +8,7 @@ These hooks extend the toolkit with automated safety and hygiene checks. **All h
 |------|------|---------|-----------|
 | `token_budget_guard.sh` | PreToolUse | Warns when session token usage approaches a configurable limit | Soft (ask) |
 | `summary_folder_guard.sh` | PostToolUse | Warns when date-prefixed files are written outside configured summary folders | Soft (info) |
+| `command_evidence.sh` | PostToolUse | Auto-logs pros/cons/disagreements after each command run | Silent (appends log) |
 
 ## Installation
 
@@ -17,6 +18,7 @@ These hooks extend the toolkit with automated safety and hygiene checks. **All h
 mkdir -p ~/.claude/hooks
 cp hooks/token_budget_guard.sh ~/.claude/hooks/
 cp hooks/summary_folder_guard.sh ~/.claude/hooks/
+cp hooks/command_evidence.sh ~/.claude/hooks/
 chmod +x ~/.claude/hooks/*.sh
 ```
 
@@ -49,6 +51,16 @@ Add to your project's `.claude/settings.json` (or create one):
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/command_evidence.sh",
+            "timeout": 5
+          }
+        ]
       }
     ]
   }
@@ -66,6 +78,36 @@ Create `~/.claude/token-budget.json`:
 ```
 
 Default is 500K tokens per session (~1 PACE run + 1 CoA session). Adjust based on your API plan.
+
+### 4. Create the command performance log (for command_evidence.sh)
+
+Create `evidence/command_performance_log.md` in your project root:
+
+```markdown
+# Command Performance Log
+
+Append one entry per command invocation. Each entry captures what the command produced,
+where it succeeded, where it failed, and any disagreements surfaced.
+
+**Format**: Append entries chronologically. Do NOT edit previous entries — they are immutable records.
+
+---
+
+<!-- APPEND NEW ENTRIES BELOW THIS LINE -->
+```
+
+The hook will remind the orchestrator to append entries after each `/pace`, `/coa`, `/pcv-research`, `/improve`, `/dailysummary`, `/weeklysummary`, `/quarto`, and `/coa` run. Lightweight commands (`/commit`, `/pdftotxt`, `/startup`, `/simplify`) are skipped.
+
+Each entry captures:
+- **Pros**: What the command did well
+- **Cons**: What caused friction or was suboptimal
+- **Disagreements**: Where multi-agent commands had divergence (and how it was resolved)
+- **Evidence quality**: Whether run reports and CSV rows were generated
+- **Improvement signal**: What would make the next run better
+
+Review the log periodically with `/improve --tools` or manually to spot patterns.
+
+---
 
 ## Design Principles
 

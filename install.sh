@@ -1,7 +1,7 @@
 #!/bin/bash
 # AI-Assisted Research Toolkit — Installer
 # Usage:
-#   bash install.sh               # Full student toolkit (11 commands)
+#   bash install.sh               # Full toolkit (13 commands)
 #   bash install.sh --minimal     # Instructor toolkit (6 commands)
 #   bash install.sh --hooks        # Also install optional hooks (token budget, folder guard)
 #   bash install.sh --dry-run     # Show what would be installed without copying
@@ -45,7 +45,7 @@ show_help() {
     echo "AI-Assisted Research Toolkit — Installer"
     echo ""
     echo "Usage:"
-    echo "  bash install.sh               Full student toolkit (11 commands)"
+    echo "  bash install.sh               Full toolkit (13 commands)"
     echo "  bash install.sh --minimal     Instructor toolkit (6 commands)"
     echo "  bash install.sh --dry-run     Show what would be installed without copying"
     echo "  bash install.sh --help        Show this help"
@@ -109,7 +109,7 @@ fi
 
 # Create directories
 if [ "$DRY_RUN" = true ]; then
-    for d in "$COMMANDS_DIR" "$SKILLS_DIR/pcv" "$SKILLS_DIR/pcvjake" "$AGENTS_DIR"; do
+    for d in "$COMMANDS_DIR" "$SKILLS_DIR/pcv" "$AGENTS_DIR"; do
         if [ ! -d "$d" ]; then
             print_success "Would create: $d"
         fi
@@ -117,13 +117,12 @@ if [ "$DRY_RUN" = true ]; then
 else
     mkdir -p "$COMMANDS_DIR"
     mkdir -p "$SKILLS_DIR/pcv"
-    mkdir -p "$SKILLS_DIR/pcvjake"
     mkdir -p "$AGENTS_DIR"
 fi
 
 # Define command sets
 SHARED_COMMANDS=(coa pace improve quarto pdftotxt)
-STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify pcv-research pcv-researchJake)
+STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify pcv-research audit)
 
 # Install shared commands (both products)
 echo "Installing shared commands..."
@@ -155,21 +154,6 @@ for f in "$TOOLKIT_DIR"/pcv/agents/*; do
     fname=$(basename "$f")
     install_file "$f" "$AGENTS_DIR/$fname" "agents/$fname"
 done
-
-# Install pcvJake skill files (student only)
-if [ "$MINIMAL" = false ]; then
-    echo ""
-    echo "Installing /pcvJake (toolkit-integrated PCV)..."
-    for f in "$TOOLKIT_DIR"/pcvjake/skill/*; do
-        fname=$(basename "$f")
-        install_file "$f" "$SKILLS_DIR/pcvjake/$fname" "pcvjake/$fname"
-    done
-    # pcvJake agents go to the shared agents directory
-    for f in "$TOOLKIT_DIR"/pcvjake/agents/*; do
-        fname="pcvjake-$fname"
-        install_file "$f" "$AGENTS_DIR/pcvjake-$(basename "$f")" "agents/pcvjake-$(basename "$f")"
-    done
-fi
 
 # Install config template (only if not present)
 if [ ! -f "$CONFIG_FILE" ]; then
@@ -217,7 +201,7 @@ if [ "$DRY_RUN" = true ]; then
     if [ "$MINIMAL" = true ]; then
         echo "  Instructor Toolkit dry run (6 commands + PCV)"
     else
-        echo "  Student Toolkit dry run (11 commands + PCV)"
+        echo "  Full Toolkit dry run (13 commands)"
     fi
     echo "================================================"
     echo ""
@@ -227,21 +211,21 @@ else
     if [ "$MINIMAL" = true ]; then
         echo "  Instructor Toolkit installed (6 commands + PCV)"
     else
-        echo "  Student Toolkit installed (11 commands + PCV)"
+        echo "  Full Toolkit installed (13 commands)"
     fi
     echo "================================================"
     echo ""
     echo "Next steps:"
     echo "  1. Edit ~/.claude/toolkit-config.md with your project details"
     echo "  2. Open Claude Code in your project directory"
-    echo "  3. Type /pcv to start structured planning, or /pcvJake for toolkit-integrated PCV"
+    echo "  3. Type /pcv to start structured planning"
 fi
 echo ""
 if [ "$MINIMAL" = true ]; then
     echo "Commands installed: /pcv, /coa, /pace, /improve, /quarto, /pdftotxt"
 else
-    echo "Commands installed: /pcv, /pcvJake, /coa, /pace, /pcv-research,"
-    echo "  /pcv-researchJake, /improve, /quarto, /pdftotxt, /startup,"
-    echo "  /dailysummary, /weeklysummary, /commit, /simplify"
+    echo "Commands installed: /pcv, /coa, /pace, /pcv-research, /audit,"
+    echo "  /improve, /simplify, /startup, /dailysummary, /weeklysummary,"
+    echo "  /commit, /quarto, /pdftotxt"
 fi
 echo ""
