@@ -32,7 +32,7 @@ project_type: research
 #
 # Example 1 — PhD Research Project
 # ─────────────────────────────────
-# project_name: Strategic Driver Behavior in Ride-Hailing Markets
+# project_name: Multi-Agent Simulation of Market Dynamics
 # author_name: Jane Smith
 # workstreams: [modeling, validation, writing, literature-review]
 # summary_folder: Daily Summary
