@@ -94,7 +94,9 @@ Do NOT begin subagent work until you have a complete Task Brief and Task Essence
 
 ## STEP 1: SPAWN TWO PLAYERS
 
-Spawn two Player subagents **in parallel** using the Agent tool. Give each the following instructions:
+Spawn two Player subagents **in parallel** using the Agent tool. Give each the following instructions.
+
+**CRITICAL — NO SIMULATION ALLOWED.** You (the orchestrator) MUST make two actual Agent tool calls — one for Player A, one for Player B — in the same message so they run concurrently. Do NOT "role-play" Player A and Player B by writing two outputs yourself. Do NOT write inline prose labeled "Player A would say..." and "Player B would say...". If the Agent tool is not available in this session, STOP and tell the user: "Agent tool unavailable — PACE cannot run. Fall back to single-agent work or restart the session." Single-context role-play defeats the entire point of the protocol (independent reasoning from two separate contexts) and produces convergence data that is indistinguishable from a single agent's confidence.
 
 ### Instructions for Player A:
 
@@ -156,7 +158,7 @@ Wait for both Players to complete. Label their outputs as **Output A** and **Out
 
 ## STEP 2: SPAWN TWO COACHES
 
-Spawn two Coach subagents **in parallel** using the Agent tool. Each Coach reviews ONLY their own Player's work. **Coaches MUST be spawned as independent subagents.** Do NOT have the orchestrator act as a Coach.
+Spawn two Coach subagents **in parallel** using the Agent tool. Each Coach reviews ONLY their own Player's work. **Coaches MUST be spawned as independent subagents** via two Agent tool calls in the same message. **Do NOT have the orchestrator act as a Coach** — no inline role-play, no "Coach C would say..." prose. If the Agent tool is not available, STOP and inform the user — do not attempt to simulate the coaches from the orchestrator's context.
 
 ### Instructions for Coach C (reviews Player A):
 

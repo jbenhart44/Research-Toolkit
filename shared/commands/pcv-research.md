@@ -203,9 +203,11 @@ If this session has already run 2+ PCV-Research instances or 1+ PACE runs, warn:
 
 ---
 
-## STEP 1: RUN DEPTH-FIRST INSTANCES (parallel, launched simultaneously with STEP 2)
+## STEP 1: RUN DEPTH-FIRST INSTANCES (foreground, serial)
 
-Spawn **two independent depth-first instances in parallel** using the Agent tool. These launch at the same time as the breadth-first instances in STEP 2 — all four instances run concurrently.
+**Before anything else in this step, run the pre-flight Agent-tool probe** (see BEHAVIORAL CONSTRAINTS). If the probe fails, STOP — the protocol cannot run in this session.
+
+Spawn **DF Instance 1 as a FOREGROUND Agent call** (no `run_in_background`). Wait for it to return its complete output before spawning DF Instance 2. Then spawn DF Instance 2 in the foreground and wait. Do NOT launch instances in parallel — background/parallel spawning causes the instance agents to lose Agent-tool access, and they will either refuse or silently simulate A/B/C from a single context. See BEHAVIORAL CONSTRAINTS for the full rationale.
 
 ### Instructions for Each Depth-First Instance
 
@@ -263,9 +265,9 @@ Each instance receives the charge file path and the master question list. For ea
 
 ---
 
-## STEP 2: RUN BREADTH-FIRST INSTANCES (parallel, launched simultaneously with STEP 1)
+## STEP 2: RUN BREADTH-FIRST INSTANCES (foreground, serial — after STEP 1 completes)
 
-Spawn **two independent breadth-first instances in parallel** using the Agent tool. These launch at the same time as the depth-first instances in STEP 1 — all four instances run concurrently. STEP 3 begins only after all four instances (both DF and BF) have completed.
+STEP 2 begins only after **both** DF instances from STEP 1 have returned. Spawn **BF Instance 1 as a FOREGROUND Agent call** and wait for it to return. Then spawn **BF Instance 2 in the foreground** and wait. STEP 3 begins only after all four instances (DF 1, DF 2, BF 1, BF 2) have completed serially in the foreground. Do NOT launch instances in parallel — see BEHAVIORAL CONSTRAINTS.
 
 ### Instructions for Each Breadth-First Instance
 

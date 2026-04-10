@@ -140,6 +140,8 @@ Check for activation:
 
 **Default**: Spawn all members in parallel (no DiMo).
 
+**CRITICAL — NO SIMULATION ALLOWED.** Each council member MUST be an actual Agent tool call — one tool call per seated member, launched in the same message so they run concurrently. Do NOT "role-play" council members by writing inline prose labeled "The Skeptic would say..." or "The Economist's view is...". Each member needs an independent context to produce genuinely independent analysis. If the Agent tool is not available in this session, STOP and tell the user: "Agent tool unavailable — CoA cannot run. Restart the session or direct-answer the question without the council protocol." Single-context role-play looks like a council output but is indistinguishable from a single agent's internal brainstorming.
+
 ### Per-Member Context Filtering
 
 After constructing the Question Essence, identify which referenced files or data points are most relevant to each seated member:
@@ -250,7 +252,7 @@ Include flags in Chair input. Chair weights flagged members lower.
 
 ### Spawn Chair
 
-Pass the Question Essence + anonymized extractions + quality flags to the Chair agent. The Chair produces a 7-section synthesis:
+Spawn the Chair as a separate Agent tool call with the Question Essence + anonymized extractions + quality flags. **Do NOT synthesize the Chair's output yourself** — if the orchestrator role-plays the Chair, the synthesis loses its independence from the member outputs and becomes indistinguishable from an internal summary. The Chair produces a 7-section synthesis:
 1. Convergence (what all or most members agree on)
 2. Divergence map (specific points of disagreement + root cause)
 3. Surprises (unexpected positions or agreements)
