@@ -530,14 +530,17 @@ Most recent run: [run_id] — [charge name]
   - Document/paper: 6-7 (moderate)
   - Presentation/slides: 5-6 (many independent preferences)
   - Analysis/report: 4-5 (scope and framing)
-- **Parallel execution**: DF instances 1&2 and BF instances 1&2 can ALL run in parallel. The orchestrator spawns all four instances simultaneously to minimize wall-clock time. On memory-constrained systems (<8GB RAM), users may prefer running DF and BF waves sequentially — but this is the user's choice, not the default.
-- **NEVER run PCV-Research as a single background agent.** Background agents cannot spawn sub-subagents (Agent tool calls from within a background agent produce single-agent fallback). Instead, the MAIN CONVERSATION must orchestrate the instances directly:
-  1. Main conversation generates questions and creates run directory
-  2. Main conversation spawns ALL FOUR instances (DF 1, DF 2, BF 1, BF 2) as parallel background agents simultaneously (each is a LEAF agent that does the A/B/C work internally)
-  3. Main conversation waits for all four to complete, then runs comparison
-  This ensures each instance agent has full Agent tool access for spawning A/B/C subagents.
-- **Each instance agent is self-contained.** It receives the charge + questions, internally spawns Agents A, B, and C (using the Agent tool), produces its MakePlan, and returns the complete output. The instance agent does NOT need Bash — it only needs Agent, Read, Write, Glob, Grep.
-- **Detect and report single-agent fallback.** If any instance returns without separate A and B perspectives in its output, it ran in single-agent mode. Flag this in the Step 6 report as: "WARNING: Instance [N] ran in single-agent mode. Convergence data is invalid."
+- **CRITICAL — Instances MUST run in the foreground, NOT the background.** Background-spawned agents cannot themselves spawn further subagents via the Agent tool in most Claude Code harnesses. If instances are launched with `run_in_background: true`, each instance will either (a) refuse to do the work and report a blocker, or (b) silently fall back to single-context self-role-play — producing corrupt research data that looks multi-agent but isn't. This was verified empirically on 2026-04-09 and is the primary failure mode of this skill. The orchestration pattern that actually works:
+  1. Main conversation generates questions, creates the run directory, and writes `config.md` + `questions_master.md`.
+  2. Main conversation spawns **DF Instance 1 in the foreground** (no `run_in_background`). Wait for it to return its MakePlan, convergence tags, and artifact paths.
+  3. Main conversation spawns **DF Instance 2 in the foreground**. Wait.
+  4. Main conversation spawns **BF Instance 1 in the foreground**. Wait.
+  5. Main conversation spawns **BF Instance 2 in the foreground**. Wait.
+  6. Main conversation runs Step 3 (within-mode convergence) and Step 4 (cross-mode comparison) — these can use foreground agents as well.
+  Wall-clock time is longer than the aspirational "all four in parallel" model, but it is the only way each instance agent retains the Agent-tool access it needs to spawn A/B/C as real subagents.
+- **Pre-flight Agent-tool check (MANDATORY).** Before spawning the first instance, the orchestrator MUST confirm the Agent tool is actually available to spawned agents in the current environment. Do this by spawning a **trivial foreground probe agent** with the prompt: "Reply with the single word READY and do nothing else." If this probe returns normally, proceed. If the probe fails or is unavailable, STOP and tell the user: "Agent tool unavailable in this session — PCV-Research cannot run. Restart the session or use `/pcv` directly." Do NOT attempt the protocol without this check.
+- **Detect and report single-agent fallback.** If any instance returns without separate A and B perspectives clearly visible in its output (distinct file writes for `agent_a_answers.md` and `agent_b_answers.md`, with substantively different content), it ran in single-agent self-role-play mode. Flag this in the Step 6 report as: "WARNING: Instance [N] ran in single-agent mode. Convergence data is invalid — discard this instance and re-run or reduce to available valid instances." Do NOT silently include corrupt instances in the convergence analysis.
+- **Each instance agent is self-contained but foreground.** It receives the charge + questions, internally spawns Agents A, B, and C (using the Agent tool), produces its MakePlan, and returns the complete output. The instance agent needs Agent, Read, Write, Glob, and Grep. It is launched in the foreground so its Agent-tool subagent spawns actually work.
 
 ---
 
