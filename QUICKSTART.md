@@ -35,7 +35,7 @@ After PACE completes, look at:
 - The run report file it created (path shown at the end of output)
 - The CSV index row appended to `evidence/run_log.csv`
 
-That's it. Your first evidence record exists. Every future PACE, CoA, and PCV-Research run adds to it automatically.
+That's it. Your first evidence record exists. Every future PACE and CoA run adds to it automatically.
 
 ---
 
@@ -53,7 +53,7 @@ That's it. Your first evidence record exists. Every future PACE, CoA, and PCV-Re
 1. **Start with /pace** — lowest barrier, highest immediate value (error catching)
 2. **Add /dailysummary + /startup** — session continuity (prevents "where was I?" syndrome)
 3. **Add /coa** for strategic decisions — when you face a choice with multiple valid perspectives
-4. **Add /pcv-research** for studying planning — when you want to understand how different planning strategies affect outcomes
+4. **Add /pcv** for structured planning on complex multi-component projects
 
 ---
 
@@ -73,12 +73,6 @@ Want to see how the tools perform on problems with known answers? Try these:
 ```
 *Known answer*: There is no single correct answer — this is a genuine tradeoff. A good CoA session surfaces the considerations that matter (funding timeline, advisor expectations, course prerequisites for research, etc.) without falsely converging on one side.
 
-### PCV-Research Calibration
-```
-/pcv-research plans/calibration_charge.md
-```
-Create a simple charge file with 3-4 well-scoped questions. A well-functioning PCV-Research run should produce >70% cross-mode convergence on well-specified charges.
-
 ---
 
 ## Baseline Benchmarks (from author's usage, 40+ sessions)
@@ -89,7 +83,5 @@ Create a simple charge file with 3-4 well-scoped questions. A well-functioning P
 | PACE | Error catches per run | 0.5-2.0 (higher on numerical/code tasks) |
 | CoA | Council independence | Contamination tests passed (3/3) |
 | CoA | Perspective diversity | High differentiation when personas are well-defined |
-| PCV-Research | Cross-mode convergence | 50-87% (charge quality is the dominant factor) |
-| PCV-Research | BF vs DF quality | BF produces more internally consistent plans for design tasks |
 
 These are reference points, not targets. Your results will vary based on task type and domain.

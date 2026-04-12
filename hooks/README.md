@@ -96,7 +96,7 @@ where it succeeded, where it failed, and any disagreements surfaced.
 <!-- APPEND NEW ENTRIES BELOW THIS LINE -->
 ```
 
-The hook will remind the orchestrator to append entries after each `/pace`, `/coa`, `/pcv-research`, `/improve`, `/dailysummary`, `/weeklysummary`, `/quarto`, and `/coa` run. Lightweight commands (`/commit`, `/pdftotxt`, `/startup`, `/simplify`) are skipped.
+The hook will remind the orchestrator to append entries after each `/pace`, `/coa`, `/improve`, `/dailysummary`, `/weeklysummary`, and `/quarto` run. Lightweight commands (`/commit`, `/pdftotxt`, `/startup`, `/simplify`) are skipped.
 
 Each entry captures:
 - **Pros**: What the command did well

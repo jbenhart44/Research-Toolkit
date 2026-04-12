@@ -22,7 +22,6 @@ DEFAULT_SESSION_LIMIT=500000
 declare -A COMMAND_COSTS=(
     ["pace"]=150000
     ["coa"]=100000
-    ["pcv-research"]=300000
 )
 
 # Session tracker file — in /tmp for speed, resets on reboot
@@ -114,7 +113,7 @@ if [ "$NEW_TOTAL" -gt "$SESSION_LIMIT" ]; then
   "hookSpecificOutput": {
     "hookEventName": "PreToolUse",
     "permissionDecision": "ask",
-    "permissionDecisionReason": "TOKEN BUDGET WARNING: This session has used ~${USED_K}K estimated tokens (limit: ${LIMIT_K}K). This Agent call will add more. Consider deferring expensive operations (/pace, /pcv-research) to a fresh session. Proceed anyway?"
+    "permissionDecisionReason": "TOKEN BUDGET WARNING: This session has used ~${USED_K}K estimated tokens (limit: ${LIMIT_K}K). This Agent call will add more. Consider deferring expensive operations (/pace, /coa) to a fresh session. Proceed anyway?"
   }
 }
 HOOKEOF

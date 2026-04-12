@@ -4,33 +4,6 @@ This document provides empirical evidence for the toolkit's effectiveness, drawn
 
 ---
 
-## PCV (Plan-Construct-Verify)
-
-**Source:** PCV-Research Protocol, 14 runs (March 2026)
-
-The PCV-Research protocol runs planning through parallel depth-first and breadth-first strategies (2x2 design: 2 DF instances, 2 BF instances), each using 3 agents (proposer A, proposer B, decider C), to study how AI agents navigate planning decisions.
-
-| Metric | Value | Source |
-|--------|-------|--------|
-| Total PCV-Research runs | 14 | Run logs in `plans/research_runs/` |
-| Cross-instance convergence (DF) | 42-87% full agreement | Instrumentation CSVs |
-| Cross-instance convergence (BF) | 33-94% full agreement | Instrumentation CSVs |
-| DIVERGE outcomes (DF avg) | 0-1 per run | Agent C decisions |
-| DIVERGE outcomes (BF avg) | 1-3 per run | Agent C decisions |
-
-**Key finding:** Depth-first mode produces more consistent, actionable plans for implementation-heavy charges. Breadth-first mode reveals enabling connections between questions but introduces path dependency risk. Task-type matching matters more than mode preference.
-
-**Task-type guidance (from 14-run corpus):**
-
-| Task Type | Preferred Mode | Evidence |
-|-----------|---------------|----------|
-| Well-scoped engineering | DF | Run 5: DF 87.5% vs BF 43.8% |
-| Cascading architecture | BF | Run 4: BF 93.8% vs DF 68.8% |
-| Analysis/report | Full 2+2 | Default — both modes add value |
-| Under-specified charge | Rewrite charge first | Run 8: both <50% |
-
----
-
 ## CoA (Council of Agents)
 
 **Source:** 3 contamination tests + ECL-lite scoring (March 2026)
@@ -80,11 +53,11 @@ PACE runs tasks through two independent players with coaching review, then cross
 
 ## Evidence Architecture (v1.0, 2026-03-31)
 
-Every PACE, CoA, and PCV-Research run automatically produces a structured run report with YAML frontmatter. Reports accumulate in tool-specific directories and are indexed in a central CSV for cross-tool aggregation.
+Every PACE and CoA run automatically produces a structured run report with YAML frontmatter. Reports accumulate in tool-specific directories and are indexed in a central CSV for cross-tool aggregation.
 
 **How it works:**
-1. You run `/pace`, `/coa`, or `/pcv-research` on a real task
-2. The tool does its work (verification, council analysis, or parallel planning)
+1. You run `/pace` or `/coa` on a real task
+2. The tool does its work (verification or council analysis)
 3. As its final step, it auto-generates a run report with structured metadata
 4. The report is saved to a tool-specific directory and a row is appended to `run_log.csv`
 5. Run `/improve --tools` anytime to see aggregate statistics across all runs
@@ -92,7 +65,6 @@ Every PACE, CoA, and PCV-Research run automatically produces a structured run re
 **Storage:**
 - PACE reports: `evidence/pace_runs/`
 - CoA reports: `coa/council_sessions/` (YAML frontmatter added to session files)
-- PCV-Research reports: `plans/research_runs/{run_id}/`
 - CSV index: `evidence/run_log.csv`
 
 > These paths are relative to your project's workflow directory. Create them as needed — commands will create directories automatically on first use.
@@ -103,6 +75,6 @@ Every PACE, CoA, and PCV-Research run automatically produces a structured run re
 
 ## Methodology Notes
 
-- **Same-model caveat:** All agents in PCV-Research, CoA, and PACE use the same underlying Claude model. Convergence between agents does not constitute independent validation — it indicates consistency within the model's reasoning space. Cross-model validation (via Gemini in CoA) partially addresses this.
+- **Same-model caveat:** All agents in CoA and PACE use the same underlying Claude model. Convergence between agents does not constitute independent validation — it indicates consistency within the model's reasoning space. Cross-model validation (via Gemini in CoA) partially addresses this.
 - **Token estimates:** Character count / 4 approximation. Valid for relative comparison across runs, not absolute cost measurement.
 - **Selection bias:** These metrics come from a single researcher's workflow. Generalizability to other research contexts has not been formally tested.

@@ -1,6 +1,6 @@
 # Student Toolkit
 
-The full 11-command AI-Assisted Research Toolkit. Everything I actually use in my PhD research — structured planning, verification, documentation, and workflow automation.
+The full 12-command AI-Assisted Research Toolkit. Everything I actually use in my PhD research — structured planning, verification, documentation, and workflow automation.
 
 ## Installation
 
@@ -33,7 +33,6 @@ After installation:
 ### Make a decision
 - `/coa` — Get 4-6 specialist perspectives on a research question
 - `/pace` — Verify something through parallel redundancy (two players + two coaches)
-- `/pcv-research` — Run parallel planning experiments (depth-first vs. breadth-first) with instrumentation
 
 ### Write and review
 - `/quarto` — Generate slide decks from documents

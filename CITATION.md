@@ -13,7 +13,7 @@ https://mgkay.github.io/pcv/
 
 ## Attribution
 
-This toolkit was developed by Jake Benhart and Dr. Michael G. Kay at NC State University. Kay created the Plan-Construct-Verify (PCV) methodology that serves as the toolkit's foundation. Benhart extended PCV with empirical validation (14 PCV-Research runs studying depth-first vs. breadth-first planning strategies) and built the surrounding workflow toolkit (CoA, PACE, PCV-Research, /improve, /startup, /dailysummary, /weeklysummary, /commit, /simplify, /quarto, /pdftotxt).
+This toolkit was developed by Jake Benhart and Dr. Michael G. Kay at NC State University. Kay created the Plan-Construct-Verify (PCV) methodology that serves as the toolkit's foundation. Benhart extended PCV with empirical validation during PhD research and built the surrounding workflow toolkit (CoA, PACE, /audit, /improve, /startup, /dailysummary, /weeklysummary, /commit, /simplify, /quarto, /pdftotxt).
 
 ## BibTeX
 

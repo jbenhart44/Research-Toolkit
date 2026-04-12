@@ -1,7 +1,7 @@
 #!/bin/bash
 # AI-Assisted Research Toolkit — Installer
 # Usage:
-#   bash install.sh               # Full toolkit (13 commands)
+#   bash install.sh               # Full toolkit (12 commands)
 #   bash install.sh --minimal     # Instructor toolkit (6 commands)
 #   bash install.sh --hooks        # Also install optional hooks (token budget, folder guard)
 #   bash install.sh --dry-run     # Show what would be installed without copying
@@ -45,7 +45,7 @@ show_help() {
     echo "AI-Assisted Research Toolkit — Installer"
     echo ""
     echo "Usage:"
-    echo "  bash install.sh               Full toolkit (13 commands)"
+    echo "  bash install.sh               Full toolkit (12 commands)"
     echo "  bash install.sh --minimal     Instructor toolkit (6 commands)"
     echo "  bash install.sh --dry-run     Show what would be installed without copying"
     echo "  bash install.sh --help        Show this help"
@@ -122,7 +122,7 @@ fi
 
 # Define command sets
 SHARED_COMMANDS=(coa pace improve quarto pdftotxt)
-STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify pcv-research audit)
+STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify audit)
 
 # Install shared commands (both products)
 echo "Installing shared commands..."
@@ -201,7 +201,7 @@ if [ "$DRY_RUN" = true ]; then
     if [ "$MINIMAL" = true ]; then
         echo "  Instructor Toolkit dry run (6 commands + PCV)"
     else
-        echo "  Full Toolkit dry run (13 commands)"
+        echo "  Full Toolkit dry run (12 commands)"
     fi
     echo "================================================"
     echo ""
@@ -211,7 +211,7 @@ else
     if [ "$MINIMAL" = true ]; then
         echo "  Instructor Toolkit installed (6 commands + PCV)"
     else
-        echo "  Full Toolkit installed (13 commands)"
+        echo "  Full Toolkit installed (12 commands)"
     fi
     echo "================================================"
     echo ""
@@ -224,7 +224,7 @@ echo ""
 if [ "$MINIMAL" = true ]; then
     echo "Commands installed: /pcv, /coa, /pace, /improve, /quarto, /pdftotxt"
 else
-    echo "Commands installed: /pcv, /coa, /pace, /pcv-research, /audit,"
+    echo "Commands installed: /pcv, /coa, /pace, /audit,"
     echo "  /improve, /simplify, /startup, /dailysummary, /weeklysummary,"
     echo "  /commit, /quarto, /pdftotxt"
 fi

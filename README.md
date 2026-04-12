@@ -1,6 +1,6 @@
 # AI-Assisted Research Toolkit
 
-13 Claude Code commands that catch errors, prevent bad plans, and keep complex projects on track. Organized into verification, workflow, and content layers. Validated across 40+ production sessions.
+12 Claude Code commands that catch errors, prevent bad plans, and keep complex projects on track. Organized into verification, workflow, and content layers. Validated across 40+ production sessions.
 
 **Authors:** Jake Benhart & Dr. Michael G. Kay (NC State University — Operations Research)
 
@@ -48,7 +48,6 @@ project_type: research
 | Command | What it does |
 |---------|-------------|
 | **/pcv** | Plan-Construct-Verify — structured planning with clarification, adversarial review, and human approval gates |
-| **/pcv-research** | Parallel depth-first vs. breadth-first planning experiments with instrumentation |
 | **/coa** | Council of Agents — spawns specialists with distinct professional perspectives to analyze a question |
 | **/pace** | Parallel Agent Consensus Engine — two independent players + two coaches + cross-reviewer |
 | **/audit** | Verifies every citation exists on disk and every quoted number matches the source paper |

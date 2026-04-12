@@ -27,18 +27,18 @@ The test for inclusion is: *Would a PhD student doing computational research use
 
 ## Command Inventory (v1.0)
 
-### Why 13 Commands
+### Why 12 Commands
 
 The toolkit started with 15 commands built during PhD research. Assessment:
 
 | Tier | Commands | Disposition |
 |------|----------|-------------|
-| **Tier 1 — Showcase** | /pcv, /coa, /pace, /pcv-research, /improve, /simplify | Core methodology — included |
+| **Tier 1 — Showcase** | /pcv, /coa, /pace, /improve, /simplify | Core methodology — included |
 | **Tier 2 — Workflow** | /startup, /dailysummary, /weeklysummary, /commit | Daily-use productivity — included |
 | **Tier 3 — Content** | /quarto, /pdftotxt | Document generation — included |
-| **Excluded** | 3 domain-specific commands | Not generalizable beyond the original research context |
+| **Excluded** | 4 domain-specific commands | Not generalizable beyond the original research context |
 
-13 commands. The 12th (pcv-research) was added in Session 2 after confirming it generalizes cleanly. The 13th (audit) was added on 2026-04-03 after catching 4 numerical mismatches on a dissertation poster — citation verification became a non-negotiable capability.
+12 commands. The 12th (audit) was added on 2026-04-03 after catching 4 numerical mismatches on a dissertation poster — citation verification became a non-negotiable capability. A research instrument (/pcv-research) was previously bundled but was removed on 2026-04-10 after empirical testing revealed its hierarchical subagent spawning architecture is incompatible with Claude Code's tool model; it is held back pending further redesign and is no longer shipped.
 
 ### Persona-Command Mapping
 
@@ -55,13 +55,11 @@ The toolkit started with 15 commands built during PhD research. Assessment:
 | /weeklysummary | — | Yes | Workflow |
 | /commit | — | Yes | Workflow |
 | /simplify | — | Yes | Workflow |
-| /pcv-research | — | Yes | Verification |
 | /audit | — | Yes | Verification |
 
-**Instructor gets 6, student gets 13.** The split logic:
+**Instructor gets 6, student gets 12.** The split logic:
 - Instructors need verification tools (teach methodology) and content tools (create materials).
 - Students also need workflow tools (build research habits: daily documentation, session continuity, clean commits).
-- `/pcv-research` is student-only because it's a research instrument for studying PCV itself — instructors who want it can upgrade with `bash install.sh`.
 
 ---
 
@@ -117,7 +115,6 @@ Each command was generalized from a project-specific version. Here's what was in
 | `/startup` | Multi-directory summary scanning, priority rules, MCP monitoring | Config-driven: reads `workstreams` and `summary_folder` from toolkit-config.md. |
 | `/dailysummary` | Parameter-specific numerical verification, incident documentation | Generic numerical accuracy check preserved. Sonnet fallback added. |
 | `/commit` | Project folder categorization (project-specific folder names) | Uses git diff to infer structure. No hardcoded folder names needed. |
-| `/pcv-research` | RAM check, language-specific process monitoring, project-specific purpose framing | Generic "research instrument" framing. Process check simplified to `free -h`. |
 | `/quarto` | NC State theme references | BYOT architecture. Theme is a user-provided SCSS file, not bundled. |
 | `/pdftotxt` | Hardcoded `/tmp/` path | Cross-platform temp path via Python `tempfile`. |
 
@@ -174,7 +171,7 @@ ai-research-toolkit/                     Total: 33 files
 ├── shared/commands/                     11 generalized commands
 │   ├── coa.md                           Council of Agents
 │   ├── pace.md                          Parallel Agent Consensus
-│   ├── pcv-research.md                  PCV Research Protocol
+│   ├── audit.md                         Citation & numerical audit
 │   ├── improve.md                       Infrastructure scanner
 │   ├── simplify.md                      Code review
 │   ├── startup.md                       Session briefing

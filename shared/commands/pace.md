@@ -108,7 +108,7 @@ A real PACE run MUST write each agent's output as a separate file so the run is 
 
 ### Rationale
 
-Historical PACE runs (pre-2026-04-10) wrote only a summary `run_report.md` with narrative descriptions of what Players A and B said. This made it impossible to mechanically verify that two distinct subagents actually spawned vs the orchestrator role-playing both. On 2026-04-09 an audit of sibling commands (`/pcv-research`) found that recent runs had silently collapsed multi-agent outputs into single context role-play. This file manifest is the structural check that forces each agent's output to exist as independent evidence.
+Historical PACE runs (pre-2026-04-10) wrote only a summary `run_report.md` with narrative descriptions of what Players A and B said. This made it impossible to mechanically verify that two distinct subagents actually spawned vs the orchestrator role-playing both. On 2026-04-09 an audit of sibling multi-agent commands found that recent runs had silently collapsed multi-agent outputs into single context role-play. This file manifest is the structural check that forces each agent's output to exist as independent evidence.
 
 ---
 
@@ -448,7 +448,7 @@ fallback_detected: false
 
 ### 8b.4: Why this step exists
 
-On 2026-04-09 a retrospective audit found that ~30 historical PCV-Research runs had structural signs of single-context fallback despite claiming multi-agent output. PACE is vulnerable to the same failure mode because its Step 1 prompts the orchestrator to "spawn two Players" — a sloppy orchestrator can interpret this as "write two outputs inline" without making real Agent tool calls. The SELF-AUDIT step blocks that failure from reaching the run report.
+On 2026-04-09 a retrospective audit found that ~30 historical multi-agent runs had structural signs of single-context fallback despite claiming multi-agent output. PACE is vulnerable to the same failure mode because its Step 1 prompts the orchestrator to "spawn two Players" — a sloppy orchestrator can interpret this as "write two outputs inline" without making real Agent tool calls. The SELF-AUDIT step blocks that failure from reaching the run report.
 
 ---
 

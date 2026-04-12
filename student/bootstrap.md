@@ -5,10 +5,10 @@
 
 ## What This File Does
 
-When you give this file to Claude Code, it installs the full 11-command
-research toolkit: structured planning (PCV, PCV-Research), verification
-(CoA, PACE), workflow automation (startup, dailysummary, weeklysummary,
-commit, simplify, improve), and content generation (quarto, pdftotxt).
+When you give this file to Claude Code, it installs the full 12-command
+research toolkit: structured planning (PCV), verification (CoA, PACE, audit),
+workflow automation (startup, dailysummary, weeklysummary, commit, simplify,
+improve), and content generation (quarto, pdftotxt).
 
 ## How to Install
 
@@ -37,10 +37,10 @@ resolving from this file's location (go up one directory from `student/`).
 Copy each `.md` file from `ai-research-toolkit/shared/commands/` to
 `~/.claude/commands/`. Use the Read and Write tools (not shell cp).
 
-Files to install (12 total):
+Files to install (11 total — /pcv is installed as a skill, see Step 3):
 - coa.md
 - pace.md
-- pcv-research.md
+- audit.md
 - improve.md
 - startup.md
 - dailysummary.md
@@ -83,7 +83,7 @@ command files are present.
 
 > **AI-Assisted Research Toolkit installed.**
 >
-> **11 commands** installed to `~/.claude/commands/`
+> **12 commands** installed (/pcv as skill + 11 as command files)
 > **PCV v3.9** installed to `~/.claude/skills/pcv/`
 > **4 PCV agents** installed to `~/.claude/agents/`
 >

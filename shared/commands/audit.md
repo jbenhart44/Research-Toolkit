@@ -93,4 +93,4 @@ If all verified:
 ## When to Run
 - Before printing any poster or submitting any paper
 - After any session where cited numbers were written or modified
-- After any PACE or PCV-Research run that produces numerical content
+- After any PACE run that produces numerical content
