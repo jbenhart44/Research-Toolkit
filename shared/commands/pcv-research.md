@@ -203,133 +203,183 @@ If this session has already run 2+ PCV-Research instances or 1+ PACE runs, warn:
 
 ---
 
-## STEP 1: RUN DEPTH-FIRST INSTANCES (foreground, serial)
+## REQUIRED FILE MANIFEST — THE EVIDENCE BAR
 
-**Before anything else in this step, run the pre-flight Agent-tool probe** (see BEHAVIORAL CONSTRAINTS). If the probe fails, STOP — the protocol cannot run in this session.
+A real PCV-Research run MUST produce the following artifacts. This manifest is the evidence bar — the SELF-AUDIT step (after Step 5) mechanically checks for these files. Any run missing required artifacts is flagged as invalid, regardless of what the instance agents claim.
 
-Spawn **DF Instance 1 as a FOREGROUND Agent call** (no `run_in_background`). Wait for it to return its complete output before spawning DF Instance 2. Then spawn DF Instance 2 in the foreground and wait. Do NOT launch instances in parallel — background/parallel spawning causes the instance agents to lose Agent-tool access, and they will either refuse or silently simulate A/B/C from a single context. See BEHAVIORAL CONSTRAINTS for the full rationale.
+### Per-instance DEPTH-FIRST requirements
 
-### Instructions for Each Depth-First Instance
+For each depth-first instance directory (`plans/research_runs/{run_id}/depth_first/instance_{N}/`), these files MUST exist as **separate files**:
+- `agent_a_answers.md` — Agent A's complete answer set across all questions (non-empty, >500 bytes)
+- `agent_b_answers.md` — Agent B's complete answer set (non-empty, >500 bytes, content hash MUST differ from Agent A's)
+- `agent_c_decisions.md` — Agent C's resolved decisions with convergence tags (non-empty, >500 bytes)
+- `make_plan.md` — The final MakePlan for this instance
 
-Each instance receives the charge file path and the master question list. For each instance, the agent must:
+**PROHIBITED**: A single combined file like `agent_answers_and_plan.md` containing interleaved A/B/C content. This pattern indicates the orchestrator collapsed the three agent contexts into one — a single-context fallback. The SELF-AUDIT will reject the run if this file exists.
 
-1. **Read the charge file** from disk.
-2. **Read the master question list** from disk.
-3. **For each question**, spawn Agent A and Agent B **in parallel**:
+### Per-instance BREADTH-FIRST requirements
 
-   **Agent A prompt:**
-   > You are Agent A (Proposer) in a PCV Research experiment. You are answering a planning clarification question for the project described in the charge file.
-   >
-   > **Charge file contents:** [insert charge content]
-   >
-   > **Question [N] of [total]:** [question text]
-   >
-   > **Context:** [brief context for why this question matters, from the question list]
-   >
-   > Answer this question as if you were the human project owner making a strategic decision. Be specific and decisive — do not hedge. Explain your reasoning in 2-4 sentences, then state your answer clearly.
-   >
-   > You are working independently. You will NOT see Agent B's answer.
+For each breadth-first instance directory, the `rounds/` subdirectory MUST contain, for each question N in 1..Q:
+- `q{N}_proposals.md` — containing **both** an `## Agent A` section and an `## Agent B` section with distinct content
+- `q{N}_decision.md` — Agent C's resolution for question N with convergence tag
 
-   **Agent B prompt:**
-   > [Same as Agent A, but:]
-   > You are Agent B (Proposer). You are working independently. You will NOT see Agent A's answer.
-   >
-   > **APPROACH DIFFERENTLY:** Before answering, consider at least one alternative interpretation or answer. If the alternative is clearly inferior, use the standard answer — but document why you rejected the alternative. Your value comes from offering a different perspective.
+And at the top level:
+- `make_plan.md` — the final MakePlan derived from accumulated decisions
 
-4. **After ALL questions are answered by both A and B**, spawn Agent C:
+### Instrumentation CSV requirements
 
-   **Agent C prompt (depth-first):**
-   > You are Agent C (Decider) in a PCV Research experiment. Two independent agents answered [N] planning clarification questions for a project. Your job is to review their paired answers and produce a single resolved answer for each question.
-   >
-   > **Charge file contents:** [insert charge content]
-   >
-   > **For each question, you receive:**
-   > - The question text
-   > - Agent A's answer
-   > - Agent B's answer
-   >
-   > [Insert all Q&A pairs]
-   >
-   > **For each question, produce:**
-   > 1. Your resolved answer (may agree with A, B, a synthesis, or your own different answer)
-   > 2. Brief reasoning (which agent was stronger and why, or why you chose differently)
-   > 3. Convergence tag: AGREE (A and B said essentially the same thing), DIVERGE (meaningfully different answers), or PARTIAL (some overlap, some difference)
+The top-level `instrumentation.csv` MUST contain, at a minimum, one row **per agent invocation** — NOT a single rollup row per instance. Rows with `agent_role` equal to `all_roles`, `all_agents`, or `full_instance` are evidence of fallback and will be flagged. The minimum expected row count is:
+- **Depth-first instance**: 3 rows per question (A propose, B propose, C decide) × Q questions + 1 row per MakePlan draft
+- **Breadth-first instance**: Same formula, but rows are written per-question as they complete
 
-5. **Draft the MakePlan** using Agent C's resolved answers, following PCV v3.9 MakePlan structure (P5).
+### Rationale
 
-6. **Save all artifacts** to the instance directory.
-
-7. **Return**: the MakePlan content, Agent C's convergence tags, and a summary of decisions made.
-
-**Log each agent invocation to instrumentation.csv** with timestamp, estimated tokens, and wall clock time.
+These requirements exist because **on 2026-04-09 an audit of ~65 historical runs found that ~35 had the correct file structure but every recent April run (Apr 6–8) had collapsed the A/B/C files into a single `agent_answers_and_plan.md`**, indicating the orchestrator silently fell back to single-context role-play. The resulting runs produced convergence data that looked valid but contained no independent reasoning. The file manifest above is the structural check that blocks this failure mode.
 
 ---
 
-## STEP 2: RUN BREADTH-FIRST INSTANCES (foreground, serial — after STEP 1 completes)
+## STEP 1: RUN DEPTH-FIRST INSTANCES (flat architecture — main conversation spawns all leaf agents)
 
-STEP 2 begins only after **both** DF instances from STEP 1 have returned. Spawn **BF Instance 1 as a FOREGROUND Agent call** and wait for it to return. Then spawn **BF Instance 2 in the foreground** and wait. STEP 3 begins only after all four instances (DF 1, DF 2, BF 1, BF 2) have completed serially in the foreground. Do NOT launch instances in parallel — see BEHAVIORAL CONSTRAINTS.
+**ARCHITECTURE FIX (2026-04-10)**: Verified empirically that spawned agents in Claude Code have a reduced tool set and **cannot** themselves invoke the `Agent`/`Task` tool to spawn sub-subagents. This means the previous hierarchical design (main → 4 instance agents → 12 A/B/C sub-subagents) is structurally impossible: the instance agents would either refuse the work or silently fall back to single-context role-play. The correct design is **flat**: the main conversation is the direct orchestrator of every leaf agent.
 
-### Instructions for Each Breadth-First Instance
+**Before anything else, run the pre-flight Agent-tool probe** (see BEHAVIORAL CONSTRAINTS). If the probe fails, STOP — the protocol cannot run in this session.
 
-Each instance receives the charge file path and the master question list. The key difference from depth-first: **questions are answered one at a time, and all agents see previous resolutions.**
+### The 12-Agent Flat Architecture (for full 2+2 run)
 
-For each instance, the agent must:
+A full PCV-Research run spawns **12 leaf agents directly from the main conversation**, grouped logically into 4 "instances" by output directory:
 
-1. **Read the charge file** from disk.
-2. **Read the master question list** from disk.
-3. **Initialize a shared context accumulator**: starts empty, grows with each resolved answer.
-4. **For each question IN ORDER:**
+| Instance | Agents | Output directory |
+|---|---|---|
+| DF Instance 1 | Agent A1 + Agent B1 + Agent C1 | `depth_first/instance_1/` |
+| DF Instance 2 | Agent A2 + Agent B2 + Agent C2 | `depth_first/instance_2/` |
+| BF Instance 1 | Agent A3 + Agent B3 + Agent C3 (per-round) | `breadth_first/instance_1/` |
+| BF Instance 2 | Agent A4 + Agent B4 + Agent C4 (per-round) | `breadth_first/instance_2/` |
 
-   a. Spawn Agent A and Agent B **in parallel**:
+There is no "instance orchestrator" layer. The main conversation spawns all 12 leaves directly. DF instances run in parallel. BF instances run per-round (because later rounds depend on earlier Agent C resolutions) but both BF instances can run their per-round waves in parallel.
 
-   **Agent A prompt:**
-   > You are Agent A (Proposer) in a PCV Research experiment (breadth-first mode).
+### DF Execution Sequence
+
+**Phase 1 — Proposers (4 parallel Agent calls in one message)**:
+The main conversation spawns Agent A1, Agent B1, Agent A2, Agent B2 **all in the same message** so they run concurrently. Each receives the charge file path + the master question list + a brief describing which instance they belong to.
+
+   **Agent A prompt (for all A agents, A1 and A2)**:
+   > You are Agent A (Proposer) in a PCV Research experiment, depth-first mode, Instance {N}. Answer ALL clarification questions in the master question list for the project in the charge file.
    >
-   > **Charge file contents:** [insert charge content]
+   > Read the charge file at: `{absolute charge path}`.
+   > Read the master questions at: `{absolute questions_master.md path}`.
    >
-   > **Previously resolved answers:**
-   > [Insert all prior Q&A resolutions from Agent C, or "None yet" if Q1]
+   > For each question, provide:
+   > - 2-4 sentences of reasoning
+   > - A specific, decisive answer (do not hedge)
    >
-   > **Current Question [N] of [total]:** [question text]
+   > Answer as if you were the human project owner making strategic decisions. Output in markdown with `## Q1`, `## Q2`, ... headers. Return the complete answer set.
    >
-   > **Context:** [why this question matters]
+   > You are working independently. You will NOT see Agent B's answer.
+   >
+   > **Write your complete answer set** to the file at `{absolute path}/depth_first/instance_{N}/agent_a_answers.md` using the Write tool before returning.
+
+   **Agent B prompt (for all B agents, B1 and B2)**: Same as Agent A, but:
+   > You are Agent B (Proposer), Instance {N}. You are working independently. You will NOT see Agent A's answer.
+   >
+   > **APPROACH DIFFERENTLY:** Before answering each question, commit to at least one alternative framing or answer. If the alternative is clearly inferior, use the standard answer — but document why you rejected the alternative. Your value comes from offering a different perspective.
+   >
+   > **Write your complete answer set** to `{absolute path}/depth_first/instance_{N}/agent_b_answers.md` before returning.
+
+Wait for all 4 Proposer agents to return. Verify all 4 files exist and have distinct content hashes before proceeding.
+
+**Phase 2 — Deciders (2 parallel Agent calls in one message)**:
+After all 4 Proposer files are on disk, the main conversation spawns Agent C1 and Agent C2 **in the same message**. Each Agent C reads the charge + its instance's A and B answer files.
+
+   **Agent C prompt (for C1 and C2)**:
+   > You are Agent C (Decider) in a PCV Research experiment, depth-first mode, Instance {N}. Two independent agents (A{N} and B{N}) answered the planning clarification questions for the charge. Your job is to review their paired answers and produce a single resolved answer for each question.
+   >
+   > Read the charge file at `{absolute charge path}`.
+   > Read Agent A's answers at `{absolute path}/depth_first/instance_{N}/agent_a_answers.md`.
+   > Read Agent B's answers at `{absolute path}/depth_first/instance_{N}/agent_b_answers.md`.
+   >
+   > For each question, produce:
+   > 1. **Resolved answer** (may agree with A, B, a synthesis, or your own different answer)
+   > 2. **Reasoning** (which agent was stronger and why, or why you chose differently)
+   > 3. **Convergence tag**: AGREE (A and B said essentially the same thing), DIVERGE (meaningfully different answers), or PARTIAL (some overlap, some difference)
+   >
+   > Output in markdown with `## Q1 — [tag]`, `## Q2 — [tag]`, ... headers.
+   >
+   > **Write your resolved decisions** to `{absolute path}/depth_first/instance_{N}/agent_c_decisions.md` before returning.
+
+Wait for both Agent C's to return. Verify both decision files exist.
+
+**Phase 3 — MakePlan synthesis (done inline by the main conversation)**:
+For each instance, the main conversation reads `agent_c_decisions.md` and writes a short MakePlan derived from Agent C's resolved answers to `{instance_dir}/make_plan.md`. This is a mechanical synthesis (no LLM judgment required beyond formatting), so it does NOT need to be a separate Agent call. The main conversation handles it directly.
+
+**Log each Agent tool call to `instrumentation.csv`** with one row per call: run_id, mode, instance, step, agent_role (proposer_a / proposer_b / decider_c), prompt_chars, completion_chars, wall_clock_ms. A full DF run produces **6 rows** (A1, B1, A2, B2, C1, C2). A run with fewer than 6 rows failed — the auditor will flag it.
+
+### What MUST NOT happen
+
+- The main conversation MUST NOT spawn "instance orchestrator" agents that themselves try to spawn A/B/C. That architecture was removed on 2026-04-10 because spawned agents in Claude Code cannot spawn sub-subagents.
+- The main conversation MUST NOT write `agent_a_answers.md` or `agent_b_answers.md` itself from its own reasoning. Every per-agent file must be written by a real Agent tool call whose response is saved to that file path.
+- If the Agent tool is unavailable at the main conversation level (e.g., pre-flight probe fails), STOP. Do not attempt partial work.
+
+---
+
+## STEP 2: RUN BREADTH-FIRST INSTANCES (flat architecture — begins after STEP 1 completes)
+
+STEP 2 begins only after all DF artifacts from STEP 1 are written and verified on disk. BF runs in a flat architecture like DF: the main conversation spawns all leaf agents directly. The difference is that BF is **sequential per-round** — later rounds depend on the Agent C resolution from earlier rounds — so each question round runs after the previous one completes. Within a round, both BF instances' A and B proposers can run in parallel (4 concurrent Agent calls).
+
+### BF Execution Sequence (per question N, for N = 1 to Q)
+
+For each question in order:
+
+**Round Phase 1 — Proposers for this question (4 parallel Agent calls)**:
+Spawn 4 Agent calls in one message: B-Instance-1 Agent A, B-Instance-1 Agent B, B-Instance-2 Agent A, B-Instance-2 Agent B. Each receives the charge + question text + **the accumulated prior resolutions from earlier rounds in its own instance** (each instance accumulates its own history independently).
+
+   **Agent A prompt (BF, per-question)**:
+   > You are Agent A (Proposer) in a PCV Research experiment, breadth-first mode, Instance {N}.
+   >
+   > Read the charge file at `{absolute charge path}`.
+   > Read the accumulated prior resolutions from your instance: {list of files in `breadth_first/instance_{N}/rounds/q1_decision.md` through `q{current-1}_decision.md`}, or "None — this is Q1".
+   >
+   > **Current question**: {question text from questions_master.md for question {current}}
    >
    > Answer this question considering the previously resolved answers. Be specific and decisive. Explain reasoning in 2-4 sentences, then state your answer clearly.
+   >
+   > Return your answer as a markdown block starting with `### Agent A` — do NOT write any files.
 
-   **Agent B prompt:**
-   > [Same structure as Agent A, plus the APPROACH DIFFERENTLY instruction from depth-first]
+   **Agent B prompt (BF)**: Same structure plus APPROACH DIFFERENTLY instruction.
 
-   b. **Spawn Agent C** with both proposals:
+After both A and B return, the main conversation writes a combined `breadth_first/instance_{N}/rounds/q{current}_proposals.md` file containing BOTH agent outputs as separate `## Agent A` and `## Agent B` sections (this file format is required by the BF auditor).
 
-   **Agent C prompt (breadth-first, per-question):**
-   > You are Agent C (Decider) in a PCV Research experiment (breadth-first mode).
+**Round Phase 2 — Deciders for this question (2 parallel Agent calls, one per BF instance)**:
+Spawn Agent C1 (for BF Instance 1) and Agent C2 (for BF Instance 2) in the same message. Each receives the charge + prior resolutions from its own instance + the current question's proposals.
+
+   **Agent C prompt (BF, per-question)**:
+   > You are Agent C (Decider) in a PCV Research experiment, breadth-first mode, Instance {N}.
    >
-   > **Charge file contents:** [insert charge content]
-   >
-   > **Previously resolved answers:**
-   > [Insert all prior resolutions]
-   >
-   > **Current Question [N]:** [question text]
-   >
-   > **Agent A proposes:** [A's answer]
-   > **Agent B proposes:** [B's answer]
+   > Read the charge at `{absolute charge path}`.
+   > Read prior resolutions at `{absolute path}/breadth_first/instance_{N}/rounds/q{1..current-1}_decision.md`.
+   > Read the current question's proposals at `{absolute path}/breadth_first/instance_{N}/rounds/q{current}_proposals.md`.
    >
    > Produce:
-   > 1. Your resolved answer
-   > 2. Brief reasoning
-   > 3. Convergence tag: AGREE / DIVERGE / PARTIAL
+   > 1. **Resolved answer**
+   > 2. **Reasoning**
+   > 3. **Convergence tag**: AGREE / DIVERGE / PARTIAL
+   >
+   > **Write your decision** to `{absolute path}/breadth_first/instance_{N}/rounds/q{current}_decision.md` before returning.
 
-   c. **Add Agent C's resolution to the shared context accumulator.**
+After both C's return, verify their decision files exist. Move on to the next question round.
 
-   d. **Save the round artifacts** to `rounds/qN_proposals.md` and `rounds/qN_decision.md`.
+**MakePlan synthesis (after all Q rounds complete)**:
+For each BF instance, the main conversation reads all `q{1..Q}_decision.md` files and writes a short `breadth_first/instance_{N}/make_plan.md` derived from the accumulated resolutions. As in DF, this synthesis step is done inline by the main conversation.
 
-5. **Draft the MakePlan** from the accumulated resolutions, following PCV v3.9 MakePlan structure.
+**Total agent calls for a full DF+BF run**:
+- DF Phase 1: 4 proposer calls
+- DF Phase 2: 2 decider calls
+- BF Phase 1 per round: 4 proposer calls × Q questions = 4Q calls
+- BF Phase 2 per round: 2 decider calls × Q questions = 2Q calls
+- **Grand total**: 6 + 6Q agent calls for full 2+2 with Q questions
 
-6. **Save all artifacts** to the instance directory.
+For a 7-question charge that's **6 + 42 = 48 Agent tool calls** in total, all from the main conversation. For a cheap DF-only run with 3 questions that's just 6 calls.
 
-7. **Return**: the MakePlan content, per-question convergence tags, and summary.
-
-**Log each agent invocation to instrumentation.csv.**
+**Log each Agent tool call to `instrumentation.csv`**. Expected row count: 6 + 6Q for full 2+2, or 6 for DF-only.
 
 ---
 
@@ -460,6 +510,50 @@ After generating the instrumentation summary, create a consolidated Performance 
 
 ---
 
+## STEP 5c: SELF-AUDIT (MANDATORY — DO NOT SKIP)
+
+**Before reporting to the human, the orchestrator MUST run the file-manifest audit on its own output.** This is a mechanical check — no LLM judgment involved. It verifies the run actually produced the required artifacts and catches single-context fallback cases where the run looks complete but violates the FILE MANIFEST.
+
+### 5c.1: Run the auditor
+
+If an `audit_run_evidence.sh` script exists under `scripts/` in the project root, invoke it on the run directory:
+
+```bash
+bash scripts/audit_run_evidence.sh "plans/research_runs/{run_id}"
+```
+
+The script reads the filesystem and classifies the run as one of:
+- `verified_real` — all required files exist, are non-trivial, and have distinct content hashes
+- `suspicious` — file structure is correct but instrumentation is incomplete or missing
+- `fallback` — collapsed files detected (e.g., `agent_answers_and_plan.md`) or identical content hashes
+- `unverifiable` — required files are missing or too small
+
+If the auditor script does not exist, the orchestrator performs the equivalent checks inline by reading the expected file paths and computing SHA-256 hashes on the per-agent files.
+
+### 5c.2: Interpret the verdict
+
+| Verdict | What the orchestrator does |
+|---------|---------------------------|
+| `verified_real` | Proceed to Step 6. The run is trusted. |
+| `suspicious` | Proceed to Step 6 BUT prepend a WARNING block to the human report naming the missing instrumentation. Convergence data may be valid but cannot be mechanically confirmed. |
+| `fallback` | **STOP. Do NOT produce a normal human report.** Instead, write a FAILURE report naming the run directory, quoting the auditor's reason, and telling the user: "This run did not actually spawn independent subagents — the results are a single context's role-play, not real multi-agent reasoning. Recommend re-running in a session where the Agent tool is available." Mark the run report frontmatter as `outcome: failed` and `fallback_detected: true`. |
+| `unverifiable` | **STOP.** Write a failure report naming which artifacts are missing and recommend either re-running or investigating why the instance agents didn't write the expected files. |
+
+### 5c.3: Record the verdict in the run report
+
+Add these fields to the run report YAML frontmatter (Step 5b output):
+```yaml
+self_audit_verdict: "verified_real"  # or suspicious|fallback|unverifiable
+self_audit_reason: "..."              # copy from auditor output
+fallback_detected: false              # true if verdict is fallback
+```
+
+### 5c.4: Why this step exists
+
+On 2026-04-09 a live test of this command detected that background-spawned instances either refuse to do the work or silently fall back to single-context role-play. The "silent fallback" case produced output that looked structurally valid but contained zero independent agent reasoning. This SELF-AUDIT step blocks that failure from propagating into downstream analysis — it is a **mandatory gate** between the orchestrator's claim of success and the human-facing report.
+
+---
+
 ## STEP 6: REPORT TO HUMAN
 
 Present to the user:
@@ -532,17 +626,10 @@ Most recent run: [run_id] — [charge name]
   - Document/paper: 6-7 (moderate)
   - Presentation/slides: 5-6 (many independent preferences)
   - Analysis/report: 4-5 (scope and framing)
-- **CRITICAL — Instances MUST run in the foreground, NOT the background.** Background-spawned agents cannot themselves spawn further subagents via the Agent tool in most Claude Code harnesses. If instances are launched with `run_in_background: true`, each instance will either (a) refuse to do the work and report a blocker, or (b) silently fall back to single-context self-role-play — producing corrupt research data that looks multi-agent but isn't. This was verified empirically on 2026-04-09 and is the primary failure mode of this skill. The orchestration pattern that actually works:
-  1. Main conversation generates questions, creates the run directory, and writes `config.md` + `questions_master.md`.
-  2. Main conversation spawns **DF Instance 1 in the foreground** (no `run_in_background`). Wait for it to return its MakePlan, convergence tags, and artifact paths.
-  3. Main conversation spawns **DF Instance 2 in the foreground**. Wait.
-  4. Main conversation spawns **BF Instance 1 in the foreground**. Wait.
-  5. Main conversation spawns **BF Instance 2 in the foreground**. Wait.
-  6. Main conversation runs Step 3 (within-mode convergence) and Step 4 (cross-mode comparison) — these can use foreground agents as well.
-  Wall-clock time is longer than the aspirational "all four in parallel" model, but it is the only way each instance agent retains the Agent-tool access it needs to spawn A/B/C as real subagents.
-- **Pre-flight Agent-tool check (MANDATORY).** Before spawning the first instance, the orchestrator MUST confirm the Agent tool is actually available to spawned agents in the current environment. Do this by spawning a **trivial foreground probe agent** with the prompt: "Reply with the single word READY and do nothing else." If this probe returns normally, proceed. If the probe fails or is unavailable, STOP and tell the user: "Agent tool unavailable in this session — PCV-Research cannot run. Restart the session or use `/pcv` directly." Do NOT attempt the protocol without this check.
-- **Detect and report single-agent fallback.** If any instance returns without separate A and B perspectives clearly visible in its output (distinct file writes for `agent_a_answers.md` and `agent_b_answers.md`, with substantively different content), it ran in single-agent self-role-play mode. Flag this in the Step 6 report as: "WARNING: Instance [N] ran in single-agent mode. Convergence data is invalid — discard this instance and re-run or reduce to available valid instances." Do NOT silently include corrupt instances in the convergence analysis.
-- **Each instance agent is self-contained but foreground.** It receives the charge + questions, internally spawns Agents A, B, and C (using the Agent tool), produces its MakePlan, and returns the complete output. The instance agent needs Agent, Read, Write, Glob, and Grep. It is launched in the foreground so its Agent-tool subagent spawns actually work.
+- **CRITICAL — Use the FLAT architecture. The main conversation is the only orchestrator.** Spawned agents in Claude Code do NOT have access to the Agent/Task tool — their tool set is limited to Bash, Read, Write, Edit, Glob, Grep, Skill, ToolSearch. This means any hierarchical design (main → instance agents → sub-subagents) is structurally impossible: the instance agents would either refuse the work or silently fall back to single-context role-play. Verified empirically on 2026-04-10 when a probe spawned agent explicitly reported its tool set contains no Agent tool. The only architecture that works is: main conversation spawns all leaf agents directly (see STEP 1 for the full flat sequence). There is NO "instance orchestrator" agent — only leaf agents. "Instance 1" and "Instance 2" are directory groupings, not agent hierarchies. All proposer agents in one phase run in parallel in a single message; all decider agents in the next phase run in parallel in a single message.
+- **Pre-flight Agent-tool probe (MANDATORY).** Before spawning any agents, the main conversation spawns a **trivial probe agent** with the prompt: "Reply with the single word READY and do nothing else." If this probe returns normally, the main conversation confirms Agent tool availability at its own level and proceeds. If the probe fails, STOP and tell the user: "Agent tool unavailable at the main conversation level — PCV-Research cannot run. Restart the session." The probe only tests main-conversation Agent access; sub-subagent spawning is NOT tested because we know it's impossible and the architecture no longer requires it.
+- **Detect and report single-agent fallback.** If any expected leaf agent file is missing after its Agent call returns, or if `agent_a_answers.md` and `agent_b_answers.md` for the same instance have identical SHA-256 hashes, or if a collapsed `agent_answers_and_plan.md` file is found, the run is corrupt. Flag in Step 6 as: "WARNING: Instance [N] has corrupt artifacts. Convergence data is invalid — discarding." Do NOT silently include corrupt instances.
+- **Each leaf agent writes its own file.** Proposer agents (A, B) are given an absolute output file path in their prompt and MUST use the Write tool to save their answer to that path before returning. The main conversation verifies the file exists after each proposer returns. Decider agents (C) do the same for their decision files. If an agent fails to write its file, the run has a missing artifact and the auditor will flag it.
 
 ---
 

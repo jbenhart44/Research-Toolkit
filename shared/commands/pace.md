@@ -92,6 +92,26 @@ Do NOT begin subagent work until you have a complete Task Brief and Task Essence
 
 ---
 
+## REQUIRED FILE MANIFEST — THE EVIDENCE BAR
+
+A real PACE run MUST write each agent's output as a separate file so the run is mechanically auditable. Create a run directory at `CC_Workflow/evidence/pace_runs/pace_{run_id}_{slug}/` (a directory, not just a single markdown file) and write these artifacts:
+
+- `player_a_output.md` — Player A's complete SOLUTION + METADATA (non-empty, >500 bytes)
+- `player_b_output.md` — Player B's complete output (non-empty, >500 bytes, content hash MUST differ from Player A)
+- `coach_c_review.md` — Coach C's review of Player A
+- `coach_d_review.md` — Coach D's review of Player B
+- `cross_reviewer.md` — Cross-Reviewer's comparative critique
+- `consolidated.md` — The final consolidated output delivered to the Commissioner
+- `run_report.md` — The summary report with YAML frontmatter (the existing Step 9 output; now lives inside the run directory)
+
+**PROHIBITED**: Any single combined file containing multiple agents' content interleaved. If you find yourself writing something like `all_outputs.md` or `agents_combined.md`, STOP — that is the single-context fallback pattern. The self-audit step (added below) will flag this and mark the run as invalid.
+
+### Rationale
+
+Historical PACE runs (pre-2026-04-10) wrote only a summary `run_report.md` with narrative descriptions of what Players A and B said. This made it impossible to mechanically verify that two distinct subagents actually spawned vs the orchestrator role-playing both. On 2026-04-09 an audit of sibling commands (`/pcv-research`) found that recent runs had silently collapsed multi-agent outputs into single context role-play. This file manifest is the structural check that forces each agent's output to exist as independent evidence.
+
+---
+
 ## STEP 1: SPAWN TWO PLAYERS
 
 Spawn two Player subagents **in parallel** using the Agent tool. Give each the following instructions.
@@ -387,6 +407,48 @@ After delivery, ask:
 > 3. Show the Cross-Comparison Report?
 > 4. Make specific revisions to the consolidated output?
 > 5. We're done — move on."
+
+---
+
+## STEP 8b: SELF-AUDIT (MANDATORY — DO NOT SKIP)
+
+**Before writing the run report, the orchestrator MUST verify its own output against the FILE MANIFEST.** This is a mechanical check — no LLM judgment involved.
+
+### 8b.1: Run the auditor
+
+If `scripts/audit_run_evidence.sh` exists under the project root, invoke it on the run directory:
+
+```bash
+bash scripts/audit_run_evidence.sh "CC_Workflow/evidence/pace_runs/pace_{run_id}_{slug}"
+```
+
+If the script does not exist, perform the equivalent checks inline:
+1. Verify all required files exist: `player_a_output.md`, `player_b_output.md`, `coach_c_review.md`, `coach_d_review.md`, `cross_reviewer.md`, `consolidated.md`
+2. Verify each file is non-empty (>500 bytes)
+3. Compute SHA-256 of `player_a_output.md` and `player_b_output.md`. They MUST differ. (Identical hashes = single-context fallback.)
+4. Reject any directory containing `all_outputs.md`, `agents_combined.md`, or similar collapsed files.
+
+### 8b.2: Interpret the verdict
+
+| Verdict | Action |
+|---------|--------|
+| `verified_real` | Proceed to Step 9 (run report). |
+| `suspicious` | Proceed BUT add a WARNING block to the run report frontmatter naming the specific concern. |
+| `fallback` | **STOP.** Write a failure run report with `outcome: failed` and `fallback_detected: true`. Tell the user: "The PACE run did not produce independent Player A and Player B outputs — this is a single-context fallback. The results are not trustworthy. Recommend re-running in a session where the Agent tool is available." |
+| `unverifiable` | **STOP.** Write a failure report naming which artifacts are missing. |
+
+### 8b.3: Record the verdict
+
+Add to the run report YAML frontmatter:
+```yaml
+self_audit_verdict: "verified_real"
+self_audit_reason: "..."
+fallback_detected: false
+```
+
+### 8b.4: Why this step exists
+
+On 2026-04-09 a retrospective audit found that ~30 historical PCV-Research runs had structural signs of single-context fallback despite claiming multi-agent output. PACE is vulnerable to the same failure mode because its Step 1 prompts the orchestrator to "spawn two Players" — a sloppy orchestrator can interpret this as "write two outputs inline" without making real Agent tool calls. The SELF-AUDIT step blocks that failure from reaching the run report.
 
 ---
 

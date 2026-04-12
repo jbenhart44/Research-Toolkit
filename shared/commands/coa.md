@@ -127,6 +127,24 @@ All council members use the same underlying LLM. Convergence = breadth-of-framin
 
 ---
 
+## REQUIRED FILE MANIFEST — THE EVIDENCE BAR
+
+A real CoA session MUST write each council member's output as a separate file so the session is mechanically auditable. Create a session directory at `CC_Workflow/coa/council_sessions/coa_{date}_{slug}/` (a directory, not a single markdown file) and write these artifacts:
+
+- `member_{seat}.md` for each seated member (e.g., `member_skeptic.md`, `member_economist.md`, `member_practitioner.md`). Each file contains that member's complete analysis (non-empty, >500 bytes).
+- `chair_synthesis.md` — The Chair's 7-section synthesis.
+- `session_summary.md` — The human-facing session report (the existing Step 6 output; now lives inside the session directory).
+
+Minimum requirement: ≥3 distinct member files (one per seated council member) AND `chair_synthesis.md`. Every member file MUST have a unique SHA-256 hash — identical hashes indicate the orchestrator wrote the same content twice under different seat labels (single-context fallback).
+
+**PROHIBITED**: A single combined file like `all_members.md` or `council_outputs.md` containing multiple members' content interleaved. If the orchestrator writes one of these, the self-audit will flag the session as invalid.
+
+### Rationale
+
+Historical CoA sessions (pre-2026-04-10) were written as a single markdown file with persona labels inline. This made it impossible to mechanically verify that N distinct subagents actually ran vs the orchestrator writing N sections from one context. On 2026-04-09 an audit of sibling commands found that recent multi-agent runs had silently collapsed into single-context role-play. The separate-file manifest is the structural check that blocks this failure.
+
+---
+
 ## STEP 1: CONVENE THE COUNCIL
 
 After human approves: If persona files exist at the project path, read only the approved persona files in parallel. If no persona files exist, construct each member's brief directly from the built-in roster entry plus the per-member context filter below.
@@ -316,6 +334,44 @@ Present the full 7-section synthesis.
 4. Next steps (from Practitioner's feasibility)
 5. Dissenting view preserved as "monitor for" item
 6. Conditions for revisiting (from flip conditions)
+
+---
+
+## STEP 5b: SELF-AUDIT (MANDATORY — DO NOT SKIP)
+
+**Before saving and delivering the session, the orchestrator MUST verify its own output against the FILE MANIFEST.** This catches single-context fallback cases.
+
+### 5b.1: Run the auditor
+
+If `scripts/audit_run_evidence.sh` exists under the project root, invoke it on the session directory:
+
+```bash
+bash scripts/audit_run_evidence.sh "CC_Workflow/coa/council_sessions/coa_{date}_{slug}"
+```
+
+If the script does not exist, perform the equivalent checks inline:
+1. Verify ≥3 `member_*.md` files exist and each is >500 bytes
+2. Verify `chair_synthesis.md` exists and is >500 bytes
+3. Compute SHA-256 of every member file. All must be distinct.
+4. Reject any directory containing a collapsed file like `all_members.md` or `council_outputs.md`
+
+### 5b.2: Interpret the verdict
+
+| Verdict | Action |
+|---------|--------|
+| `verified_real` | Proceed to Step 6 (save + deliver). |
+| `suspicious` | Proceed BUT add a WARNING block to the session frontmatter. |
+| `fallback` | **STOP.** Write a failure marker and tell the user: "The council session did not produce independent member outputs — this is a single-context fallback. The synthesis is not a real council synthesis. Recommend re-running in a session where the Agent tool is available." |
+| `unverifiable` | **STOP.** Name the missing artifacts. |
+
+### 5b.3: Record the verdict
+
+Add to the session YAML frontmatter:
+```yaml
+self_audit_verdict: "verified_real"
+self_audit_reason: "..."
+fallback_detected: false
+```
 
 ---
 
