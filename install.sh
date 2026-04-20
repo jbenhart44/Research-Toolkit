@@ -1,8 +1,8 @@
 #!/bin/bash
-# AI-Assisted Research Toolkit — Installer
+# Research Amp Toolkit — Installer
 # Usage:
-#   bash install.sh               # Full toolkit (12 commands)
-#   bash install.sh --minimal     # Instructor toolkit (6 commands)
+#   bash install.sh               # Full toolkit (15 commands)
+#   bash install.sh --minimal     # Instructor toolkit (8 commands)
 #   bash install.sh --hooks        # Also install optional hooks (token budget, folder guard)
 #   bash install.sh --dry-run     # Show what would be installed without copying
 #   bash install.sh --help        # Show this help
@@ -24,7 +24,7 @@ NC='\033[0m' # No Color
 print_header() {
     echo ""
     echo "================================================"
-    echo "  AI-Assisted Research Toolkit Installer"
+    echo "  Research Amp Toolkit Installer"
     echo "================================================"
     echo ""
 }
@@ -42,11 +42,11 @@ print_error() {
 }
 
 show_help() {
-    echo "AI-Assisted Research Toolkit — Installer"
+    echo "Research Amp Toolkit — Installer"
     echo ""
     echo "Usage:"
-    echo "  bash install.sh               Full toolkit (12 commands)"
-    echo "  bash install.sh --minimal     Instructor toolkit (6 commands)"
+    echo "  bash install.sh               Full toolkit (15 commands)"
+    echo "  bash install.sh --minimal     Instructor toolkit (8 commands)"
     echo "  bash install.sh --dry-run     Show what would be installed without copying"
     echo "  bash install.sh --help        Show this help"
     echo ""
@@ -121,8 +121,8 @@ else
 fi
 
 # Define command sets
-SHARED_COMMANDS=(coa pace improve quarto pdftotxt)
-STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify audit)
+SHARED_COMMANDS=(coa pace improve quarto pdftotxt help review)
+STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify audit runlog)
 
 # Install shared commands (both products)
 echo "Installing shared commands..."
@@ -139,13 +139,31 @@ if [ "$MINIMAL" = false ]; then
     done
 fi
 
-# Install PCV skill files
+# Install PCV skill files (v3.14: recursive — skill/ contains subdirs like
+# handlers/, hooks/, planning/, construction/, verification/, transition/, bundled/)
+PCV_VERSION=$(head -1 "$TOOLKIT_DIR/pcv/skill/VERSION" 2>/dev/null | tr -d '[:space:]' || echo "unknown")
 echo ""
-echo "Installing PCV v3.9..."
-for f in "$TOOLKIT_DIR"/pcv/skill/*; do
-    fname=$(basename "$f")
-    install_file "$f" "$SKILLS_DIR/pcv/$fname" "pcv/$fname"
-done
+echo "Installing PCV v$PCV_VERSION..."
+if [ "$DRY_RUN" = true ]; then
+    find "$TOOLKIT_DIR/pcv/skill" -type f | while read f; do
+        rel="${f#$TOOLKIT_DIR/pcv/skill/}"
+        print_success "Would install: pcv/$rel → $SKILLS_DIR/pcv/$rel"
+    done
+else
+    # Backup existing pcv skill dir if present (single snapshot, not per-file)
+    if [ -d "$SKILLS_DIR/pcv" ] && [ "$(ls -A "$SKILLS_DIR/pcv" 2>/dev/null)" ]; then
+        BACKUP_DIR="$SKILLS_DIR/pcv.bak.$(date +%Y%m%d-%H%M%S)"
+        cp -r "$SKILLS_DIR/pcv" "$BACKUP_DIR"
+        print_warning "Backed up existing pcv skill → $(basename "$BACKUP_DIR")"
+    fi
+    # Recursive copy preserving subdirectory structure
+    mkdir -p "$SKILLS_DIR/pcv"
+    cp -r "$TOOLKIT_DIR/pcv/skill/." "$SKILLS_DIR/pcv/"
+    # OneDrive strips executable bits — restore them on shell scripts
+    find "$SKILLS_DIR/pcv/handlers" "$SKILLS_DIR/pcv/hooks" \
+         -type f -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
+    print_success "pcv skill files (recursive copy from bundle v$PCV_VERSION)"
+fi
 
 # Install PCV agent files
 echo ""
@@ -199,9 +217,9 @@ echo ""
 echo "================================================"
 if [ "$DRY_RUN" = true ]; then
     if [ "$MINIMAL" = true ]; then
-        echo "  Instructor Toolkit dry run (6 commands + PCV)"
+        echo "  Instructor Toolkit dry run (8 commands + PCV)"
     else
-        echo "  Full Toolkit dry run (12 commands)"
+        echo "  Full Toolkit dry run (15 commands)"
     fi
     echo "================================================"
     echo ""
@@ -209,9 +227,9 @@ if [ "$DRY_RUN" = true ]; then
     echo "Run without --dry-run to install."
 else
     if [ "$MINIMAL" = true ]; then
-        echo "  Instructor Toolkit installed (6 commands + PCV)"
+        echo "  Instructor Toolkit installed (8 commands + PCV)"
     else
-        echo "  Full Toolkit installed (12 commands)"
+        echo "  Full Toolkit installed (15 commands)"
     fi
     echo "================================================"
     echo ""
@@ -222,10 +240,10 @@ else
 fi
 echo ""
 if [ "$MINIMAL" = true ]; then
-    echo "Commands installed: /pcv, /coa, /pace, /improve, /quarto, /pdftotxt"
+    echo "Commands installed: /pcv, /coa, /pace, /improve, /quarto, /pdftotxt, /help, /review"
 else
     echo "Commands installed: /pcv, /coa, /pace, /audit,"
     echo "  /improve, /simplify, /startup, /dailysummary, /weeklysummary,"
-    echo "  /commit, /quarto, /pdftotxt"
+    echo "  /commit, /quarto, /pdftotxt, /help, /review, /runlog"
 fi
 echo ""

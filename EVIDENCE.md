@@ -1,6 +1,16 @@
-# Evidence — AI-Assisted Research Toolkit
+# Evidence — Research Amp Toolkit
 
 This document provides empirical evidence for the toolkit's effectiveness, drawn from real usage during PhD research (2025-2026). All metrics are from actual sessions, not synthetic benchmarks.
+
+---
+
+## PCV Bundle Version
+
+**Current bundled version:** PCV v3.14 (upstream by Dr. Michael G. Kay, 2026-04-18 release, bumped from v3.9 on 2026-04-19)
+
+Kay's v3.14 release notes claim "approximately 3 times faster and using about half the number of tokens as previous versions." **This claim is upstream pending local remeasurement in the Research Amp Toolkit context** — we have not independently benchmarked PCV v3.14 against v3.9 in this toolkit. Benchmarking is not part of the install smoke test; it would require a controlled comparison with matched charges and matched model configurations, which has not been scheduled.
+
+Bundle provenance is tracked in `pcv/.upstream-version`, `pcv/.upstream-sha`, and `pcv/.upstream-fetched-at`. Drift detection via `scripts/check-pcv-upstream.sh`.
 
 ---
 
@@ -17,6 +27,27 @@ The Council of Agents spawns specialists with distinct professional perspectives
 | Cross-model validation | Gemini used as external check (optional) | Cross-model MCP integration |
 
 **Key finding:** Council members with well-defined professional personas (Skeptic, Economist, Practitioner, etc.) produce meaningfully different analyses of the same question. The Chair synthesis correctly identifies convergence vs. genuine disagreement.
+
+---
+
+## /review (Three-Lens Document Review)
+
+**Source:** 1 smoke-test invocation (April 2026, command shipped v1.0)
+
+`/review` reads a document through three parallel expert lenses (Skeptic + Practitioner + Editor) and synthesizes into takeaways, project-relevance, and 3 concrete implications. The three lenses are the mandatory-Skeptic-and-Practitioner pair from the CoA ROSTER plus Editor (the ROSTER's designated Historian-replacement for prose).
+
+| Metric | Value | Source |
+|--------|-------|--------|
+| Shipped version | v1.0 (no post-smoke revisions needed) | `shared/commands/review.md` |
+| Smoke-test document | Kay's "Text-Based Formats for Claude Code" (70 lines, advisor-authored) | `reviews/review_2026-04-19_text_based_formats_for_claude_code.md` |
+| Parallel agent runtime | ~30 seconds per lens (3 in parallel) | Smoke-test run log |
+| Total tokens | ~106K (within projected 80-120K envelope) | Same |
+| Lens distinctness | Each lens produced non-overlapping observations (no convergence-to-sameness) | Same |
+| Unique insights per lens | Skeptic: 2 failure modes the others missed; Practitioner: only-one-with-action-items (3 DO entries with effort estimates); Editor: surfaced the doc's sharpest single sentence ("structural vs procedural transparency") that the other two skipped | Same |
+
+**Key finding:** The three-lens formulation produces genuinely different readings of the same document — the Editor's rhetorical insight about thesis-vs-apparent-thesis is the kind of observation a single-agent summary never surfaces. The Chair synthesis is easy to write inline without a 4th agent because the convergence/divergence points emerge cleanly from three reports.
+
+**Design reference for future command documentation:** The /review output format — 5–10 takeaways + project relevance + 3 implications per lens + Chair synthesis — is under consideration as a template for per-command documentation on the public toolkit website. Running /review against each command's own SKILL/command file produces a reader-facing description that is both skeptical and actionable in a way that hand-written docs typically aren't.
 
 ---
 

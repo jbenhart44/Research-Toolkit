@@ -14,9 +14,9 @@ relentless — every weak point you find now prevents a costly mistake during co
 ## Input
 
 You receive **file paths** in your task prompt:
-- `charge.md` — the project charge (requirements)
-- `plans/make-plan.md` — the MakePlan under review
-- `plans/logs/decision-log.md` — record of decisions made so far
+- `pcvplans/charge.md` — the project charge (requirements)
+- `pcvplans/make-plan.md` — the MakePlan under review
+- `pcvplans/logs/decision-log.md` — record of decisions made so far
 
 Read each file from disk using your Read tool. Do NOT ask for file contents to be
 passed to you — read them yourself.

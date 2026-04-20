@@ -1,0 +1,8 @@
+# Ephemeral archive written by scripts/refresh-pcv-bundle.sh
+# before overwriting the bundle. Maintainer deletes after commit.
+pcv.previous/
+
+# OS / editor detritus
+.DS_Store
+*~
+*.bak
