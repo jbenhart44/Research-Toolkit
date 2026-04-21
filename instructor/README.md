@@ -1,6 +1,6 @@
 # Instructor Toolkit
 
-A curated 6-command subset of the AI-Assisted Research Toolkit, designed for professors integrating AI-assisted workflows into graduate courses.
+A curated 6-command subset of the Research Amp Toolkit, designed for professors integrating AI-assisted workflows into graduate courses.
 
 ## Installation
 

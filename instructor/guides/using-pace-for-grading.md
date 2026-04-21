@@ -64,3 +64,30 @@ These are exactly the rubric clarifications you need to make grading fair.
 - **PACE is overkill for simple assignments.** Use it for complex rubrics (10+ criteria) or high-stakes grading.
 - **Use PACE to calibrate, then grade manually.** Run PACE on 3-4 representative submissions to identify rubric ambiguities, resolve them, then grade the rest yourself with the clarified rubric.
 - **The convergence report is your documentation.** If a student challenges a grade, the PACE output shows exactly how the rubric was applied.
+
+## Combining With `/audit` — Full Submission Workflow
+
+For research-writing courses where students cite published work, `/pace` on its own does not catch fabricated citations. Use this two-step flow:
+
+1. **`/audit paper.md --sources sources/`** — catches MISMATCH / NOT FOUND on every citation. See `using-audit-for-student-submissions.md` for setup.
+2. **`/pace` with the rubric above** — grades the argument, clarity, and analytical correctness.
+
+Run `/audit` first. If it flags any fabricated citations, that's a rubric issue (zero for the citation criterion) PLUS a conversation with the student before the PACE pass.
+
+If you run a large class, see `ai-research-toolkit/references/processing_student_submissions.md` for the batching recipe that scales this workflow to 40+ students.
+
+## What `/pace` Does Not Do for Grading
+
+- **Doesn't replace your judgment.** PACE provides two independent reads; you integrate them into the final grade.
+- **Doesn't detect LLM-written prose.** PACE grades a paper at face value; it doesn't try to detect whether the paper was ghostwritten by an LLM.
+- **Doesn't compare across students.** If you need to find patterns across the class (common errors, common strengths), run `/pace` on the *batch*, not per-paper. See `processing_student_submissions.md`.
+
+## Evidence Trail
+
+Every `/pace` run writes `run_report.md` with YAML frontmatter. When a student challenges a grade, you can:
+
+1. Hand them the PACE run_report (Player A output, Player B output, Coach reviews, Cross-Reviewer synthesis)
+2. Show them the exact rubric criterion where the divergence was
+3. Let them argue their case against the specific point of disagreement
+
+This is faster and fairer than "here's my grade, trust me." The student sees the actual reasoning.

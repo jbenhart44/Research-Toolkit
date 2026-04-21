@@ -1,10 +1,12 @@
 # Research Amp Toolkit
 
-14 Claude Code commands that amplify your research. The tools don't think — they verify, structure, and document. You bring the signal. Validated across 60+ production sessions.
+15 Claude Code commands that amplify your research. The tools don't think — they verify, structure, and document. You bring the signal. Validated across 60+ production sessions.
 
 **Authors:** Jake Benhart & Dr. Michael G. Kay (NC State University — Operations Research)
 
 Design rationale documented in [DESIGN.md](DESIGN.md).
+
+**Design tenet — Text-first architecture.** Every toolkit artifact is plain text (Markdown commands, YAML frontmatter, bash helpers, bundled `.md` protocols). No binary formats in the authoring path. This is not aesthetic — it's what makes Claude Code a first-class participant in the workflow, what makes git history meaningful, and what lets reviewers read artifacts without specialized tools. Per Kay (2026): *"transparency is structural rather than procedural."* The text-first constraint is what enforces that structural transparency.
 
 ---
 

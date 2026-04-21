@@ -159,7 +159,19 @@ If and only if `$ARGUMENTS` is `all`:
 
 10. **Read ALL remaining slash commands** — Glob `.claude/commands/*.md` and read any not already read. Note structural patterns.
 
-**Priority 3 — Historical Context:**
+**Priority 3 — Historical Context (GATED in v1.1 — see rule below):**
+
+**GATING RULE (v1.1)**: For session-only mode (no `$ARGUMENTS`), FIRST count the session friction signals you gathered in Priority 1. If **fewer than 3** session-specific friction signals were identified, SKIP items 11-13 entirely. Historical reads (git log, previous reports, CLAUDE.md re-read) are expensive on slow filesystems and add limited value when the session was already clean. Token budget: skipping Priority 3 saves ~40K tokens/run on light-session invocations.
+
+If `$ARGUMENTS` is `all` or a focus topic, ignore the gate and run the full Priority 3 sweep.
+
+**Gate self-test (v1.1 calibration)**: On every invocation, append a single line to `CC_Workflow/improve_reports/.gate_log.txt` in the format:
+```
+YYYY-MM-DD HH:MM | friction_count=N | gate_fired=true/false | mode=session|all|focus
+```
+This is a 1-line append, silent (do NOT show to user). After 5 session-mode invocations have been logged, review the distribution of `friction_count` values. If most sessions have friction_count >= 3, the threshold is too low — the gate rarely fires and the P3 savings are unrealized. Raise threshold to 5. If most sessions have friction_count < 3, the threshold is correctly calibrated. Without this log, the gate is untested in the wild and its effectiveness is speculative.
+
+Items 11-13 (only run when gate passes OR `/improve all`):
 
 11. **Check for previous improve reports** — Glob for `improve_*.md` in the improve_reports directory (typically `workflow/improve_reports/` or similar — infer from project structure). If any exist, read the most recent one.
 
@@ -171,7 +183,7 @@ If and only if `$ARGUMENTS` is `all`:
 
 13. **Scan recent summaries** — Only when `/improve all` is invoked. Glob for the last 5 daily or session summaries. Look for friction signals.
 
-14. **Declare scan scope** — record what you read and what you skipped. This goes in the report header.
+14. **Declare scan scope** — record what you read and what you skipped. This goes in the report header. If Priority 3 was gated off, note it explicitly: "Priority 3 historical reads skipped (session had <3 friction signals; --all override not used)."
 
 ### Pass 2: Analyze — Identify Gaps Across Seven Categories
 
@@ -421,5 +433,22 @@ Most recent: [date]
 - **Be honest about uncertainty.** If you're unsure whether a recommendation is valid, say so in the "Why" field.
 - **Respect Occam's razor.** Each recommendation should pass: "Would this save the user time or prevent errors?"
 - **Verify empirical claims in drafts.** If a recommendation draft contains specific numbers (percentages, token counts, timing), verify against source data before presenting.
+
+---
+
+## Instrumentation (v1.1 — one-line emit at end of run)
+
+After writing the improve report, emit a structured run_report for observability via `/runlog`:
+
+```bash
+bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
+  --command improve \
+  --run-dir "$improve_reports_dir/.run_reports/$(date +%Y-%m-%d_%H%M%S)" \
+  --outcome complete \
+  --task-summary "Improve scan ($SCOPE_MODE mode)" \
+  --fields "scope=$SCOPE_MODE findings_critical=$N_CRITICAL findings_useful=$N_USEFUL findings_nice=$N_NICE recurrent_count=$N_RECURRENT files_scanned=$N_FILES priority3_gated=$P3_GATED"
+```
+
+This is a ONE-LINE call. The helper handles YAML formatting, CSV append, and atomicity. If the helper is not available at the toolkit path, skip silently — the improve report itself is the user-facing deliverable.
 
 $ARGUMENTS
