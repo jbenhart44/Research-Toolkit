@@ -94,3 +94,32 @@ If all verified:
 - Before printing any poster or submitting any paper
 - After any session where cited numbers were written or modified
 - After any PACE run that produces numerical content
+
+---
+
+## Instrumentation (v1.1 — one-line emit at end of run)
+
+After writing the audit report, emit a structured run_report for observability via `/runlog`:
+
+```bash
+bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
+  --command audit \
+  --run-dir "$audit_reports_dir/.run_reports/$(date +%Y-%m-%d_%H%M%S)" \
+  --outcome complete \
+  --task-summary "Audit of $DOCUMENT_PATH" \
+  --fields "input_file=$DOCUMENT_PATH citations_checked=$N_CITED numerical_values_checked=$N_NUMERIC verified_count=$N_VERIFIED mismatch_count=$N_MISMATCH not_found_count=$N_NOT_FOUND not_on_disk_count=$N_NOT_ON_DISK verdict=$VERDICT"
+```
+
+Where `$VERDICT` is `pass` (zero mismatches/not-found) or `fail` (any mismatch or not-found). One-line call via the helper. Skip silently if helper is unavailable — the audit report is the user-facing deliverable.
+
+---
+
+## Smoke Test
+
+A smoke test fixture lives at `tests/smoke/audit_smoke.md` with 3 citations (2 valid + 1 fabricated). Run this to confirm `/audit` is working after installation:
+
+```bash
+cd ai-research-toolkit/tests/smoke/
+/audit paper.md --sources sources/
+# Expected: VERIFIED: 1, MISMATCH: 1 (Jones 42% vs 35%), NOT FOUND: 1 (Rodriguez)
+```

@@ -110,4 +110,41 @@ Based on recency and priority, I recommend starting with:
 - Include file paths so the user can jump straight to the relevant context
 - Do NOT read the actual code/data files — only summaries and MEMORY.md
 
+---
+
+## Step 5: Evidence Footer (NEW in v1.1 — append to briefing)
+
+End the briefing with a standardized footer that makes the startup read locally-verifiable (PLN principle). This lets instructors (Kay's use case) diagnose "did the student write summaries this week?" vs "did /startup miss them?".
+
+```markdown
+---
+
+## Evidence Footer
+
+- Command version: v1.1
+- Run timestamp: YYYY-MM-DD HH:MM:SSZ (UTC)
+- Summaries read: N (oldest: date, newest: date)
+- MEMORY.md: found / not found (mtime: ...)
+- Git branch: main / feature-branch / detached
+- Git status: N uncommitted files
+- Workstreams detected: N (from summaries) + M (from config.workstreams)
+- Config loaded: ~/.claude/toolkit-config.md / defaults-only
+- Background processes: N long-running
+```
+
+## Step 6: Emit run_report (NEW in v1.1 — instrumentation)
+
+After presenting the briefing, emit a structured run_report for observability via `/runlog`:
+
+```bash
+bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
+  --command startup \
+  --run-dir "$summary_folder/.run_reports/$(date +%Y-%m-%d_%H%M%S)" \
+  --outcome complete \
+  --task-summary "Session startup briefing" \
+  --fields "summaries_read_count=$N_SUMMARIES oldest_summary_date=$OLDEST newest_summary_date=$NEWEST workstreams_detected=$N_WORKSTREAMS git_head_sha=$HEAD_SHA memory_found=$MEMORY_FOUND"
+```
+
+One-line call via the helper. Skip silently if helper is unavailable — the user's briefing output must NEVER be blocked by instrumentation.
+
 $ARGUMENTS

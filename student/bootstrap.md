@@ -1,4 +1,4 @@
-# AI-Assisted Research Toolkit — Student Bootstrap
+# Research Amp Toolkit — Student Bootstrap
 
 **Version:** 1.0
 **Date:** 2026-03-30
@@ -81,7 +81,7 @@ command files are present.
 
 ### Step 7: Report
 
-> **AI-Assisted Research Toolkit installed.**
+> **Research Amp Toolkit installed.**
 >
 > **12 commands** installed (/pcv as skill + 11 as command files)
 > **PCV v3.9** installed to `~/.claude/skills/pcv/`

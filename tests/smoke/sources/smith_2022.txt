@@ -1,0 +1,3 @@
+Smith (2022) Journal of Test Data, Vol 42.
+
+Abstract: We surveyed 1,200 respondents and found that 85% preferred option A, with statistical significance p<0.001.

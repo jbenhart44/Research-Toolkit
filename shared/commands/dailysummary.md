@@ -9,12 +9,18 @@ description: Create a dated summary of today's work in the daily summaries folde
 
 ## Mode Selection
 
-**Two modes** — pick based on session weight:
+**Three modes** — pick based on session weight:
 
 - `/dailysummary` or `/dailysummary --full` — **Full mode.** All sections, wiki-links, navigation, numerical verification, `/improve` candidates. Use after heavy sessions (multiple deliverables, code changes, multi-agent runs).
 - `/dailysummary --quick` — **Quick mode.** Stripped down: Date, Summary (3-4 sentences), Key Accomplishments (bullets), Next Steps, Commits. No wiki-links, no `/improve` candidates, no numerical verification, no navigation link. Use after light sessions (documentation edits, planning, conversations).
+- `/dailysummary --append-pointer` — **Append-pointer mode (NEW in v1.1).** Writes a ≤10-line block APPENDED to an existing same-day summary file. Use for mid-session continuations where a new file would be clutter. Auto-selected when an existing same-day summary exists AND `git diff` shows <3 modified files since last write.
 
-**Default**: If `$ARGUMENTS` is empty or `--full`, run full mode. If `$ARGUMENTS` contains `--quick`, run quick mode. If unsure which mode fits, check git diff — if fewer than 5 files changed, suggest quick mode to the user.
+**Default behavior**:
+1. **Check for existing same-day file first** (Step 0c below). If one exists and mtime is <30 min old → `--append-pointer` unless user overrides.
+2. If `$ARGUMENTS` is empty or `--full`, run full mode.
+3. If `$ARGUMENTS` contains `--quick`, run quick mode.
+4. **Auto-quick on zero-diff**: If `git diff --stat` reports zero modified files AND no new untracked files → automatically run quick mode and flag "Session had no file changes — summary is context-only."
+5. If unsure which mode fits, check git diff — if fewer than 5 files changed, suggest quick mode to the user.
 
 ---
 
@@ -36,6 +42,38 @@ If `~/.claude/toolkit-config.md` does not exist, use `Daily Summary` as the fold
 
 ---
 
+## Step 0c: Filename Resolution (NEW in v1.1 — do this BEFORE git operations)
+
+Cheap and deterministic. Decides mode + output path before spending tokens on analysis.
+
+```bash
+TODAY=$(date +%Y-%m-%d)
+EXISTING=$(ls -1 "$summary_folder/" 2>/dev/null | grep "^${TODAY}_" | head -1)
+
+if [ -n "$EXISTING" ]; then
+  EXISTING_PATH="$summary_folder/$EXISTING"
+  MTIME=$(stat -c %Y "$EXISTING_PATH" 2>/dev/null)
+  AGE_MIN=$(( ( $(date +%s) - MTIME ) / 60 ))
+  if [ "$AGE_MIN" -lt 30 ]; then
+    MODE="APPEND_POINTER"      # same-session continuation, write short block
+    OUTPUT_PATH="$EXISTING_PATH"
+  else
+    MODE="NEW_SESSION_2"        # new session today, use HHMM suffix
+    HHMM=$(date +%H%M)
+    OUTPUT_PATH="$summary_folder/${TODAY}_${HHMM}_<TITLE>.md"
+  fi
+else
+  MODE="NEW"
+  OUTPUT_PATH="$summary_folder/${TODAY}_<TITLE>.md"
+fi
+```
+
+Report the resolved mode + path to the user BEFORE proceeding to Step 1: `"Mode: $MODE — writing to $OUTPUT_PATH"`.
+
+If `$ARGUMENTS` explicitly overrides (`--full`, `--quick`, `--append-pointer`), honor that over the auto-selection — but still print what the auto-selection would have been.
+
+---
+
 **IMPORTANT**: This summary should be written by a **Sonnet** model subagent when available. Spawn a single Agent with `model: "sonnet"` and pass it the gathered information (git log, file changes, context) along with the formatting instructions below. The Sonnet agent writes the summary; the main agent saves it.
 
 The reason for preferring Sonnet: smaller models have been observed to produce inaccurate numerical figures, wrong file orderings, and incorrect parameter values when summarizing technical sessions. Sonnet's accuracy on project-specific details justifies the cost.
@@ -44,14 +82,23 @@ The reason for preferring Sonnet: smaller models have been observed to produce i
 
 ---
 
-## Step 1: Gather Information
+## Step 1: Gather Information (FAST-PATH, v1.1)
 
-Run these in parallel:
-- `git log --since="today" --pretty=format:"%h - %s (%ar)" --no-merges` — today's commits
-- `git status` — current working state
-- `git diff --stat` — modified file statistics
-- List any new untracked files relevant to the session
-- If today's commits are empty, review commits from the last 24 hours
+Naive git calls can take 30-120s on slow filesystems (e.g., network drives, OneDrive-synced WSL). Use timeouts + parallel reads to bound the worst case.
+
+```bash
+# All three git reads in parallel, each bounded at 5s
+timeout 5 git log --since="today" --pretty=format:"%h %s" --no-merges > /tmp/ds_commits.txt 2>/dev/null &
+timeout 5 git status --porcelain > /tmp/ds_status.txt 2>/dev/null &
+timeout 5 git diff --stat --no-renames HEAD > /tmp/ds_diffstat.txt 2>/dev/null &
+wait
+```
+
+**If `git status` does not return in 5s** (the `timeout` triggers): proceed without it. Note in the Technical Details section: "git status unavailable — summary derived from session context only."
+
+**Do NOT** call `git diff` (no `--stat`) — that prints full patches and can be 10x slower. Use `--stat` only.
+
+**Source-file verification discipline**: Read `.qmd`, `.jl`, `.csv`, or other source files ONLY when the summary cites a specific numerical value from them. Do NOT preemptively read source files "just in case" — cross-filesystem reads are the biggest hidden cost. If the session involved no new empirical values (infrastructure work, documentation, planning), skip source-file verification entirely.
 
 ---
 
@@ -119,5 +166,48 @@ After saving, if candidates were identified, suggest:
 ---
 
 Start by gathering information in Step 1, then synthesize into a well-organized daily summary document.
+
+---
+
+## Step 6: Evidence Footer (NEW in v1.1 — append to every summary)
+
+Every summary — full, quick, or append-pointer — ends with a standardized footer block. This converts the summary from OPAQUE prose into a locally-verifiable record (PLN verifiability principle).
+
+```markdown
+---
+
+## Evidence Footer
+
+- Command version: v1.1
+- Run timestamp: YYYY-MM-DD HH:MM:SSZ (UTC)
+- Mode: full / quick / append-pointer
+- Inputs read: git log (N lines), git status (M files), git diff --stat (K files)
+- Output path: Daily Summary/YYYY-MM-DD_Title.md
+- Git SHA at session start: <sha> (from `git rev-parse HEAD` at session start if captured, else "not captured")
+- Git SHA at summary write: <sha>
+- Unverified values: N (count of empirical figures not cross-checked against source files)
+- Subagent: sonnet (or haiku/opus if overridden)
+```
+
+Any user re-running the command at the same time with the same git state should get the same table modulo timestamps.
+
+## Step 7: Emit run_report (NEW in v1.1 — instrumentation)
+
+After writing the summary, emit a structured run_report for observability via `/runlog`:
+
+```bash
+bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
+  --command dailysummary \
+  --run-dir "$summary_folder/.run_reports/$(date +%Y-%m-%d_%H%M%S)" \
+  --outcome complete \
+  --task-summary "Daily summary for $TODAY ($MODE mode)" \
+  --fields "mode=$MODE files_touched_count=$FILES_TOUCHED git_sha_start=$SHA_START git_sha_end=$SHA_END unverified_count=$UNVERIFIED_N"
+```
+
+This is a ONE-LINE call. The helper handles YAML formatting, CSV append, and atomicity.
+
+If the helper is not available (e.g., toolkit not installed at expected path), skip this step silently. The primary summary output must NEVER be blocked by instrumentation failure.
+
+---
 
 $ARGUMENTS

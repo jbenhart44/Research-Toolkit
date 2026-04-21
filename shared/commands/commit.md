@@ -109,4 +109,23 @@ New features with supporting tests  → single commit (feat)
 
 Start immediately. Do not ask questions beyond the Step 1 prompt.
 
+---
+
+## Instrumentation (v1.1 — one-line emit at end of run)
+
+After all commits are made, emit a structured run_report for observability via `/runlog`:
+
+```bash
+bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
+  --command commit \
+  --run-dir ".claude/.run_reports/commit/$(date +%Y-%m-%d_%H%M%S)" \
+  --outcome complete \
+  --task-summary "Session commit batch" \
+  --fields "commits_made=$N_COMMITS files_total=$N_FILES branch=$CURRENT_BRANCH head_sha=$NEW_HEAD_SHA prev_head_sha=$PREV_HEAD_SHA"
+```
+
+One-line call via the helper. Skip silently if helper is unavailable — git commits themselves are the primary deliverable.
+
+Why instrument git commits at the toolkit level? Git commits alone tell you *what* changed. The /commit run_report adds *which commits were grouped together in which session*, which enables `/runlog` to answer "how often am I committing?" and "how many files per commit?" over time.
+
 $ARGUMENTS

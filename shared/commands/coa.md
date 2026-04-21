@@ -227,9 +227,20 @@ Call `mcp__crossmodel__query_model` with:
 
 Tag the response as `[CROSS-MODEL CHECK: {model_name}]`. Include it in the Chair's input. The Chair MUST acknowledge it and explicitly note any disagreements as "cross-model divergence."
 
-**If the call fails**: Report to the human — "Cross-model check not available: [reason]. Proceeding with same-model council only. Same-model caveat is elevated." Do NOT skip silently.
+**If the call fails** (API error, rate limit, truncated response <200 chars, network timeout):
 
-**Impact on Same-Model Caveat**: Cross-model agreement → caveat REDUCED. Cross-model disagreement → flag as highest-priority divergence.
+**Local Sonnet fallback (PRIMARY recovery path — do this BEFORE reporting failure):**
+
+1. Spawn a local Claude Sonnet Agent subagent with the **same** system prompt and user prompt that the external model received. Pass `model: "sonnet"` explicitly so it does not default to the orchestrator's Opus.
+2. Tag the response as `[CROSS-MODEL CHECK: local_fallback — Sonnet]` (NOT as the original external model name).
+3. Include it in the Chair's input with a note: "External cross-model unavailable — cross-check is a SAME-MODEL-FAMILY Sonnet fallback. Reduces but does not fully capture cross-model validation."
+4. The Chair's synthesis must acknowledge the fallback: `cross_check=local_fallback` in any run_report, and the same-model caveat is PARTIALLY elevated (more than full-success, less than silent-skip).
+
+**Only if the local Sonnet fallback ALSO fails** (rare — session-wide Agent tool unavailability): Report to the human — "Both external and local Sonnet cross-check failed: [errors]. Proceeding with same-model Claude-Opus council only. Same-model caveat is MAXIMUM for this session."
+
+Do NOT skip silently. The fallback-or-report path is the ONLY codepath.
+
+**Impact on Same-Model Caveat**: External success → caveat REDUCED. Local Sonnet fallback → caveat PARTIAL. External+local both fail → caveat MAXIMUM. Cross-model disagreement → flag as highest-priority divergence.
 
 ---
 
