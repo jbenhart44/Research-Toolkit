@@ -87,8 +87,8 @@ If all verified:
 - **A wrong number from a real paper is as bad as a fabricated citation.** Both are academic misrepresentation.
 
 ## Dependencies
-- Source papers should have .txt extractions alongside the PDFs (use `/pdftotxt` first)
-- If .txt files don't exist, flag as UNVERIFIABLE and suggest running `/pdftotxt`
+- Source papers should have .txt extractions alongside the PDFs (use `/readable` first)
+- If .txt files don't exist, flag as UNVERIFIABLE and suggest running `/readable`
 
 ## When to Run
 - Before printing any poster or submitting any paper

@@ -54,7 +54,7 @@ From the student's submission folder:
 
 1. Find every `(Author Year)` or `[@author_year]` citation in the document
 2. Match each to a file in `sources/`
-3. For each numerical value attributed to a source, `grep` the value in the source's `.txt` extraction (auto-invoked via `/pdftotxt` if missing)
+3. For each numerical value attributed to a source, `grep` the value in the source's `.txt` extraction (auto-invoked via `/readable` if missing)
 4. Flag three classes of error:
    - **MISMATCH** — number in document ≠ number in source
    - **NOT FOUND** — citation has no matching PDF in `sources/`
@@ -146,7 +146,7 @@ This is the Panjwani (VoxDev 2025) "skills as patterns to adapt" principle appli
 
 ## Known Limitations
 
-- **PDF extraction quality varies.** Image-based PDFs require `/pdftotxt` OCR, which has a ~95% success rate but can miss text on complex layouts. If `/audit` flags a NOT FOUND on a citation you *know* the student has, spot-check the `.txt` extraction.
+- **PDF extraction quality varies.** Image-based PDFs require `/readable` OCR, which has a ~95% success rate but can miss text on complex layouts. If `/audit` flags a NOT FOUND on a citation you *know* the student has, spot-check the `.txt` extraction.
 - **Citation format heterogeneity.** `/audit` currently matches `(Author Year)`, `[@author_year]`, and numbered `[1]` styles well. Footnote-only citation systems (e.g., some Chicago styles) may require a second pass.
 - **Numerical formatting.** `/audit` normalizes percentages ("35%" ↔ "0.35") and comma-number pairs ("1,000" ↔ "1000") but may miss unusual formats. Flag false positives back to the toolkit maintainer — these get added to the normalization rules.
 
@@ -158,7 +158,7 @@ This is the Panjwani (VoxDev 2025) "skills as patterns to adapt" principle appli
 Check the filename. `/audit` matches on author+year; a file named `paper_final_v2.pdf` without an author or year in the name won't match. Ask students to rename to `author_year.pdf`.
 
 **"/audit is slow on a 20-citation document"**
-First invocation does `/pdftotxt` on every PDF. Subsequent runs use the cached `.txt`. Expect ~3 seconds per citation first pass, ~0.5 seconds per citation on re-run.
+First invocation does `/readable` on every PDF. Subsequent runs use the cached `.txt`. Expect ~3 seconds per citation first pass, ~0.5 seconds per citation on re-run.
 
 **"Numbers I know match are being flagged MISMATCH"**
 Check for units. "35%" in the document vs. "0.35" in the source is normalized; "35 percent" vs. "35%" is also normalized; but "$35M" vs. "35 million" may not be. Flag these upstream.

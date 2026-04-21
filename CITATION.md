@@ -13,7 +13,7 @@ https://mgkay.github.io/pcv/
 
 ## Attribution
 
-The Research Amp Toolkit was developed by Jake Benhart and Dr. Michael G. Kay at NC State University. Kay created the Plan-Construct-Verify (PCV) methodology that serves as the toolkit's foundation (PCV v3.14 bundled as of 2026-04-19). Benhart extended PCV with empirical validation during PhD research and built the surrounding workflow toolkit (CoA, PACE, /audit, /improve, /startup, /dailysummary, /weeklysummary, /commit, /simplify, /quarto, /pdftotxt, /runlog, /help, /review).
+The Research Amp Toolkit was developed by Jake Benhart and Dr. Michael G. Kay at NC State University. Kay created the Plan-Construct-Verify (PCV) methodology that serves as the toolkit's foundation (PCV v3.14 bundled as of 2026-04-19). Benhart extended PCV with empirical validation during PhD research and built the surrounding workflow toolkit (CoA, PACE, /audit, /improve, /startup, /dailysummary, /weeklysummary, /commit, /simplify, /quarto, /readable, /runlog, /help, /review).
 
 ## BibTeX
 

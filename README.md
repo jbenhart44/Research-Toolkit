@@ -18,7 +18,7 @@ Reusable Claude Code commands that turn vague "help me with my research" prompts
 
 2. **Your project state vanishes when you close the terminal.** `/startup` shows where every workstream left off. `/dailysummary` captures today's work. `/weeklysummary` aggregates by work area. `/commit` makes clean git history. `/runlog` shows longitudinal patterns across commands over weeks.
 
-3. **You need help without burning tokens.** `/pdftotxt` extracts PDF text so you can grep-cite. `/quarto` builds slide decks from your notes. `/improve` scans infrastructure gaps. `/simplify` cleans up working code.
+3. **You need help without burning tokens.** `/readable` extracts PDF text so you can grep-cite. `/quarto` builds slide decks from your notes. `/improve` scans infrastructure gaps. `/simplify` cleans up working code.
 
 **How to use**: Install once (`bash install.sh`), edit `~/.claude/toolkit-config.md` with your project name and folders, run `/startup` to begin. Each command tells you what it does and when to use it.
 
@@ -82,7 +82,7 @@ project_type: research
 | Command | What it does |
 |---------|-------------|
 | **/quarto** | Generates Quarto RevealJS slide decks from background documents |
-| **/pdftotxt** | Extracts text from PDF, Word, and HTML files — supports single files or directories |
+| **/readable** | Extracts text from PDF, Word, and HTML files — supports single files or directories |
 
 ### Triage Layer
 | Command | What it does |

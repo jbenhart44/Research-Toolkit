@@ -121,7 +121,7 @@ else
 fi
 
 # Define command sets
-SHARED_COMMANDS=(coa pace improve quarto pdftotxt help review)
+SHARED_COMMANDS=(coa pace improve quarto readable help review)
 STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify audit runlog)
 
 # Install shared commands (both products)
@@ -240,10 +240,10 @@ else
 fi
 echo ""
 if [ "$MINIMAL" = true ]; then
-    echo "Commands installed: /pcv, /coa, /pace, /improve, /quarto, /pdftotxt, /help, /review"
+    echo "Commands installed: /pcv, /coa, /pace, /improve, /quarto, /readable, /help, /review"
 else
     echo "Commands installed: /pcv, /coa, /pace, /audit,"
     echo "  /improve, /simplify, /startup, /dailysummary, /weeklysummary,"
-    echo "  /commit, /quarto, /pdftotxt, /help, /review, /runlog"
+    echo "  /commit, /quarto, /readable, /help, /review, /runlog"
 fi
 echo ""

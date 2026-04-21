@@ -35,7 +35,7 @@ The toolkit started with 15 commands built during PhD research. Assessment:
 |------|----------|-------------|
 | **Tier 1 — Showcase** | /pcv, /coa, /pace, /improve, /simplify | Core methodology — included |
 | **Tier 2 — Workflow** | /startup, /dailysummary, /weeklysummary, /commit | Daily-use productivity — included |
-| **Tier 3 — Content** | /quarto, /pdftotxt | Document generation — included |
+| **Tier 3 — Content** | /quarto, /readable | Document generation — included |
 | **Tier 4 — Triage** | /help | Discoverability triage — added v1.3 |
 | **Excluded** | 4 domain-specific commands | Not generalizable beyond the original research context |
 
@@ -50,7 +50,7 @@ The toolkit started with 15 commands built during PhD research. Assessment:
 | /pace | Yes | Yes | Verification |
 | /improve | Yes | Yes | Verification |
 | /quarto | Yes | Yes | Content |
-| /pdftotxt | Yes | Yes | Content |
+| /readable | Yes | Yes | Content |
 | /startup | — | Yes | Workflow |
 | /dailysummary | — | Yes | Workflow |
 | /weeklysummary | — | Yes | Workflow |
@@ -117,7 +117,7 @@ Each command was generalized from a project-specific version. Here's what was in
 | `/dailysummary` | Parameter-specific numerical verification, incident documentation | Generic numerical accuracy check preserved. Sonnet fallback added. |
 | `/commit` | Project folder categorization (project-specific folder names) | Uses git diff to infer structure. No hardcoded folder names needed. |
 | `/quarto` | NC State theme references | BYOT architecture. Theme is a user-provided SCSS file, not bundled. |
-| `/pdftotxt` | Hardcoded `/tmp/` path | Cross-platform temp path via Python `tempfile`. |
+| `/readable` | Hardcoded `/tmp/` path | Cross-platform temp path via Python `tempfile`. |
 
 ---
 
@@ -180,7 +180,7 @@ research-amp/                            Total: 33 files
 │   ├── weeklysummary.md                 Weekly aggregation
 │   ├── commit.md                        Intelligent git commits
 │   ├── quarto.md                        Slide generation
-│   └── pdftotxt.md                      Document extraction
+│   └── readable.md                      Document extraction
 │   └── runlog.md                        Longitudinal run observability (v1.1)
 ├── scripts/                             Shared helper scripts (v1.1)
 │   └── emit_run_report.sh               Run instrumentation helper
@@ -241,7 +241,7 @@ Changed:
 - `jbenhart44.github.io/index.html` — parallel updates
 
 Deferred to v1.2:
-- Instrumentation for /weeklysummary, /quarto, /pdftotxt, /simplify (no usage evidence)
+- Instrumentation for /weeklysummary, /quarto, /readable, /simplify (no usage evidence)
 - `/audit` + `/audit-library` merger
 - `/dailysummary` + `/weeklysummary` merger
 

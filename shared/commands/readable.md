@@ -3,7 +3,7 @@ allowed-tools: Bash(python3:*), Bash(pip:*), Read, Write, Glob, Agent
 description: Extract text from PDF, Word (.docx), or HTML files. Supports single files or entire directories. Saves .txt files alongside originals.
 ---
 
-# /pdftotxt — Document to Text Extraction
+# /readable — Document to Text Extraction
 
 > **When to use**: You need to read PDFs, Word documents, or HTML files that Claude Code's built-in Read tool can't render, OR you need to batch-convert an entire directory of papers for citation verification with `/audit`.
 
@@ -12,16 +12,16 @@ Extract text from PDF, Word (.docx), or HTML files. Supports single files or ent
 ## Usage
 
 ```
-/pdftotxt <path>              — single file or entire directory
-/pdftotxt <path> [page_range] — PDF with page range (e.g., 1-20)
+/readable <path>              — single file or entire directory
+/readable <path> [page_range] — PDF with page range (e.g., 1-20)
 ```
 
 Examples:
-- `/pdftotxt papers/some_paper.pdf` — single PDF
-- `/pdftotxt papers/` — ALL supported files in directory
-- `/pdftotxt some_paper.pdf 1-20` — first 20 pages only
-- `/pdftotxt documents/proposal.docx` — Word document
-- `/pdftotxt reports/summary.html` — HTML file
+- `/readable papers/some_paper.pdf` — single PDF
+- `/readable papers/` — ALL supported files in directory
+- `/readable some_paper.pdf 1-20` — first 20 pages only
+- `/readable documents/proposal.docx` — Word document
+- `/readable reports/summary.html` — HTML file
 
 ## Supported Formats
 - **PDF** (.pdf) — via `pypdf` (text-based) or `fitz`/PyMuPDF (image-based fallback with page rendering)
@@ -64,7 +64,7 @@ Strip all `<script>`, `<style>`, `<nav>`, `<header>`, `<footer>` tags before ext
 - Some environments do not have `poppler-utils` installed (needed by the Read tool for PDFs)
 - Installing system packages may require elevated permissions
 - `pypdf`, `python-docx`, and `beautifulsoup4` are pure Python libraries — no system dependencies
-- Directory mode enables batch conversion for citation verification workflows (`/pdftotxt` → `/audit`)
+- Directory mode enables batch conversion for citation verification workflows (`/readable` → `/audit`)
 - Image-based PDF handling ensures no paper is unreadable
 
 ## Dependencies

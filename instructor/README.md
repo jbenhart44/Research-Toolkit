@@ -20,7 +20,7 @@ This installs 6 commands + PCV. Takes under 5 minutes.
 | `/pace` | Parallel verification — catches errors through redundancy | [Using PACE for Grading](guides/using-pace-for-grading.md) |
 | `/improve` | Self-reflective audit of Claude Code infrastructure | — |
 | `/quarto` | Generate slide decks from documents | — |
-| `/pdftotxt` | Extract text from PDF/Word files | — |
+| `/readable` | Extract text from PDF/Word files | — |
 
 ## Getting Started
 

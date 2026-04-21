@@ -92,7 +92,7 @@ bash ai-research-toolkit/scripts/emit_run_report.sh \
 ```
 
 **Field encoding rules**:
-- `recommendations` is a **comma-joined list, no spaces, no JSON brackets** (`audit,pdftotxt` ✓ not `[audit, pdftotxt]` ✗). The `--fields` parser tokenizes on whitespace; JSON lists break it silently.
+- `recommendations` is a **comma-joined list, no spaces, no JSON brackets** (`audit,readable` ✓ not `[audit, readable]` ✗). The `--fields` parser tokenizes on whitespace; JSON lists break it silently.
 - Use `triage_result` (NOT `outcome`) for the user-facing field, because `outcome` collides with the script's native YAML key.
 
 ### STEP 6 — Exit without executing
@@ -126,7 +126,7 @@ Grouped by problem-shape:
 
 **Content** (produce something):
 - `/quarto` — slide deck from notes
-- `/pdftotxt` — extract text from PDFs/DOCX for grep/cite
+- `/readable` — extract text from PDFs/DOCX for grep/cite
 
 ---
 
@@ -141,7 +141,7 @@ student: /help I need to make slides from my research notes
 Match: /quarto — generates Quarto RevealJS decks from background documents.
 Run: /quarto <path/to/your/notes.md>
 
-Skip /pdftotxt — only needed if your notes are still PDFs.
+Skip /readable — only needed if your notes are still PDFs.
 ```
 
 ### Example 2 — Shape A, one prerequisite (5 chunks, at budget)
@@ -153,8 +153,8 @@ student: /help I have a paper and I'm worried about citations, sources are on di
 Primary: /audit — verifies every citation exists on disk AND every quoted number matches the source.
 Run: /audit <path/to/your_paper.md> --sources <path/to/sources/>   `Verify: tests/smoke/audit_smoke.md`
 
-Prereq: /pdftotxt first IF any source is still a raw PDF (no .txt extraction).
-Run: /pdftotxt <path/to/sources/>
+Prereq: /readable first IF any source is still a raw PDF (no .txt extraction).
+Run: /readable <path/to/sources/>
 
 Skip /pace — it's for decisions with multiple valid answers, not citation checking.
 ```

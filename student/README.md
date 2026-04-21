@@ -37,7 +37,7 @@ After installation:
 ### Write and review
 - `/quarto` — Generate slide decks from documents
 - `/simplify` — Review code for quality issues
-- `/pdftotxt` — Extract text from PDFs and Word docs
+- `/readable` — Extract text from PDFs and Word docs
 
 ### Stay organized
 - `/dailysummary` — Summarize today's work

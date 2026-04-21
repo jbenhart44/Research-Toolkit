@@ -59,7 +59,7 @@ Tests `/commit`'s logical grouping claim. 6 files in 3 natural groups → expect
 
 ## What's NOT tested (v1.1 deferred)
 
-- `/weeklysummary`, `/quarto`, `/pdftotxt`, `/simplify` have no smoke fixtures (no usage evidence yet — these are v1.2 work)
+- `/weeklysummary`, `/quarto`, `/readable`, `/simplify` have no smoke fixtures (no usage evidence yet — these are v1.2 work)
 - End-to-end classroom simulation (install.sh → /startup → ... → /coa) — tracked separately in `plans/charge_toolkit_v1_1_release.md`
 
 ## Adding a fixture

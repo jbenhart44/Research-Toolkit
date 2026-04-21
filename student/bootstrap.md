@@ -8,7 +8,7 @@
 When you give this file to Claude Code, it installs the full 12-command
 research toolkit: structured planning (PCV), verification (CoA, PACE, audit),
 workflow automation (startup, dailysummary, weeklysummary, commit, simplify,
-improve), and content generation (quarto, pdftotxt).
+improve), and content generation (quarto, readable).
 
 ## How to Install
 
@@ -48,7 +48,7 @@ Files to install (11 total — /pcv is installed as a skill, see Step 3):
 - commit.md
 - simplify.md
 - quarto.md
-- pdftotxt.md
+- readable.md
 
 If any file already exists at the destination, back it up first
 (append `.bak` to the existing file).

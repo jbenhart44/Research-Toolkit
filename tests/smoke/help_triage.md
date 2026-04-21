@@ -58,23 +58,23 @@ Skip /dailysummary — that's for capturing today's work narrative, not committi
 Primary: /audit — verifies every citation exists on disk AND every quoted number matches the source.
 Run: /audit <path/to/your_paper.md> --sources <path/to/sources/>   `Verify: tests/smoke/audit_smoke.md`
 
-Prereq: /pdftotxt first IF any source is still a raw PDF (no .txt extraction).
-Run: /pdftotxt <path/to/sources/>
+Prereq: /readable first IF any source is still a raw PDF (no .txt extraction).
+Run: /readable <path/to/sources/>
 
 Skip /pace — it's for decisions with multiple valid answers, not citation checking.
 ```
 
 **Expected CSV row**:
 ```csv
-...,help,...,input_shape=A,recommendations=audit,pdftotxt,clarifying_questions=0,triage_result=match,...
+...,help,...,input_shape=A,recommendations=audit,readable,clarifying_questions=0,triage_result=match,...
 ```
 
 **Pass condition**:
 - Primary recommendation is `/audit`
-- Prerequisite recommendation is `/pdftotxt` (conditionally framed)
+- Prerequisite recommendation is `/readable` (conditionally framed)
 - Skip entry is `/pace` (one skip, not multiple)
 - Output is ≤5 functional chunks
-- CSV `recommendations` field is `audit,pdftotxt` (comma-joined, no spaces, no brackets)
+- CSV `recommendations` field is `audit,readable` (comma-joined, no spaces, no brackets)
 
 ---
 

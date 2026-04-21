@@ -49,7 +49,7 @@ Parse `$ARGUMENTS`:
 - If empty → ask: "Which document should I review? (path relative to project root, or absolute)"
 - If a path is given → verify the file exists with `ls`. If not found, ask for the correct path.
 - If a focus-question follows the path → pass it to each lens as additional framing
-- If the path ends in `.pdf`, `.docx`, or `.html` → tell the user: "That's a non-text format. Run `/pdftotxt <path>` first, then `/review` on the resulting `.txt`." STOP.
+- If the path ends in `.pdf`, `.docx`, or `.html` → tell the user: "That's a non-text format. Run `/readable <path>` first, then `/review` on the resulting `.txt`." STOP.
 
 Read the target document end-to-end. If it is >500 lines, read it in sections and summarize each before passing to subagents (keeps subagent context clean).
 
@@ -278,6 +278,6 @@ Document review is not a decision — it's an absorption task. More lenses add r
 - Code review → use /pace (single-deliverable verification)
 - Long multi-document synthesis → use /coa Full Council
 - Citation accuracy checks on papers → use /audit
-- Extracting text from a PDF → use /pdftotxt first, then /review on the .txt
+- Extracting text from a PDF → use /readable first, then /review on the .txt
 
 **Related commands**: /coa (multi-perspective decisions), /pace (single-deliverable verification), /audit (citation accuracy), /improve (self-reflective meta-review of the user's own workflow).
