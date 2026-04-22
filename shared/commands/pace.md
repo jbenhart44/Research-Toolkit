@@ -584,4 +584,6 @@ The full PACE protocol can produce 15,000-25,000 tokens across Steps 3-6. To kee
 - Divergence is high and the Commissioner needs exact reasoning
 - The Commissioner explicitly requests full reports
 
+> **What next?** Run `/dailysummary` to capture the PACE findings before they leave context — the convergence result, any discrepancy that was resolved, and the verified deliverable are all worth preserving in your session record.
+
 $ARGUMENTS

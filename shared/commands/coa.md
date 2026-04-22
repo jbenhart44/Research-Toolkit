@@ -508,4 +508,6 @@ Chair includes vote tally. Arguments matter more than count.
 - Most sessions end at "done" — not every session needs consolidation
 - Never fabricate agreement or disagreement
 
+> **What next?** Run `/dailysummary` to capture the council's rationale before it leaves context — the Chair synthesis and any DIVERGE findings are decision context that's easy to lose if not recorded.
+
 $ARGUMENTS

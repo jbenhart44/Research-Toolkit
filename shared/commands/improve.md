@@ -451,4 +451,6 @@ bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
 
 This is a ONE-LINE call. The helper handles YAML formatting, CSV append, and atomicity. If the helper is not available at the toolkit path, skip silently — the improve report itself is the user-facing deliverable.
 
+> **What next?** After actioning any findings from this report, run `/commit` to checkpoint the infrastructure changes — improve findings applied but not committed are easy to lose across sessions.
+
 $ARGUMENTS

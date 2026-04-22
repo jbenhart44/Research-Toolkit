@@ -210,4 +210,6 @@ If the helper is not available (e.g., toolkit not installed at expected path), s
 
 ---
 
+> **What next?** If the summary flagged any `/improve` candidates, run `/improve` at the start of your next session to action them while the context is warm.
+
 $ARGUMENTS

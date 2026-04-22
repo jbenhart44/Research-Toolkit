@@ -5,7 +5,7 @@ description: Extract text from PDF, Word (.docx), or HTML files. Supports single
 
 # /readable — Document to Text Extraction
 
-> **When to use**: You need to read PDFs, Word documents, or HTML files that Claude Code's built-in Read tool can't render, OR you need to batch-convert an entire directory of papers for citation verification with `/audit`.
+> **When to use**: You need persistent, grep-searchable `.txt` extractions from PDFs, Word docs, or HTML files — for batch citation verification with `/audit`, or for files where you need to search across many documents at once. Note: Claude Code's built-in Read tool *can* render individual PDFs natively; `/readable` adds value for batch processing, image-based OCR, and producing `.txt` files that persist on disk for later grep-based citation work.
 
 Extract text from PDF, Word (.docx), or HTML files. Supports single files or entire directories. Saves .txt files alongside the originals for easy reading and grep-based citation verification.
 
@@ -83,5 +83,7 @@ If your environment requires bypassing system package restrictions:
 ```bash
 pip install --break-system-packages pypdf python-docx beautifulsoup4 PyMuPDF
 ```
+
+> **What next?** If `.txt` files were just extracted, run `/audit` on any document that cites figures from these papers — now that the source text is on disk, every number can be grep-verified before you write it.
 
 $ARGUMENTS

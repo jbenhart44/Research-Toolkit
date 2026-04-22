@@ -6,6 +6,8 @@ description: Generate an ISO calendar week summary from daily summaries — grou
 # /weeklysummary — Weekly Work Summary
 
 > **When to use**: At the end of a work week (Friday/Saturday) or start of the next (Monday). Consolidates daily summaries into a single weekly view grouped by workstream.
+>
+> **Prerequisites**: Requires Sonnet model availability — this command will fail on Haiku-only plans. Re-running overwrites the existing weekly summary for the same ISO week (it is a live document until the week closes).
 
 ## Timing Recommendation
 
@@ -207,5 +209,7 @@ If the file already exists for this week, overwrite it (it is a live document un
 - **ISO calendar week** — Monday to Sunday, non-overlapping
 - **Active workstreams only** — do not create sections for workstreams with zero mentions this week
 - **Dormant tracking** — compare against prior week's active workstreams
+
+> **What next?** Run `/commit` to save the weekly summary file — it won't appear in next week's git history unless it's committed.
 
 $ARGUMENTS

@@ -12,9 +12,12 @@ Verify every citation and numerical value in a document against the actual sourc
 ## Usage
 
 ```
-/audit <file_path>         # Audit a specific file (.html, .qmd, .tex, .md)
-/audit <directory>         # Audit all academic files in a directory
+/audit <file_path>                        # Audit a specific file (.html, .qmd, .tex, .md)
+/audit <directory>                        # Audit all academic files in a directory
+/audit <file_path> --sources <dir>        # Specify where source PDFs/TXTs live (overrides auto-search)
 ```
+
+**Output**: `/audit` reports discrepancies — it does not produce a pass/fail verdict. MISMATCH and NOT FOUND findings require your judgment (some number variations are acceptable; some are not). The audit report lists every finding with line references so you can decide what to fix.
 
 ## What It Checks
 
@@ -123,3 +126,5 @@ cd ai-research-toolkit/tests/smoke/
 /audit paper.md --sources sources/
 # Expected: VERIFIED: 1, MISMATCH: 1 (Jones 42% vs 35%), NOT FOUND: 1 (Rodriguez)
 ```
+
+> **What next?** If any citation shows NOT ON DISK, run `/readable` on that paper's PDF first to generate a searchable `.txt`, then re-run `/audit` to verify the specific number.

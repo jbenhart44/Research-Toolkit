@@ -6,6 +6,8 @@ description: Session startup — reads recent daily summaries, identifies all ac
 # /startup — Session Startup Briefing
 
 > **When to use**: At the start of every work session. Reads your recent daily summaries and orients you on all active workstreams — what's done, what's next.
+>
+> **Prerequisite**: Requires daily summaries written by `/dailysummary`. If your summary folder is empty or missing, `/startup` falls back to `git log --oneline -10` and open file context — useful orientation, but not the full workstream picture. Build the habit of running `/dailysummary` at the end of each session first.
 
 You are executing the `/startup` command. Your job is to quickly orient the user on the current state of ALL active workstreams by reading recent daily summaries and project state, then presenting a concise action-ready briefing.
 
@@ -146,5 +148,7 @@ bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
 ```
 
 One-line call via the helper. Skip silently if helper is unavailable — the user's briefing output must NEVER be blocked by instrumentation.
+
+> **What next?** Plan to run `/dailysummary` at the end of this session — that's what makes the next `/startup` useful. Without a closing summary, today's work won't appear in tomorrow's briefing.
 
 $ARGUMENTS

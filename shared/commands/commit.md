@@ -128,4 +128,6 @@ One-line call via the helper. Skip silently if helper is unavailable — git com
 
 Why instrument git commits at the toolkit level? Git commits alone tell you *what* changed. The /commit run_report adds *which commits were grouped together in which session*, which enables `/runlog` to answer "how often am I committing?" and "how many files per commit?" over time.
 
+> **What next?** If this session included writing any cited numerical values into a document, run `/audit` on that document now — before the session closes and the context of what you wrote is lost.
+
 $ARGUMENTS
