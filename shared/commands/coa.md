@@ -508,6 +508,72 @@ Chair includes vote tally. Arguments matter more than count.
 - Most sessions end at "done" — not every session needs consolidation
 - Never fabricate agreement or disagreement
 
+---
+
+## CUSTOM PERSONAS
+
+You can define permanent project-specific council members that the Clerk will offer in every future session.
+
+### How to create a custom persona
+
+**1. Create the directory** (first time only):
+```bash
+mkdir -p coa/personas/
+```
+
+**2. Copy the template and fill it in**:
+```bash
+cp ~/.claude/skills/coa/personas/TEMPLATE.md coa/personas/my_persona.md
+```
+
+Or create `coa/personas/my_persona.md` directly with this structure:
+
+```markdown
+# [Persona Name]
+
+## Lens
+[One sentence: the single professional perspective this member argues from exclusively.]
+
+## Background
+[2-3 sentences: their expertise, the frameworks they use, the evidence they trust.]
+
+## Questions they always ask
+- [First instinctive question]
+- [Second characteristic question]
+- [What they notice that other seats miss]
+
+## Flip condition template
+[What evidence would change their position — be concrete, not vague.]
+
+## Seat category
+convergent   <!-- data/metrics/tradeoffs focus -->
+<!-- divergent -->   <!-- strategy/stories/precedent focus -->
+```
+
+**3. Optionally add seating rules** in `coa/ROSTER.md`:
+```markdown
+# Council of Agents — Project Roster
+
+## Custom Seats
+- **My Persona** (`coa/personas/my_persona.md`) — offer when the question involves [trigger]
+
+## Seating Rules
+always: Skeptic, Practitioner
+```
+
+The Clerk reads `coa/personas/` and `coa/ROSTER.md` at the start of every `/coa` session and offers your custom members alongside the built-in roster. No other setup required.
+
+### Starter personas (included with the toolkit)
+
+Four ready-to-use personas are included in `~/.claude/skills/coa/personas/`. Copy any of them into your project's `coa/personas/` to activate:
+
+| File | Persona | Best for |
+|------|---------|----------|
+| `committee_chair.md` | Committee Chair | Dissertation scope, contribution framing, defense strategy |
+| `domain_expert.md` | Domain Expert | Field-specific methodology, reviewer expectations, literature positioning |
+| `advisor.md` | Advisor | Career decisions, timeline tradeoffs, job market framing |
+| `industry_practitioner.md` | Industry Practitioner | External validity, deployment feasibility, practitioner relevance |
+
 > **What next?** Run `/dailysummary` to capture the council's rationale before it leaves context — the Chair synthesis and any DIVERGE findings are decision context that's easy to lose if not recorded.
 
 $ARGUMENTS
