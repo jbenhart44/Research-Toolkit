@@ -38,7 +38,7 @@ Then in Claude Code: type `/pcv` in any project directory to verify it works.
 
 **Verify your install** (30 seconds):
 ```bash
-cd research-amp/tests/smoke/   # path becomes 'research-amp/' after directory rename ships in v1.2 commit
+cd research-amp/tests/smoke/
 /audit paper.md --sources sources/
 # Expected: 1 VERIFIED + 1 MISMATCH + 1 NOT FOUND (1 fabricated citation flagged)
 ```

@@ -39,7 +39,7 @@ Each lens returns the same three deliverables:
 - **Relevance to your project** (specific workstreams, files, or decisions)
 - **3 implications** (concrete actions or reframings, not generalities)
 
-Chair synthesis: convergence across lenses, material divergences, and a single consolidated "top 3 implications for Jake" list.
+Chair synthesis: convergence across lenses, material divergences, and a single consolidated "top 3 implications for you" list.
 
 ---
 

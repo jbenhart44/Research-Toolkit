@@ -129,7 +129,7 @@ All council members use the same underlying LLM. Convergence = breadth-of-framin
 
 ## REQUIRED FILE MANIFEST — THE EVIDENCE BAR
 
-A real CoA session MUST write each council member's output as a separate file so the session is mechanically auditable. Create a session directory at `CC_Workflow/coa/council_sessions/coa_{date}_{slug}/` (a directory, not a single markdown file) and write these artifacts:
+A real CoA session MUST write each council member's output as a separate file so the session is mechanically auditable. Create a session directory at `coa/council_sessions/coa_{date}_{slug}/` (a directory, not a single markdown file) and write these artifacts:
 
 - `member_{seat}.md` for each seated member (e.g., `member_skeptic.md`, `member_economist.md`, `member_practitioner.md`). Each file contains that member's complete analysis (non-empty, >500 bytes).
 - `chair_synthesis.md` — The Chair's 7-section synthesis.
@@ -357,7 +357,7 @@ Present the full 7-section synthesis.
 If `scripts/audit_run_evidence.sh` exists under the project root, invoke it on the session directory:
 
 ```bash
-bash scripts/audit_run_evidence.sh "CC_Workflow/coa/council_sessions/coa_{date}_{slug}"
+bash scripts/audit_run_evidence.sh "coa/council_sessions/coa_{date}_{slug}"
 ```
 
 If the script does not exist, perform the equivalent checks inline:

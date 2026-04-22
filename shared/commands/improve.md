@@ -165,7 +165,7 @@ If and only if `$ARGUMENTS` is `all`:
 
 If `$ARGUMENTS` is `all` or a focus topic, ignore the gate and run the full Priority 3 sweep.
 
-**Gate self-test (v1.1 calibration)**: On every invocation, append a single line to `CC_Workflow/improve_reports/.gate_log.txt` in the format:
+**Gate self-test (v1.1 calibration)**: On every invocation, append a single line to `improve_reports/.gate_log.txt` (in your project's workflow directory) in the format:
 ```
 YYYY-MM-DD HH:MM | friction_count=N | gate_fired=true/false | mode=session|all|focus
 ```

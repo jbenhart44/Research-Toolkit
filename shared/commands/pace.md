@@ -94,7 +94,7 @@ Do NOT begin subagent work until you have a complete Task Brief and Task Essence
 
 ## REQUIRED FILE MANIFEST — THE EVIDENCE BAR
 
-A real PACE run MUST write each agent's output as a separate file so the run is mechanically auditable. Create a run directory at `CC_Workflow/evidence/pace_runs/pace_{run_id}_{slug}/` (a directory, not just a single markdown file) and write these artifacts:
+A real PACE run MUST write each agent's output as a separate file so the run is mechanically auditable. Create a run directory at `evidence/pace_runs/pace_{run_id}_{slug}/` (a directory, not just a single markdown file) and write these artifacts:
 
 - `player_a_output.md` — Player A's complete SOLUTION + METADATA (non-empty, >500 bytes)
 - `player_b_output.md` — Player B's complete output (non-empty, >500 bytes, content hash MUST differ from Player A)
@@ -419,7 +419,7 @@ After delivery, ask:
 If `scripts/audit_run_evidence.sh` exists under the project root, invoke it on the run directory:
 
 ```bash
-bash scripts/audit_run_evidence.sh "CC_Workflow/evidence/pace_runs/pace_{run_id}_{slug}"
+bash scripts/audit_run_evidence.sh "evidence/pace_runs/pace_{run_id}_{slug}"
 ```
 
 If the script does not exist, perform the equivalent checks inline:
