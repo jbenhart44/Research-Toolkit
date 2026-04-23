@@ -1,7 +1,7 @@
 #!/bin/bash
 # Research Amp Toolkit — Installer
 # Usage:
-#   bash install.sh               # Full toolkit (15 commands)
+#   bash install.sh               # Full toolkit (14 commands)
 #   bash install.sh --minimal     # Instructor toolkit (8 commands)
 #   bash install.sh --hooks        # Also install optional hooks (token budget, folder guard)
 #   bash install.sh --dry-run     # Show what would be installed without copying
@@ -45,7 +45,7 @@ show_help() {
     echo "Research Amp Toolkit — Installer"
     echo ""
     echo "Usage:"
-    echo "  bash install.sh               Full toolkit (15 commands)"
+    echo "  bash install.sh               Full toolkit (14 commands)"
     echo "  bash install.sh --minimal     Instructor toolkit (8 commands)"
     echo "  bash install.sh --dry-run     Show what would be installed without copying"
     echo "  bash install.sh --help        Show this help"
@@ -122,7 +122,7 @@ fi
 
 # Define command sets
 SHARED_COMMANDS=(coa pace improve quarto readable help review)
-STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify audit runlog)
+STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify audit)
 
 # Install shared commands (both products)
 echo "Installing shared commands..."
@@ -219,7 +219,7 @@ if [ "$DRY_RUN" = true ]; then
     if [ "$MINIMAL" = true ]; then
         echo "  Instructor Toolkit dry run (8 commands + PCV)"
     else
-        echo "  Full Toolkit dry run (15 commands)"
+        echo "  Full Toolkit dry run (14 commands)"
     fi
     echo "================================================"
     echo ""
@@ -229,7 +229,7 @@ else
     if [ "$MINIMAL" = true ]; then
         echo "  Instructor Toolkit installed (8 commands + PCV)"
     else
-        echo "  Full Toolkit installed (15 commands)"
+        echo "  Full Toolkit installed (14 commands)"
     fi
     echo "================================================"
     echo ""
@@ -244,6 +244,6 @@ if [ "$MINIMAL" = true ]; then
 else
     echo "Commands installed: /pcv, /coa, /pace, /audit,"
     echo "  /improve, /simplify, /startup, /dailysummary, /weeklysummary,"
-    echo "  /commit, /quarto, /readable, /help, /review, /runlog"
+    echo "  /commit, /quarto, /readable, /help, /review"
 fi
 echo ""
