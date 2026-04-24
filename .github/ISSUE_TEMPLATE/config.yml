@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Have a question?
+    url: https://github.com/jbenhart44/Research-Toolkit/discussions/categories/q-a
+    about: Ask in Discussions Q&A — how-do-I, usage questions, troubleshooting that isn't a clear bug.
+  - name: Have an idea or feature request?
+    url: https://github.com/jbenhart44/Research-Toolkit/discussions/categories/ideas
+    about: Propose it in Discussions Ideas so we can talk through scope before you build.

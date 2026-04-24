@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+title: "Research Amp Toolkit"
+message: "If you use this toolkit, please cite it."
+type: software
+version: "0.1.0"
+date-released: "2026-04-23"
+authors:
+  - family-names: "Benhart"
+    given-names: "Jake"
+    affiliation: "North Carolina State University — Operations Research"
+  - family-names: "Kay"
+    given-names: "Michael G."
+    affiliation: "North Carolina State University — Operations Research"
+repository-code: "https://github.com/jbenhart44/Research-Toolkit"
+url: "https://jbenhart44.github.io"
+abstract: >
+  A collection of 14 Claude Code commands that structure AI-assisted
+  research workflows — verification (/pcv, /pace, /coa, /audit), workflow
+  bookkeeping (/startup, /dailysummary, /weeklysummary, /commit, /simplify,
+  /improve), content generation (/quarto, /readable), and triage
+  (/help, /review). Implements Spec-Driven Development patterns for
+  empirical research: plan-construct-verify with explicit specifications,
+  multi-agent cross-checking, and verifiable citation/numerical audits.
+keywords:
+  - "claude-code"
+  - "spec-driven-development"
+  - "research-tooling"
+  - "verification"
+  - "llm-agents"
+license: "MIT"

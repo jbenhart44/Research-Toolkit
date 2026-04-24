@@ -69,7 +69,7 @@ PACE runs tasks through two independent players with coaching review, then cross
 
 ## Workflow Commands
 
-**Source:** 40+ sessions (January-March 2026)
+**Source:** Hundreds of production sessions (2025–2026)
 
 | Command | Usage Count | Key Benefit |
 |---------|------------|-------------|

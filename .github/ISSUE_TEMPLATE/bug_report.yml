@@ -1,0 +1,76 @@
+name: Bug Report
+description: Something in the toolkit isn't working as documented.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug report. Please fill in the fields below so we can reproduce and fix quickly.
+
+        **v0.1 reminder:** This toolkit is a pre-release research preview. Expect breaking changes. Response is best-effort, not guaranteed. If you haven't heard back in 2 weeks, feel free to bump the issue.
+
+  - type: input
+    id: toolkit_version
+    attributes:
+      label: Toolkit version
+      description: The `v0.x` tag or commit SHA you installed from.
+      placeholder: "v0.1.0 or SHA"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      description: macOS, Linux, Windows (WSL), etc. Include version if relevant.
+      placeholder: "e.g., macOS 14.4 / Ubuntu 22.04 / Windows 11 + WSL2 Ubuntu"
+    validations:
+      required: true
+
+  - type: input
+    id: claude_code_version
+    attributes:
+      label: Claude Code CLI version
+      description: Run `claude --version`.
+      placeholder: "e.g., 1.0.x"
+    validations:
+      required: true
+
+  - type: input
+    id: command
+    attributes:
+      label: Command invoked
+      description: The slash command you ran (including any args).
+      placeholder: "e.g., /pcv, /audit paper.qmd, /readable papers/"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_vs_actual
+    attributes:
+      label: Expected vs. actual behavior
+      description: One paragraph each, please.
+      placeholder: |
+        Expected: ...
+
+        Actual: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: Smallest sequence of steps (or Claude Code transcript excerpt) that triggers the issue.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional context
+      description: Anything else that might help — screenshots, config files, related prior sessions.
+    validations:
+      required: false

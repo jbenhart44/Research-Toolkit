@@ -1,0 +1,75 @@
+name: Install / Environment
+description: Installation failed, or the toolkit doesn't work in your environment.
+title: "[Install] "
+labels: ["install", "environment"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Most install problems are OS/shell/path related. The fields below are the ones that usually let us diagnose quickly.
+
+        **v0.1 reminder:** WSL-tested on Linux; mileage may vary on macOS/native-Windows. Response is best-effort.
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system + version
+      placeholder: "e.g., Ubuntu 22.04 on WSL2, macOS 14.4, Windows 11 (native)"
+    validations:
+      required: true
+
+  - type: input
+    id: shell
+    attributes:
+      label: Shell
+      placeholder: "e.g., bash 5.2, zsh 5.9, PowerShell 7"
+    validations:
+      required: true
+
+  - type: input
+    id: claude_code_version
+    attributes:
+      label: Claude Code CLI version
+      description: Run `claude --version`. If it's not installed, say so here.
+      placeholder: "e.g., 1.0.x — or 'not installed'"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install_method
+    attributes:
+      label: Install method used
+      options:
+        - bash install.sh (default, full toolkit)
+        - bash install.sh --minimal (instructor toolkit)
+        - bash install.sh --hooks
+        - Manual copy of command files
+        - Other (describe in details)
+    validations:
+      required: true
+
+  - type: textarea
+    id: error_output
+    attributes:
+      label: Full error output
+      description: Paste the complete terminal output including the command you ran. No redactions — we need the full trace.
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: which_claude
+    attributes:
+      label: "`which claude` output"
+      description: Run `which claude` (or `where claude` on Windows) and paste the path.
+      placeholder: "e.g., /usr/local/bin/claude"
+    validations:
+      required: false
+
+  - type: textarea
+    id: env_details
+    attributes:
+      label: Additional environment details
+      description: Python/Node/Julia versions if relevant, other tools in PATH, anything unusual.
+    validations:
+      required: false

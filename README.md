@@ -1,10 +1,18 @@
 # Research Amp Toolkit
 
-15 Claude Code commands that amplify your research. The tools don't think — they verify, structure, and document. You bring the signal. Validated across 60+ production sessions.
+> **⚠️ v0.1 — experimental, no support commitment.** This is an early research release under active development. Breaking changes expected between versions. Issues and pull requests are welcome; responses are best-effort, not guaranteed. If you're looking for a stable production tool, this isn't it yet.
+
+14 Claude Code commands that amplify your research. The tools don't think — they verify, structure, and document. You bring the signal. Validated across hundreds of production sessions.
 
 **Authors:** Jake Benhart & Dr. Michael G. Kay (NC State University — Operations Research)
 
+**Links:** [Landing page](https://jbenhart44.github.io) · [Download v0.1](https://github.com/jbenhart44/Research-Toolkit/releases) · [Report an issue](https://github.com/jbenhart44/Research-Toolkit/issues) · [Discussions](https://github.com/jbenhart44/Research-Toolkit/discussions) · [Contribute](CONTRIBUTING.md)
+
 Design rationale documented in [DESIGN.md](DESIGN.md).
+
+## Spec-Driven Development
+
+This toolkit is a working implementation of **Spec-Driven Development (SDD)** — the practice of writing the plan, constructing against it, and verifying the result as three separate, auditable steps rather than one conflated "just ask the model" loop. The commands here (`/pcv`, `/pace`, `/audit`, `/readable`, `/coa`) predate the SDD label; they grew out of PhD-research needs where a wrong citation or a hallucinated number is a career cost, not a minor bug. The SDD label is retroactive — the pattern became visible when the broader AI-engineering conversation converged on the same decomposition (peer implementations include GitHub's SpecKit, Obra's Superpowers, and the `agents.md` convention). For the full diagram, per-command narrative, and command-to-stage mapping, see the [landing page](https://jbenhart44.github.io). This README covers install, the command catalog, and contribution guidelines.
 
 **Design tenet — Text-first architecture.** Every toolkit artifact is plain text (Markdown commands, YAML frontmatter, bash helpers, bundled `.md` protocols). No binary formats in the authoring path. This is not aesthetic — it's what makes Claude Code a first-class participant in the workflow, what makes git history meaningful, and what lets reviewers read artifacts without specialized tools. Per Kay (2026): *"transparency is structural rather than procedural."* The text-first constraint is what enforces that structural transparency.
 
