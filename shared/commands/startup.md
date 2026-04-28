@@ -116,7 +116,7 @@ Based on recency and priority, I recommend starting with:
 
 ## Step 5: Evidence Footer (NEW in v1.1 — append to briefing)
 
-End the briefing with a standardized footer that makes the startup read locally-verifiable (PLN principle). This lets instructors (Kay's use case) diagnose "did the student write summaries this week?" vs "did /startup miss them?".
+End the briefing with a standardized footer that makes the startup read locally-verifiable (PLN principle). This lets instructors diagnose "did the student write summaries this week?" vs "did /startup miss them?".
 
 ```markdown
 ---

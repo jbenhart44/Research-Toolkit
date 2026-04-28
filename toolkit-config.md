@@ -21,6 +21,11 @@ workstreams: [modeling, writing, experiments]
 summary_folder: Daily Summary
 # Where weekly summaries are stored (relative to project root)
 weekly_folder: Weekly Summary
+# Where toolkit run-evidence (run_log.csv, per-run reports) is written.
+# Used by /runlog, /audit, /pace, /coa, /pcv-research, /commit, /dailysummary,
+# /improve, /startup, /help. Default is project-local; override to centralize
+# evidence across multiple projects.
+evidence_dir: .toolkit/evidence
 
 ## Project Type
 # "research" or "teaching" — affects how /startup frames its briefing
@@ -41,7 +46,7 @@ project_type: research
 #
 # Example 2 — Graduate Course
 # ────────────────────────────
-# project_name: ISE 754 — Applied Optimization
+# project_name: Applied Optimization (graduate seminar)
 # author_name: Prof. Johnson
 # workstreams: [homework, projects, grading]
 # summary_folder: Course Notes

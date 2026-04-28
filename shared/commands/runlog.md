@@ -15,15 +15,15 @@ Pure aggregation. Reads three existing CSVs produced by the instrumented command
 
 ## Inputs (reads only, never writes to)
 
-1. `CC_Workflow/evidence/run_log.csv` — cross-run index (toolkit master log), appended to by every instrumented command via the `emit_run_report.sh` helper
-2. `CC_Workflow/evidence/command_performance_log.md` — append-only human-readable log (parsed for outcome + improvement signals)
-3. `CC_Workflow/evidence/pace_runs/*/instrumentation.csv` and `coa/council_sessions/*/instrumentation.csv` — per-run detail (only read when user invokes `--drill-down <run-id>`)
+1. `.toolkit/evidence/run_log.csv` — cross-run index (toolkit master log), appended to by every instrumented command via the `emit_run_report.sh` helper
+2. `.toolkit/evidence/command_performance_log.md` — append-only human-readable log (parsed for outcome + improvement signals)
+3. `.toolkit/evidence/pace_runs/*/instrumentation.csv` and `.toolkit/evidence/coa_sessions/*/instrumentation.csv` — per-run detail (only read when user invokes `--drill-down <run-id>`)
 
 ## Output
 
 A markdown table + optional summary footer. Output paths:
 - Displayed in terminal
-- Written to `CC_Workflow/evidence/runlog_reports/runlog_YYYY-MM-DD_HHMMSS.md` (reproducible snapshot)
+- Written to `.toolkit/evidence/runlog_reports/runlog_YYYY-MM-DD_HHMMSS.md` (reproducible snapshot)
 
 ## Usage
 
@@ -43,7 +43,7 @@ A markdown table + optional summary footer. Output paths:
 # /runlog — Longitudinal Toolkit Report
 **Generated**: YYYY-MM-DD HH:MM:SSZ
 **Window**: last 14 days
-**Source CSVs read**: CC_Workflow/evidence/run_log.csv (N rows), command_performance_log.md (M entries)
+**Source CSVs read**: .toolkit/evidence/run_log.csv (N rows), command_performance_log.md (M entries)
 
 ## Per-Command Summary
 
@@ -87,10 +87,10 @@ A markdown table + optional summary footer. Output paths:
 
 ### Step 1: Locate the CSVs
 
-Read `~/.claude/toolkit-config.md` for `evidence_dir` (default: `CC_Workflow/evidence/`).
+Read `~/.claude/toolkit-config.md` for `evidence_dir` (default: `.toolkit/evidence/`).
 
 ```bash
-EVIDENCE_DIR="${evidence_dir:-CC_Workflow/evidence}"
+EVIDENCE_DIR="${evidence_dir:-.toolkit/evidence}"
 RUN_LOG="$EVIDENCE_DIR/run_log.csv"
 PERF_LOG="$EVIDENCE_DIR/command_performance_log.md"
 ```
@@ -116,7 +116,7 @@ run_id,tool,tool_version,date,task_summary,outcome,model,agent_count,convergence
 ```bash
 python3 <<'PY'
 import csv, sys
-with open("CC_Workflow/evidence/run_log.csv") as f:
+with open(".toolkit/evidence/run_log.csv") as f:
     reader = csv.DictReader(f)
     rows = list(reader)
 
@@ -195,7 +195,7 @@ bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
 
 ## Classroom Use Case
 
-Kay's ISE 754 grading use case:
+Instructor / cohort grading use case:
 
 ```bash
 cd student_name_submission/

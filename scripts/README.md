@@ -13,7 +13,7 @@ Shared helper scripts called by slash commands. Written in bash with a silent-fa
 
 ### emit_run_report.sh — Run instrumentation (v1.1)
 
-Writes a `run_report.md` with YAML frontmatter + appends a row to `CC_Workflow/evidence/run_log.csv`.
+Writes a `run_report.md` with YAML frontmatter + appends a row to `.toolkit/evidence/run_log.csv` (default; override via `evidence_dir` in `~/.claude/toolkit-config.md`).
 
 Called by: `/audit`, `/improve`, `/dailysummary`, `/commit`, `/startup`, `/runlog` (v1.1) — at the end of each command's execution flow.
 

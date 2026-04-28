@@ -5,7 +5,7 @@
 # Usage (commands invoke with ONE line near end of execution):
 #   emit_run_report.sh \
 #     --command audit \
-#     --run-dir "CC_Workflow/evidence/audit_runs/$(date +%Y-%m-%d_%H%M%S)_doc" \
+#     --run-dir ".toolkit/evidence/audit_runs/$(date +%Y-%m-%d_%H%M%S)_doc" \
 #     --outcome complete \
 #     --fields "input_file=path/to.md citations_checked=12 mismatches=0 verdict=pass"
 #
@@ -34,7 +34,7 @@ RUN_DIR=""
 OUTCOME=""
 FIELDS=""
 TASK_SUMMARY=""
-EVIDENCE_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}/CC_Workflow/evidence"
+EVIDENCE_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}/.toolkit/evidence"
 TOOL_VERSION="v1.1"
 
 while [ $# -gt 0 ]; do

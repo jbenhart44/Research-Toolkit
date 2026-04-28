@@ -21,9 +21,9 @@ A triage-and-absorb tool. `/review` does NOT execute recommended actions — it 
 
 Examples:
 ```
-/review Kay\ Meetings/text_based_formats_for_claude_code.md
-/review papers/smith2025.pdf "how does this relate to Paper 1?"
-/review notes/advisor_feedback_2026-04-15.md
+/review meeting_notes/text_formats.md
+/review papers/smith2025.pdf "how does this relate to my current project?"
+/review notes/feedback.md
 ```
 
 ## What you get back

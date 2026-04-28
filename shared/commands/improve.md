@@ -367,7 +367,7 @@ Generate the report in this exact format:
 After generating the report:
 
 1. Get today's date: `date '+%Y-%m-%d'`
-2. Determine the improve_reports directory: check for `workflow/improve_reports/`, `workflow/improve_reports/`, or `.claude/improve_reports/`. If none exists, create `improve_reports/` in the project root.
+2. Determine the improve_reports directory: check for `workflow/improve_reports/` or `.claude/improve_reports/`. If none exists, create `improve_reports/` in the project root.
 3. Save the report to `[improve_reports_dir]/improve_YYYY-MM-DD.md`
 4. If a report with today's date already exists, append a sequence number: `improve_YYYY-MM-DD_2.md`
 5. Display the full report in conversation AND save to file.
@@ -402,7 +402,7 @@ When the user asks to apply a recommendation:
 
 When invoked with `/improve status`:
 
-1. Find the improve_reports directory (check `workflow/improve_reports/`, `workflow/improve_reports/`, `improve_reports/`)
+1. Find the improve_reports directory (check `workflow/improve_reports/`, `.claude/improve_reports/`, `improve_reports/`)
 2. Glob for `improve_*.md`
 3. For each report found, read the Summary section
 4. Display:

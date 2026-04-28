@@ -80,12 +80,12 @@ For the single most-likely-mis-selected neighbor, name it in one sentence:
 
 ### STEP 5 — Emit run report
 
-Append one row to `CC_Workflow/evidence/run_log.csv` via `emit_run_report.sh`:
+Append one row to `.toolkit/evidence/run_log.csv` via `emit_run_report.sh`:
 
 ```bash
 bash ai-research-toolkit/scripts/emit_run_report.sh \
   --command help \
-  --run-dir "CC_Workflow/evidence/help_runs/$(date +%Y-%m-%d_%H%M%S)" \
+  --run-dir ".toolkit/evidence/help_runs/$(date +%Y-%m-%d_%H%M%S)" \
   --outcome complete \
   --task-summary "triage: <first 80 chars of user's one-liner>" \
   --fields "input_shape=A|B|C recommendations=cmd1,cmd2 clarifying_questions=0|1 triage_result=match|no_match|needs_escalation"
@@ -258,6 +258,4 @@ cat ai-research-toolkit/tests/smoke/help_triage.md
 ## Design Artifacts
 
 - v0.2 spec: `plans/help_command_draft.md`
-- Council review (2026-04-19): `CC_Workflow/coa/council_sessions/coa_2026-04-19_help_command_design/`
-  - `member_skeptic.md`, `member_practitioner.md`, `member_cognitive_ergonomist.md`, `chair_synthesis.md`
-- Shipped without premise pilot (I1 deferred to live-signal resolution per "Success Metrics" above).
+- Shipped without premise pilot — deferred to live-signal resolution per "Success Metrics" above.
