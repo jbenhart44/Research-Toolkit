@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="14 Claude Code commands for structured AI-assisted workflows. Verification, planning, triage, documentation, and content generation for complex projects.">
+  <meta property="og:title" content="Research Amp Toolkit">
+  <meta property="og:description" content="Structured AI-assisted workflows for Claude Code. 14 commands across verification, workflow, content, and triage layers.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jbenhart44.github.io/Research-Toolkit/">
+  <title>Research Amp Toolkit — Amplification Commands for AI-Assisted Research</title>
+  <style>
+    :root {
+      --red: #CC0000;
+      --red-dark: #990000;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      color: var(--gray-900);
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      line-height: 1.65;
+    }
+
+    .wrap { max-width: 740px; margin: 0 auto; padding: 0 1.25rem; }
+
+    header {
+      border-bottom: 3px solid var(--red);
+      padding: 2rem 0 1.25rem;
+      margin-bottom: 2rem;
+    }
+    header h1 {
+      font-size: 1.75rem;
+      margin: 0 0 0.25rem;
+      letter-spacing: -0.02em;
+    }
+    header h1 span { color: var(--red); }
+    header .subtitle {
+      color: var(--gray-600);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    header .affiliation {
+      color: var(--gray-400);
+      font-size: 0.8rem;
+      margin: 0.25rem 0 0;
+    }
+    header .hero-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    header .hero-left { flex: 1 1 auto; min-width: 0; }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.55rem 1.1rem;
+      background: var(--red);
+      color: #fff !important;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      white-space: nowrap;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+      transition: background 0.15s ease;
+      margin-top: 0.4rem;
+    }
+    .hero-cta:hover { background: var(--red-dark); color: #fff !important; text-decoration: none; }
+    .hero-cta:focus-visible { outline: 3px solid rgba(204,0,0,0.35); outline-offset: 2px; }
+    nav .nav-github {
+      margin-left: auto;
+      font-weight: 600;
+    }
+    @media (max-width: 600px) {
+      header .hero-row { flex-direction: column; }
+      .hero-cta { align-self: flex-start; }
+    }
+
+    .sdd-section {
+      margin: 2.5rem 0;
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--gray-200);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .sdd-prose h2 { margin-top: 0; }
+    .sdd-prose p { font-size: 0.95rem; }
+
+    .ghcta-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 0.5rem 0 1.5rem;
+      font-size: 0.9rem;
+    }
+    .ghcta-row a { font-weight: 500; }
+
+    nav {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+    nav a {
+      color: var(--red);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    nav a:hover { text-decoration: underline; }
+
+    h2 {
+      font-size: 1.35rem;
+      margin: 2.5rem 0 0.75rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid var(--gray-200);
+      letter-spacing: -0.01em;
+    }
+    h3 {
+      font-size: 1.1rem;
+      margin: 1.75rem 0 0.5rem;
+      color: var(--gray-800);
+    }
+    h4 {
+      font-size: 0.95rem;
+      margin: 1.25rem 0 0.4rem;
+      color: var(--gray-700);
+    }
+
+    p { margin: 0 0 1rem; }
+    ul, ol { margin: 0 0 1rem; padding-left: 1.5rem; }
+    li { margin-bottom: 0.3rem; }
+    a { color: var(--red); }
+    a:hover { color: var(--red-dark); }
+
+    code {
+      font-family: var(--mono);
+      font-size: 0.88em;
+      background: var(--gray-100);
+      padding: 0.15em 0.35em;
+      border-radius: 3px;
+    }
+    pre {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin: 0 0 1.25rem;
+    }
+    pre code { background: none; padding: 0; border-radius: 0; }
+
+    .layers {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 1.75rem 0;
+    }
+    .layer-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .layer-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      min-width: 80px;
+      text-align: right;
+    }
+    .layer-commands {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .cmd-tag {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      padding: 0.2em 0.55em;
+      color: var(--gray-800);
+    }
+    .cmd-tag.highlight {
+      background: #fff0f0;
+      border-color: #f9c0c0;
+      color: var(--red-dark);
+    }
+
+    .steps { counter-reset: step; list-style: none; padding-left: 0; }
+    .steps li {
+      counter-increment: step;
+      padding-left: 2.25rem;
+      position: relative;
+      margin-bottom: 0.75rem;
+    }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+      width: 1.5rem;
+      height: 1.5rem;
+      background: var(--red);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .col h4 { margin-top: 0; }
+
+    .callout {
+      border-left: 3px solid var(--red);
+      background: var(--gray-50);
+      padding: 0.75rem 1rem;
+      margin: 1rem 0 1.25rem;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.92rem;
+    }
+    .callout p:last-child { margin-bottom: 0; }
+
+    .callout-amber {
+      border-left: 3px solid #D97706;
+      background: #FFFBEB;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0 1.25rem;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.92rem;
+    }
+    .callout-amber p:last-child { margin-bottom: 0; }
+
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--gray-200); }
+    th { font-weight: 600; border-bottom: 2px solid var(--gray-200); white-space: nowrap; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+    .metric-box {
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      text-align: center;
+    }
+    .metric-num {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--red);
+      line-height: 1.1;
+      display: block;
+    }
+    .metric-label {
+      font-size: 0.78rem;
+      color: var(--gray-600);
+      display: block;
+      margin-top: 0.2rem;
+    }
+
+    details {
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      margin: 1rem 0 1.25rem;
+    }
+    summary {
+      padding: 0.6rem 0.9rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: var(--gray-800);
+      user-select: none;
+    }
+    summary:hover { background: var(--gray-50); }
+    details[open] summary { border-bottom: 1px solid var(--gray-200); }
+    details pre { margin: 0; border: none; border-radius: 0 0 4px 4px; }
+
+    .badge-private {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--gray-100);
+      color: var(--gray-600);
+      border: 1px solid var(--gray-200);
+      border-radius: 3px;
+      padding: 0.1em 0.45em;
+      vertical-align: middle;
+      margin-left: 0.4em;
+      letter-spacing: 0.02em;
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding: 1.25rem 0;
+      border-top: 1px solid var(--gray-200);
+      color: var(--gray-400);
+      font-size: 0.8rem;
+    }
+    footer a { color: var(--gray-600); }
+
+    @media print {
+      nav, .badge-private { display: none; }
+      header { border-bottom-color: #000; }
+      a { color: #000; text-decoration: none; }
+      a[href]::after { content: " (" attr(href) ")"; font-size: 0.8em; color: #666; }
+      .callout, .callout-amber { border-left-color: #000; }
+    }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.4rem; }
+      h2 { font-size: 1.15rem; }
+      .cols { grid-template-columns: 1fr; gap: 0.75rem; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .layer-row { flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+      .layer-label { text-align: left; min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="hero-row">
+    <div class="hero-left">
+      <h1><span>Research Amp Toolkit</span></h1>
+      <p class="subtitle">Verification, structure, and documentation &mdash; so you can focus on the <strong>research</strong> that only you can do.</p>
+    </div>
+    <a class="hero-cta" href="https://github.com/jbenhart44/Research-Toolkit">
+      <svg aria-hidden="true" viewBox="0 0 16 16" width="18" height="18" fill="currentColor" style="vertical-align:-3px;margin-right:0.4em"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>View on GitHub
+    </a>
+  </div>
+  <nav>
+    <a href="#sdd">What is SDD?</a>
+    <a href="#what-it-is">Performance Gaps</a>
+    <a href="#commands">Commands</a>
+    <a href="#evidence">Evidence</a>
+    <a href="#install">Install</a>
+    <a href="#cite">Cite</a>
+    <a href="https://github.com/jbenhart44/Research-Toolkit" class="nav-github">GitHub &rarr;</a>
+  </nav>
+</header>
+
+<main>
+
+<section id="sdd" class="sdd-section">
+  <div class="sdd-prose">
+    <h2>Spec-Driven Development, in practice</h2>
+    <p>Spec-Driven Development is the working assumption that <strong>planning, constructing, and verifying are three separate jobs</strong> &mdash; not one blurred conversation with a model. You write down what you intend before you build it, you build against that written intent, and you audit the built artifact against the intent with something other than the agent that produced it.</p>
+    <p>This didn't start as an SDD project. It started as a PhD-research toolkit where a fabricated citation or a misquoted number is the kind of mistake that ends a dissertation. The hard rules and verification commands are the scar tissue from those mistakes. The SDD label is <strong>retroactive</strong> &mdash; the pattern became visible when the broader AI-engineering conversation (GitHub's SpecKit, Obra's Superpowers, the <code>agents.md</code> convention) converged on the same decomposition.</p>
+    <p>If you want to see SDD running in a single command, <code>/pcv-research</code> is the clearest example: it spins up independent proposer agents, runs a critic pass, converges them on a written plan, then hands off to construction. Plan-Construct-Verify, with the seams visible. Everything else in the toolkit is a variation on that discipline.</p>
+  </div>
+</section>
+
+<h2 id="what-it-is">Performance Gaps the Toolkit Fills</h2>
+
+<p>A collection of <strong>14 Claude Code commands</strong> that catch errors, prevent bad plans, and keep
+complex projects on track. Organized into four layers: verification, workflow, content, and triage.
+Validated across hundreds of production sessions.</p>
+
+<p style="color: var(--gray-600); font-size: 0.95rem; margin-top: -0.5rem; font-style: italic;">
+Commands are patterns to adapt, not install blindly. Fork the command files and tune them to your workflow &mdash; the toolkit is designed to be customized, not black-boxed.
+</p>
+
+<div class="layers">
+  <div class="layer-row">
+    <span class="layer-label">Verification</span>
+    <div class="layer-commands">
+      <span class="cmd-tag highlight">/pcv</span>
+      <span class="cmd-tag highlight">/coa</span>
+      <span class="cmd-tag highlight">/pace</span>
+      <span class="cmd-tag highlight">/audit</span>
+    </div>
+  </div>
+  <div class="layer-row">
+    <span class="layer-label">Workflow</span>
+    <div class="layer-commands">
+      <span class="cmd-tag">/startup</span>
+      <span class="cmd-tag">/dailysummary</span>
+      <span class="cmd-tag">/weeklysummary</span>
+      <span class="cmd-tag">/commit</span>
+      <span class="cmd-tag">/simplify</span>
+      <span class="cmd-tag">/improve</span>
+    </div>
+  </div>
+  <div class="layer-row">
+    <span class="layer-label">Content</span>
+    <div class="layer-commands">
+      <span class="cmd-tag">/quarto</span>
+      <span class="cmd-tag">/readable</span>
+    </div>
+  </div>
+  <div class="layer-row">
+    <span class="layer-label">Triage</span>
+    <div class="layer-commands">
+      <span class="cmd-tag">/help</span>
+      <span class="cmd-tag">/review</span>
+    </div>
+  </div>
+</div>
+
+
+<h2 id="gaps">Performance Gaps the Toolkit Fills</h2>
+
+<p>AI coding assistants are powerful but unstructured. Three recurring gaps:</p>
+
+<div class="cols">
+  <div class="col">
+    <h4>Verification gap</h4>
+    <p>How do you know the AI&rsquo;s output is correct &mdash; especially for citations, numerical results, and analysis?</p>
+    <h4>Planning gap</h4>
+    <p>Complex multi-component projects need structured planning, not ad-hoc prompting.</p>
+    <h4>Documentation gap</h4>
+    <p>Research progress disappears when the terminal closes. Session context is ephemeral — summaries and startup briefs give the AI a precise, workstream-specific record to load at the start of each session, rather than rebuilding state from scratch. This is context engineering: deciding what the AI knows, when it knows it, and keeping that signal clean.</p>
+  </div>
+  <div class="col">
+    <div class="callout">
+      <p>This toolkit addresses all three gaps with reusable commands that add structure without adding friction. Each command was built for a real research task, validated in production, and generalized for others.</p>
+    </div>
+  </div>
+</div>
+
+<h2 id="commands">Commands</h2>
+
+<h3>Verification Layer</h3>
+
+<table>
+  <thead><tr><th>Command</th><th>What it does</th><th></th></tr></thead>
+  <tbody>
+    <tr>
+      <td><a href="commands/pcv.html"><code>/pcv</code></a></td>
+      <td><strong>Plan-Construct-Verify</strong> &mdash; structured planning with <strong>sequential clarification</strong>,
+      <strong>adversarial review</strong>, and <strong>human approval gates</strong> before any code or document is written.
+      <a href="https://mgkay.github.io/pcv/">PCV v3.14</a> by Dr. Michael G. Kay, NC State University.</td>
+      <td><a href="commands/pcv.html">Learn more &rarr;</a></td>
+    </tr>
+    <tr>
+      <td><a href="commands/coa.html"><code>/coa</code></a></td>
+      <td><strong>Council of Agents</strong> &mdash; spawns <strong>specialists with distinct professional perspectives</strong>
+      (Skeptic, Economist, Practitioner, etc.) to independently analyze a question, then synthesizes
+      <strong>convergence and divergence</strong>.</td>
+      <td><a href="commands/coa.html">Learn more &rarr;</a></td>
+    </tr>
+    <tr>
+      <td><a href="commands/pace.html"><code>/pace</code></a></td>
+      <td><strong>Parallel Agent Consensus Engine</strong> &mdash; routes a task through <strong>two independent
+      players</strong> with coaching review, then <strong>cross-compares for verification</strong> through redundancy.</td>
+      <td><a href="commands/pace.html">Learn more &rarr;</a></td>
+    </tr>
+    <tr>
+      <td><a href="commands/audit.html"><code>/audit</code></a></td>
+      <td><strong>Citation &amp; numerical audit</strong> &mdash; verifies <strong>every cited metric exists on disk</strong>
+      and every quoted number matches the source paper. Catches <strong>misquoted figures and fabricated citations</strong>
+      before publication.</td>
+      <td><a href="commands/audit.html">Learn more &rarr;</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Workflow Layer</h3>
+
+<table>
+  <thead><tr><th>Command</th><th>What it does</th><th></th></tr></thead>
+  <tbody>
+    <tr><td><a href="commands/startup.html"><code>/startup</code></a></td><td>Reads recent work summaries and orients you on <strong>where you left off</strong> &mdash; across all active workstreams.</td><td><a href="commands/startup.html">Learn more &rarr;</a></td></tr>
+    <tr><td><a href="commands/dailysummary.html"><code>/dailysummary</code></a></td><td>Creates a <strong>dated summary of the day&rsquo;s work</strong> with cross-references to decisions and open TODOs.</td><td><a href="commands/dailysummary.html">Learn more &rarr;</a></td></tr>
+    <tr><td><a href="commands/weeklysummary.html"><code>/weeklysummary</code></a></td><td>Aggregates daily summaries into <strong>weekly workstream reports</strong>; surfaces dormant threads and stale TODOs.</td><td><a href="commands/weeklysummary.html">Learn more &rarr;</a></td></tr>
+    <tr><td><a href="commands/commit.html"><code>/commit</code></a></td><td>Analyzes staged changes and creates <strong>logically grouped commits</strong> &mdash; prevents mixed-concern commits.</td><td><a href="commands/commit.html">Learn more &rarr;</a></td></tr>
+    <tr><td><a href="commands/simplify.html"><code>/simplify</code></a></td><td>Reviews code or documents for <strong>redundancy, complexity, and performance issues</strong> via 5-lens analysis.</td><td><a href="commands/simplify.html">Learn more &rarr;</a></td></tr>
+    <tr><td><a href="commands/improve.html"><code>/improve</code></a></td><td><strong>Self-reflective meta-agent</strong> that audits your own Claude Code infrastructure and proposes improvements.</td><td><a href="commands/improve.html">Learn more &rarr;</a></td></tr>
+  </tbody>
+</table>
+
+<h3>Content Layer</h3>
+
+<table>
+  <thead><tr><th>Command</th><th>What it does</th><th></th></tr></thead>
+  <tbody>
+    <tr><td><a href="commands/quarto.html"><code>/quarto</code></a></td><td>Generates <strong>Quarto RevealJS slide decks</strong> from background documents. Claude Code reads, designs, and renders the deck &mdash; including <strong>Mermaid diagrams</strong> &mdash; in a single command.</td><td><a href="commands/quarto.html">Learn more &rarr;</a></td></tr>
+    <tr><td><a href="commands/readable.html"><code>/readable</code></a></td><td>Extracts text from PDF, Word, and HTML files &mdash; <strong>batch processing</strong>, <strong>image-based OCR</strong>, and persistent .txt files for grep-based citation work.</td><td><a href="commands/readable.html">Learn more &rarr;</a></td></tr>
+  </tbody>
+</table>
+
+<h3>Triage Layer</h3>
+
+<table>
+  <thead><tr><th>Command</th><th>What it does</th><th></th></tr></thead>
+  <tbody>
+    <tr><td><a href="commands/review.html"><code>/review</code></a></td><td><strong>Three-lens document review</strong> &mdash; runs a document through Skeptic + Practitioner + Editor readers in parallel, then synthesizes takeaways, project relevance, and three concrete implications. For documents others hand you that you need to understand quickly &mdash; advisor memos, papers, long emails, spec drafts.</td><td><a href="commands/review.html">Learn more &rarr;</a></td></tr>
+    <tr><td><a href="commands/help.html"><code>/help</code></a></td><td><strong>Socratic triage</strong> &mdash; describe your situation in one line; <code>/help</code> asks zero or one clarifying question, then recommends 1&ndash;3 toolkit commands. Does not execute &mdash; you run the recommended command yourself.</td><td><a href="commands/help.html">Learn more &rarr;</a></td></tr>
+  </tbody>
+</table>
+
+<h2>/coa vs. /pace &mdash; which one do you need?</h2>
+
+<p>Both commands spawn independent agents. The difference is the type of question you're asking.</p>
+
+<table>
+  <thead><tr><th></th><th>/coa — Council of Agents</th><th>/pace — Parallel Consensus</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Question type</strong></td><td>Multiple valid answers exist</td><td>One correct answer exists</td></tr>
+    <tr><td><strong>Goal</strong></td><td>Structured disagreement &amp; synthesis</td><td>Verified, cross-checked deliverable</td></tr>
+    <tr><td><strong>Output</strong></td><td>Advisory synthesis &mdash; you decide</td><td>Consolidated result ready to use</td></tr>
+    <tr><td><strong>Best for</strong></td><td>Research design, methodology choices, strategic decisions</td><td>Numerical verification, proof checking, document drafting</td></tr>
+    <tr><td><strong>Rule of thumb</strong></td><td><strong>No right answer? Use /coa.</strong></td><td><strong>Right answer exists? Use /pace.</strong></td></tr>
+  </tbody>
+</table>
+
+<h2 id="evidence">Evidence</h2>
+
+<p>All evidence is from actual production usage (2025&ndash;2026). The same tools work across simulation, documentation, code review, and presentation workflows.</p>
+
+<table>
+  <thead>
+    <tr><th>Command</th><th>What it prevents</th><th>What it produces</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>/audit</code></td>
+      <td>A cited figure changed silently when moved between documents. The error reached a print-ready deliverable undetected &mdash; caught only because the source was grep-verified at the last step.</td>
+      <td>A line-by-line verification report with VERIFIED, MISMATCH, and NOT ON DISK verdicts for every cited value in the document.</td>
+    </tr>
+    <tr>
+      <td><code>/pace</code></td>
+      <td>A logical error in an analytical calculation passed single-agent review undetected. Independent parallel agents caught it before the result was reported. The correction was material.</td>
+      <td>A consolidated, cross-checked deliverable with an explicit convergence and divergence analysis showing exactly where agents agreed and where they didn&rsquo;t.</td>
+    </tr>
+    <tr>
+      <td><code>/coa</code></td>
+      <td>A methodological choice appeared settled until a council perspective surfaced the one assumption that made it fragile. That assumption became the focus of subsequent validation work.</td>
+      <td>A structured synthesis across independent expert perspectives &mdash; convergence map, divergence map, and a concrete recommendation with conditions for revisiting.</td>
+    </tr>
+    <tr>
+      <td><code>/pcv</code></td>
+      <td>Prevents building the wrong thing by requiring human approval of a plan before any construction begins. Scope ambiguity and unstated assumptions are resolved at the moment of lowest cost.</td>
+      <td>An approved, adversarially reviewed plan with verification criteria defined before a single line is written or a single file is changed.</td>
+    </tr>
+    <tr>
+      <td><code>/startup</code></td>
+      <td>Prevents losing track of where a project stands when multiple workstreams are active across sessions. Reconstruction from memory is replaced by reconstruction from evidence.</td>
+      <td>A prioritized, action-ready briefing derived from your own session records &mdash; what&rsquo;s done, what&rsquo;s blocked, and what to do next.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout">
+  <p><strong>Methodology note.</strong> All agents in CoA and PACE use the same
+  underlying Claude model. Convergence between agents indicates consistency within the model&rsquo;s
+  reasoning space, not independent validation. Cross-model validation via an external model
+  (optional, via separate MCP integration) partially addresses this limitation.</p>
+</div>
+
+
+<h2>Common questions</h2>
+
+<p><strong>Does this work in a collaborative lab with multiple researchers?</strong><br>
+Yes. Each researcher installs the toolkit independently in their own Claude Code environment. Commands like <code>/commit</code> and <code>/startup</code> operate on your local working tree and your own summary history — they don't interfere with other team members. For shared codebases, <code>/commit</code> produces clean, logically grouped commits that make code review significantly easier for the whole team.</p>
+
+<p><strong>What does "hundreds of production sessions" mean?</strong><br>
+These commands have been used daily across a PhD dissertation project spanning simulation modeling, academic writing, formal proof verification, and conference presentations — over a period of several months. The evidence table above shows specific examples of errors caught and deliverables produced.</p>
+
+<p><strong>Why not just use ChatGPT, Copilot, or another AI assistant?</strong><br>
+Those tools are general-purpose. This toolkit is a structured layer on top of Claude Code specifically — commands that enforce verification discipline, manage persistent context across sessions, and coordinate multiple independent agents. The value is in the workflow, not the underlying model.</p>
+
+<h2 id="install">Installation</h2>
+
+
+<div class="callout">
+  <p><strong>Prerequisite:</strong> <a href="https://docs.anthropic.com/en/docs/claude-code/overview">Claude Code</a>
+  must be installed. The toolkit runs inside Claude Code, not separately.</p>
+</div>
+
+<ol class="steps">
+  <li>
+    <strong>Clone the toolkit (pinned to v0.1.0).</strong><br>
+    <pre><code>git clone https://github.com/jbenhart44/Research-Toolkit.git
+cd Research-Toolkit
+git checkout v0.1.0</code></pre>
+  </li>
+  <li>
+    <strong>Run the installer.</strong><br>
+    <pre><code>bash install.sh</code></pre>
+    This installs all 14 commands.
+  </li>
+  <li>
+    <strong>Configure for your project.</strong><br>
+    Edit <code>~/.claude/toolkit-config.md</code> to set your project name and workstreams.
+  </li>
+  <li>
+    <strong>Type <code>/pcv</code></strong> in any Claude Code session to verify it works.
+  </li>
+</ol>
+
+<p style="font-size: 0.9rem; color: var(--gray-600); margin-top: -0.5rem;">
+  Prefer a versioned archive for citation?
+  <a href="https://github.com/jbenhart44/Research-Toolkit/releases/tag/v0.1.0">Download the v0.1.0 tarball</a>
+  &middot;
+  <a href="https://github.com/jbenhart44/Research-Toolkit/releases">All releases &amp; notes</a>
+</p>
+
+<div class="ghcta-row">
+  <a href="https://github.com/jbenhart44/Research-Toolkit/discussions/categories/q-a">&#128172; Questions? &rarr; Discussions</a>
+  <a href="https://github.com/jbenhart44/Research-Toolkit/issues/new/choose">&#128030; Found a bug? &rarr; Issues</a>
+  <a href="https://github.com/jbenhart44/Research-Toolkit/blob/main/CONTRIBUTING.md">&#9993;&#65039; Contribute</a>
+</div>
+
+
+<h2 id="cite">Cite This Toolkit</h2>
+
+<p>If you use or build on this toolkit, please cite:</p>
+
+<details>
+  <summary>BibTeX entry</summary>
+  <pre><code>@software{benhart_kay2026researchamp,
+  author  = {Benhart, Jake and Kay, Michael G.},
+  title   = {Research Amp Toolkit: Amplification Commands for AI-Assisted Research with Claude Code},
+  year    = {2026},
+  version = {0.1.0},
+  url     = {https://github.com/jbenhart44/Research-Toolkit},
+  urldate = {2026-04-23}
+}</code></pre>
+</details>
+
+<p>The toolkit bundles <a href="https://mgkay.github.io/pcv/">PCV v3.14</a> (Dr. Kay, NC State)
+as its planning foundation.</p>
+
+<h2>Contact</h2>
+
+<p>Jake Benhart &amp; <a href="https://mgkay.github.io/">Dr. Michael G. Kay</a><br>
+NC State University &mdash; Operations Research<br>
+<a href="mailto:jbenhart@ncsu.edu">jbenhart@ncsu.edu</a> &middot;
+<a href="https://github.com/jbenhart44">github.com/jbenhart44</a></p>
+
+</main>
+
+<footer>
+  <p>Research Amp Toolkit v0.1 &middot; Jake Benhart &amp; Dr. Michael G. Kay &middot; NC State OR<br>
+  Built on <a href="https://mgkay.github.io/pcv/">PCV v3.14</a> &middot;
+  <a href="https://github.com/jbenhart44/Research-Toolkit">Source</a></p>
+</footer>
+
+</div>
+</body>
+</html>

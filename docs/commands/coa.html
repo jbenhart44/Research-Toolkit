@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="/coa — Council of Agents. Spawns specialists with distinct professional perspectives to independently analyze a question, then synthesizes convergence and divergence.">
+  <meta property="og:title" content="/coa — Research Amp Toolkit">
+  <meta property="og:description" content="/coa — Council of Agents. Spawns specialists with distinct professional perspectives to independently analyze a question, then synthesizes convergence and divergence.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jbenhart44.github.io/Research-Toolkit/commands/coa.html">
+  <title>/coa — Research Amp Toolkit</title>
+  <style>
+    :root {
+      --red: #CC0000;
+      --red-dark: #990000;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      color: var(--gray-900);
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      line-height: 1.65;
+    }
+
+    .wrap { max-width: 740px; margin: 0 auto; padding: 0 1.25rem; }
+
+    header {
+      border-bottom: 3px solid var(--red);
+      padding: 2rem 0 1.25rem;
+      margin-bottom: 2rem;
+    }
+    header .site-title {
+      font-size: 1.75rem;
+      margin: 0 0 0.25rem;
+      letter-spacing: -0.02em;
+    }
+    header .site-title span { color: var(--red); }
+    header .subtitle {
+      color: var(--gray-600);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    header .affiliation {
+      color: var(--gray-400);
+      font-size: 0.8rem;
+      margin: 0.25rem 0 0;
+    }
+
+    nav {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+    nav a {
+      color: var(--red);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    nav a:hover { text-decoration: underline; }
+
+    h2 {
+      font-size: 1.35rem;
+      margin: 2.5rem 0 0.75rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid var(--gray-200);
+      letter-spacing: -0.01em;
+    }
+    h3 {
+      font-size: 1.1rem;
+      margin: 1.75rem 0 0.5rem;
+      color: var(--gray-800);
+    }
+    h4 {
+      font-size: 0.95rem;
+      margin: 1.25rem 0 0.4rem;
+      color: var(--gray-700);
+    }
+
+    p { margin: 0 0 1rem; }
+    ul, ol { margin: 0 0 1rem; padding-left: 1.5rem; }
+    li { margin-bottom: 0.3rem; }
+    a { color: var(--red); }
+    a:hover { color: var(--red-dark); }
+
+    code {
+      font-family: var(--mono);
+      font-size: 0.88em;
+      background: var(--gray-100);
+      padding: 0.15em 0.35em;
+      border-radius: 3px;
+    }
+    pre {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin: 0 0 1.25rem;
+    }
+    pre code { background: none; padding: 0; border-radius: 0; }
+
+    .layers {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 1.75rem 0;
+    }
+    .layer-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .layer-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      min-width: 80px;
+      text-align: right;
+    }
+    .layer-commands {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .cmd-tag {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      padding: 0.2em 0.55em;
+      color: var(--gray-800);
+    }
+    .cmd-tag.highlight {
+      background: #fff0f0;
+      border-color: #f9c0c0;
+      color: var(--red-dark);
+    }
+
+    .steps { counter-reset: step; list-style: none; padding-left: 0; }
+    .steps li {
+      counter-increment: step;
+      padding-left: 2.25rem;
+      position: relative;
+      margin-bottom: 0.75rem;
+    }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+      width: 1.5rem;
+      height: 1.5rem;
+      background: var(--red);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .col h4 { margin-top: 0; }
+
+    .callout {
+      border-left: 3px solid var(--red);
+      background: var(--gray-50);
+      padding: 0.75rem 1rem;
+      margin: 1rem 0 1.25rem;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.92rem;
+    }
+    .callout p:last-child { margin-bottom: 0; }
+
+    .callout-amber {
+      border-left: 3px solid #D97706;
+      background: #FFFBEB;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0 1.25rem;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.92rem;
+    }
+    .callout-amber p:last-child { margin-bottom: 0; }
+
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--gray-200); }
+    th { font-weight: 600; border-bottom: 2px solid var(--gray-200); white-space: nowrap; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+    .metric-box {
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      text-align: center;
+    }
+    .metric-num {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--red);
+      line-height: 1.1;
+      display: block;
+    }
+    .metric-label {
+      font-size: 0.78rem;
+      color: var(--gray-600);
+      display: block;
+      margin-top: 0.2rem;
+    }
+
+    details {
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      margin: 1rem 0 1.25rem;
+    }
+    summary {
+      padding: 0.6rem 0.9rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: var(--gray-800);
+      user-select: none;
+    }
+    summary:hover { background: var(--gray-50); }
+    details[open] summary { border-bottom: 1px solid var(--gray-200); }
+    details pre { margin: 0; border: none; border-radius: 0 0 4px 4px; }
+
+    .badge-private {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--gray-100);
+      color: var(--gray-600);
+      border: 1px solid var(--gray-200);
+      border-radius: 3px;
+      padding: 0.1em 0.45em;
+      vertical-align: middle;
+      margin-left: 0.4em;
+      letter-spacing: 0.02em;
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding: 1.25rem 0;
+      border-top: 1px solid var(--gray-200);
+      color: var(--gray-400);
+      font-size: 0.8rem;
+    }
+    footer a { color: var(--gray-600); }
+
+    @media print {
+      nav, .badge-private { display: none; }
+      header { border-bottom-color: #000; }
+      a { color: #000; text-decoration: none; }
+      a[href]::after { content: " (" attr(href) ")"; font-size: 0.8em; color: #666; }
+      .callout, .callout-amber { border-left-color: #000; }
+    }
+
+    @media (max-width: 600px) {
+      header .site-title { font-size: 1.4rem; }
+      h2 { font-size: 1.15rem; }
+      .cols { grid-template-columns: 1fr; gap: 0.75rem; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .layer-row { flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+      .layer-label { text-align: left; min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="site-title">Research <span>Amp</span> Toolkit</p>
+  <p class="subtitle"><code>/coa</code> &mdash; Council of Agents</p>
+  <nav>
+    <a href="../index.html">&larr; All commands</a>
+    <a href="https://github.com/jbenhart44/Research-Toolkit/blob/main/USAGE_GUIDE.md">Usage Guide</a>
+  </nav>
+</header>
+
+<style>
+  .agent-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.25rem 0 1.75rem;
+  }
+  .agent-card {
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    padding: 1rem 1.1rem;
+    background: var(--gray-50);
+  }
+  .agent-card .agent-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--gray-900);
+    margin: 0 0 0.2rem;
+  }
+  .agent-card .agent-lens {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--red);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 0.5rem;
+  }
+  .agent-card .agent-desc {
+    font-size: 0.88rem;
+    color: var(--gray-600);
+    margin: 0;
+    line-height: 1.5;
+  }
+  .agent-card.always-seated {
+    border-left: 3px solid var(--red);
+  }
+  .council-size-table td:first-child { font-weight: 600; white-space: nowrap; }
+  .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: 3px;
+    padding: 0.1em 0.4em;
+    color: var(--gray-700);
+    margin-left: 0.3em;
+    vertical-align: middle;
+  }
+  @media (max-width: 600px) {
+    .agent-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<main>
+
+<h1>/coa &mdash; Council of Agents</h1>
+
+<p>You're deciding between two valid approaches and you've been going back and forth for a week.</p>
+
+<h2>When you need this</h2>
+
+<ul>
+  <li>Research design decisions where multiple approaches are genuinely defensible</li>
+  <li>Any "should we X or Y?" question where the answer depends on values, tradeoffs, or domain assumptions</li>
+  <li>Before committing to an architecture, methodology, or framing that will be hard to reverse</li>
+</ul>
+
+<h2>What it does &mdash; and what it won't</h2>
+
+<p><code>/coa</code> seats 3, 4, or 6 specialist agents with distinct expert perspectives, has each independently analyze your question in parallel, then synthesizes convergence and divergence through a Chair agent. You get a structured report showing where experts agree (high confidence) and where they diverge (the real ambiguity).</p>
+
+<p><strong>Note</strong>: <code>/coa</code> produces advisory analysis, not a deliverable. For tasks with a single correct answer that needs verification, use <a href="pace.html"><code>/pace</code></a> instead. The rule of thumb: <strong>use /coa when there's no right answer</strong>, <strong>use /pace when there is one</strong>. Use <code>/coa --quick</code> for a faster 3-seat panel on focused questions.</p>
+
+<h2>Meet the Council</h2>
+
+<p>Six core seats are always available. The Clerk selects which to seat based on your question. <span class="tag">always seated</span> members appear in every council.</p>
+
+<div class="agent-grid">
+
+  <div class="agent-card always-seated">
+    <p class="agent-name">The Skeptic <span class="tag">always seated</span></p>
+    <p class="agent-lens">Challenges assumptions</p>
+    <p class="agent-desc">Asks "why would this fail?" Probes for hidden risks, weak premises stated as facts, and conditions under which the proposal falls apart. The council's adversarial check.</p>
+  </div>
+
+  <div class="agent-card always-seated">
+    <p class="agent-name">The Practitioner <span class="tag">always seated</span></p>
+    <p class="agent-lens">Real-world feasibility</p>
+    <p class="agent-desc">Focuses on implementation friction, resource constraints, and what actually happens when the plan meets reality. If something sounds good in theory but won't work in practice, the Practitioner will say so.</p>
+  </div>
+
+  <div class="agent-card">
+    <p class="agent-name">The Economist</p>
+    <p class="agent-lens">Costs, incentives &amp; tradeoffs</p>
+    <p class="agent-desc">Analyzes costs, opportunity costs, incentive structures, and unintended consequences. Asks who benefits, who bears the cost, and what happens at the margin.</p>
+  </div>
+
+  <div class="agent-card">
+    <p class="agent-name">The Advocate</p>
+    <p class="agent-lens">Strongest case for</p>
+    <p class="agent-desc">Makes the best possible argument in favor of the proposal — surfaces overlooked benefits, finds the conditions under which it succeeds, and ensures the council doesn't dismiss good ideas too quickly.</p>
+  </div>
+
+  <div class="agent-card">
+    <p class="agent-name">The End User</p>
+    <p class="agent-lens">Lived experience</p>
+    <p class="agent-desc">Represents the person who will actually live with the decision — not the person making it. Prioritizes experience over theory, asks "what does this feel like to use?", and surfaces usability and equity concerns.</p>
+  </div>
+
+  <div class="agent-card">
+    <p class="agent-name">The Historian</p>
+    <p class="agent-lens">Precedents &amp; analogies</p>
+    <p class="agent-desc">Surfaces what has been tried before and why it worked or failed. Finds analogies across domains, checks whether the "novel" proposal is actually a known pattern, and flags when history suggests caution.</p>
+  </div>
+
+</div>
+
+<h3>Specialist seats</h3>
+
+<p>Any core seat can be swapped for a domain specialist when the question calls for it. The Clerk proposes the swap before convening — you can accept, reject, or request a different specialist. Some examples:</p>
+
+<table>
+  <thead><tr><th>Specialist</th><th>Swap for</th><th>Best when your question involves&hellip;</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Statistician</strong></td><td>Economist</td><td>Study design, sample size, significance, inference validity</td></tr>
+    <tr><td><strong>Software Engineer</strong></td><td>Practitioner</td><td>Implementation complexity, technical debt, system architecture</td></tr>
+    <tr><td><strong>Domain Expert</strong></td><td>Any</td><td>Field-specific norms, literatures, or methodological conventions</td></tr>
+    <tr><td><strong>Ethicist</strong></td><td>End User</td><td>Research ethics, IRB concerns, fairness, dual-use risks</td></tr>
+    <tr><td><strong>Methodologist</strong></td><td>Economist</td><td>Research design validity, internal vs. external validity tradeoffs</td></tr>
+    <tr><td><strong>Policy Analyst</strong></td><td>Advocate</td><td>Regulatory implications, stakeholder mapping, institutional constraints</td></tr>
+    <tr><td><strong>Communicator</strong></td><td>Historian</td><td>How to frame findings for a non-technical audience, abstract writing</td></tr>
+    <tr><td><strong>Adversarial Reviewer</strong></td><td>Skeptic</td><td>Pre-submission stress-testing against likely journal referee objections</td></tr>
+  </tbody>
+</table>
+
+<p>This list is not exhaustive — the Clerk can propose any specialist that fits the question. If you have a specific expert perspective in mind that isn't listed, just ask for it.</p>
+
+<h3>Build your own council member</h3>
+
+<p>You can define permanent custom council members for your project. The Clerk reads them automatically and offers them as available seats in every future session.</p>
+
+<p><strong>Step 1 — Create the directory</strong></p>
+<pre><code>mkdir -p coa/personas/</code></pre>
+
+<p><strong>Step 2 — Start from a starter persona or write your own</strong></p>
+
+<p>Four ready-to-use personas are included in the toolkit repository at <code>coa/personas/</code>. Copy any into your project to activate it immediately:</p>
+
+<table>
+  <thead><tr><th>File</th><th>Persona</th><th>Best for</th></tr></thead>
+  <tbody>
+    <tr><td><code>committee_chair.md</code></td><td>Committee Chair</td><td>Dissertation scope, contribution framing, defense strategy</td></tr>
+    <tr><td><code>domain_expert.md</code></td><td>Domain Expert</td><td>Field methodology, reviewer expectations, literature positioning</td></tr>
+    <tr><td><code>advisor.md</code></td><td>Advisor</td><td>Career decisions, timeline tradeoffs, job market framing</td></tr>
+    <tr><td><code>industry_practitioner.md</code></td><td>Industry Practitioner</td><td>External validity, deployment feasibility, practitioner relevance</td></tr>
+  </tbody>
+</table>
+
+<pre><code># Copy a starter persona into your project (from where you cloned the toolkit)
+cp path/to/Research-Toolkit/coa/personas/committee_chair.md coa/personas/</code></pre>
+
+<p>Or write your own from scratch using this structure:</p>
+
+<pre><code># [Persona Name]
+
+## Lens
+[One sentence: the single professional perspective this member argues from exclusively.]
+
+## Background
+[2-3 sentences: their expertise, the frameworks they use, the evidence they trust.]
+
+## Questions they always ask
+- [First instinctive question]
+- [Second characteristic question]
+- [What they notice that other seats miss]
+
+## Flip condition template
+[What evidence would change their position — be concrete, not vague.]
+
+## Seat category
+convergent   # data/metrics/tradeoffs focus
+# divergent  # strategy/stories/precedent focus</code></pre>
+
+<p><strong>Step 3 — Optionally add seating rules</strong></p>
+<p>Create <code>coa/ROSTER.md</code> to tell the Clerk when to automatically offer your custom persona:</p>
+
+<pre><code># Project ROSTER
+
+## Custom Seats
+- **Committee Chair** (`coa/personas/committee_chair.md`) — offer when question involves dissertation scope or committee strategy
+- **Domain Expert** (`coa/personas/domain_expert.md`) — offer when question involves methodology or reviewer expectations
+
+## Seating Rules
+always: Skeptic, Practitioner</code></pre>
+
+<p>Once the files exist, the Clerk reads them at the start of every <code>/coa</code> session and offers your custom seats alongside the built-in roster. No other setup required.</p>
+
+<h2>Council size</h2>
+
+<table class="council-size-table">
+  <thead><tr><th>Size</th><th>Seats</th><th>Use when</th></tr></thead>
+  <tbody>
+    <tr><td>Quick Panel (3)</td><td>Skeptic + Practitioner + 1</td><td>Reversible decisions, focused technical question, low uncertainty</td></tr>
+    <tr><td>Working Council (4)</td><td>Skeptic + Economist + Practitioner + 1</td><td>Most analytical questions, medium uncertainty — the default</td></tr>
+    <tr><td>Full Council (6)</td><td>All 6 core seats</td><td>Irreversible decisions, high uncertainty, multiple stakeholders affected</td></tr>
+  </tbody>
+</table>
+
+<h2>/coa vs. /pace — which one do you need?</h2>
+
+<table>
+  <thead><tr><th></th><th>/coa</th><th>/pace</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Question type</strong></td><td>Multiple valid answers exist</td><td>One correct answer exists</td></tr>
+    <tr><td><strong>Goal</strong></td><td>Structured disagreement &amp; synthesis</td><td>Verified, cross-checked deliverable</td></tr>
+    <tr><td><strong>Output</strong></td><td>Advisory synthesis — you decide</td><td>Consolidated result ready to use</td></tr>
+    <tr><td><strong>Best for</strong></td><td>Research design, methodology choices, strategic decisions</td><td>Numerical verification, proof checking, document drafting</td></tr>
+    <tr><td><strong>Agents</strong></td><td>3–6 specialists with distinct expert lenses</td><td>2 independent players + 2 coaches + cross-reviewer</td></tr>
+  </tbody>
+</table>
+
+<h2>Worked example</h2>
+
+<p>Priya needs to decide whether to add a Bayesian correction to her differential expression pipeline before her ISMB submission deadline. She's been going back and forth for a week.</p>
+
+<pre><code>/coa Should I add a Bayesian prior correction to my DE pipeline before ISMB, or submit with the frequentist method and note the limitation?</code></pre>
+
+<p>The council convenes with Skeptic, Practitioner, Economist, and a Statistician specialist. The Statistician argues the correction reduces false discovery rate on sparse cell types. The Practitioner warns adding it now risks introducing bugs without time for re-validation. The Skeptic notes reviewers will accept a limitation note if Priya can quantify the expected FDR difference. The Chair synthesizes convergence: "submit now, revise after" — with a specific limitation-note template included.</p>
+
+<h2>Try it</h2>
+
+<pre><code>/coa Should I [option A] or [option B]?
+/coa --quick [focused question]</code></pre>
+
+<div class="callout">
+  <p>Run <code>/dailysummary</code> after a council session &mdash; the Chair synthesis and any DIVERGE findings are decision rationale that's easy to lose if not recorded.</p>
+</div>
+
+</main>
+
+<footer class="wrap" style="border-top: 1px solid var(--gray-200); margin-top: 3rem; padding: 1.5rem 1.25rem; font-size: 0.85rem; color: var(--gray-400);">
+  Research Amp Toolkit &middot; <a href="../index.html">All commands</a> &middot; Built by Jake Benhart &amp; Dr. Michael G. Kay, NC State University
+</footer>
+
+</div>
+</body>
+</html>
