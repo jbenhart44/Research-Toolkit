@@ -95,6 +95,26 @@ Before finalizing Working Council: **"Would the End User or Historian have somet
 
 When End User is NOT seated, inject **End User Proxy** into the most user-facing member: "In addition to your primary perspective, briefly note (1 sentence) how the person who will live with this decision would experience the outcome."
 
+### Named-Feature Pre-Verification Gate
+
+**Trigger**: The question references named external features, tools, products, or techniques whose existence the council might need to assess. Heuristics:
+- Backtick-quoted feature names (e.g., `` `tool.config.yml` ``, `` `--flag-name` ``)
+- File-path patterns claimed to be a documented mechanism
+- Acronym product names (e.g., "ARM", "CRUX", "ECL")
+- Magnitude claims about a tool's behavior ("68% reduction", "5-10x speedup")
+
+**Action**: If WebFetch / WebSearch is available, the Clerk MUST fetch the canonical authoritative source (vendor's official docs, the tool's GitHub README, the paper's DOI, etc.) BEFORE convening. Findings are passed to the council as **fact**, not asked-them-to-verify.
+
+**Why this exists**: Same-model councils confidently reject features they don't recognize from training data. A 2026-05-01 CoA session classified a real Anthropic Claude Code feature (`.claude/rules/*.md` with `paths:` glob frontmatter) as `FABRICATED` with HIGH conviction across 3 council members + a same-family cross-model fallback. The feature was fully documented; the council had simply never seen it. Training-data absence ≠ feature absence.
+
+**Output of this gate**: a "Pre-Verified Facts" subsection appended to the Question Essence:
+> **Pre-Verified Facts** (Clerk-fetched before convening):
+> - `<feature/tool>` → REAL (cited: `<URL>`) / FABRICATED (no docs found despite search) / UNVERIFIABLE (couldn't access source)
+
+If WebFetch is unavailable for a given feature, the Clerk explicitly notes "could not pre-verify" so the council uses `UNVERIFIABLE` (not `FABRICATED`) as its strongest negative verdict.
+
+**Verdict discipline for council members** (applies to ALL seats, not just verification-oriented personas): When a council member's verdict hinges on whether a named external feature/tool exists, the strongest negative verdict permitted on training-data alone is `UNVERIFIABLE`. Reserve `FABRICATED` for claims affirmatively disproven by codebase evidence (e.g., "the file claims `foo()` exists at `src/bar.py` but `grep -r foo src/bar.py` returns nothing"). Do NOT use `FABRICATED` for "I don't recognize this from my training data."
+
 ### Create Question Essence
 
 > **Question**: [1 sentence]
