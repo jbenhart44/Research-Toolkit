@@ -238,6 +238,27 @@ If the MCP server IS available and a persona specifies `model: gemini` (or anoth
 
 **This step requires the `crossmodel` MCP server.** If that server is not configured, skip entirely.
 
+**Pre-flight — truncation-history check (added 2026-05-03)**: Before calling any external model, read `CC_Workflow/evidence/crossmodel_attempts.csv` (or `evidence/crossmodel_attempts.csv` at project root if `CC_Workflow/` is not used). For the chosen external model, count its attempts in the last 5 entries. If ≥3 of those last 5 are `,truncated,`, **skip that model and route to the next available external model** (or fall back to local Sonnet if no other external is configured).
+
+```bash
+LOG="CC_Workflow/evidence/crossmodel_attempts.csv"
+[ -f "$LOG" ] || LOG="evidence/crossmodel_attempts.csv"
+if [ -f "$LOG" ]; then
+  for MODEL in gemini openai perplexity; do
+    RECENT=$(grep ",${MODEL}," "$LOG" | tail -5)
+    TRUNC=$(echo "$RECENT" | grep -c ',truncated,')
+    TOTAL=$(echo "$RECENT" | grep -c ",${MODEL},")
+    if [ "$TOTAL" -ge 3 ] && [ "$TRUNC" -ge 3 ]; then
+      echo "SKIP_${MODEL}_PER_HISTORY: $TRUNC of last $TOTAL truncated"
+    fi
+  done
+fi
+```
+
+The skip-list from this check is consumed by tier selection below — a model marked SKIP_<name>_PER_HISTORY is treated as if its key were missing.
+
+**Logging (mandatory after every cross-model attempt)**: Append a row to `CC_Workflow/evidence/crossmodel_attempts.csv` with format `timestamp,session_id,model,status,response_chars,notes`. Status is `complete | truncated | error`. The pre-flight above only works if this append happens — without it, the check is starved and the skill cannot self-improve over time.
+
 **When available**: Launch this at the SAME TIME as spawning council members (parallel, zero added latency).
 
 Call `mcp__crossmodel__query_model` with:

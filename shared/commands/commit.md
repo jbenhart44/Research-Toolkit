@@ -22,6 +22,33 @@ If there are **NO changes** (no modified, deleted, staged, or untracked files), 
 
 ---
 
+## Step 0b: Slow-Filesystem Detection (added 2026-05-03)
+
+Some environments (notably **WSL2 + OneDrive** and certain network-mounted filesystems) impose 10s–2min disk-wait latency on `git commit` because background sync processes block writes to `.git/index` and pack files. Foreground `git commit` calls in these environments cause the assistant to block for tens of seconds with empty tool output until the commit finally returns.
+
+Detect this once at skill start:
+```bash
+SLOW_FS=0
+if uname -r 2>/dev/null | grep -qi "microsoft"; then
+  if pwd -P 2>/dev/null | grep -qE "/mnt/c/.*/OneDrive"; then
+    SLOW_FS=1
+  fi
+fi
+# Add other slow-FS heuristics here as needed (NFS mounts, encrypted volumes, etc.)
+```
+
+**When `SLOW_FS=1`:**
+- All `git commit` calls SHOULD use `run_in_background: true` on the Bash tool invocation.
+- Use the task-completion notification or an `until` poll on the task PID to wait for completion. Do NOT chain `sleep` calls.
+- Read the task's output file only AFTER the task completes — empty output during the disk-wait window is normal, not a failure.
+- `git add` is fast even on slow filesystems (no pack writes); keep it foreground.
+
+**When `SLOW_FS=0`** (Linux ext4, macOS APFS, Windows non-OneDrive): foreground `git commit` is fine — no special handling needed.
+
+This step is purely a performance optimization — the commit logic itself is identical in both modes.
+
+---
+
 ## Step 1: Permission Mode Prompt
 
 Ask the user ONE question:
