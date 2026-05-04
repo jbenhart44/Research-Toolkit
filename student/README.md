@@ -1,17 +1,16 @@
 # Student Toolkit
 
-The full 13-command Research Amp Toolkit. Everything I actually use in my PhD research — structured planning, verification, documentation, and workflow automation.
+The full 15-command Research Amp Toolkit. Everything I actually use in my PhD research — structured planning, verification, documentation, and workflow automation.
 
 ## Installation
 
 **Option A — In Claude Code (recommended):**
 ```
-Read ai-research-toolkit/student/bootstrap.md and follow the installation instructions.
+Read student/bootstrap.md and follow the installation instructions.
 ```
 
 **Option B — Shell script:**
 ```bash
-cd ai-research-toolkit
 bash install.sh
 ```
 

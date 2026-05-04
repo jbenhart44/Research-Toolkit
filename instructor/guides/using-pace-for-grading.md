@@ -74,7 +74,7 @@ For research-writing courses where students cite published work, `/pace` on its 
 
 Run `/audit` first. If it flags any fabricated citations, that's a rubric issue (zero for the citation criterion) PLUS a conversation with the student before the PACE pass.
 
-If you run a large class, see `ai-research-toolkit/references/processing_student_submissions.md` for the batching recipe that scales this workflow to 40+ students.
+If you run a large class, see `references/processing_student_submissions.md` for the batching recipe that scales this workflow to 40+ students.
 
 ## What `/pace` Does Not Do for Grading
 

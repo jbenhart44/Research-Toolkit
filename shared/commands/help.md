@@ -64,7 +64,7 @@ Whichever they pick becomes the input to STEP 3. **Hard cap: at most one clarifi
 - **Command** (`/xxx`)
 - **One-sentence why** it matches the specific situation
 - **Invocation hint**: `Run: /xxx <args>` with placeholders
-- **Smoke pointer** (only if fixture exists): trailing line `Verify first: ai-research-toolkit/tests/smoke/xxx_smoke.md`
+- **Smoke pointer** (only if fixture exists): trailing line `Verify first: tests/smoke/xxx_smoke.md`
 
 If more than 3 commands match, your STEP 2 question didn't narrow enough — go back to STEP 2.
 
@@ -83,7 +83,7 @@ For the single most-likely-mis-selected neighbor, name it in one sentence:
 Append one row to `.toolkit/evidence/run_log.csv` via `emit_run_report.sh`:
 
 ```bash
-bash ai-research-toolkit/scripts/emit_run_report.sh \
+bash scripts/emit_run_report.sh \
   --command help \
   --run-dir ".toolkit/evidence/help_runs/$(date +%Y-%m-%d_%H%M%S)" \
   --outcome complete \
@@ -105,7 +105,7 @@ Do NOT offer to run the recommended command.
 
 ## Command Inventory
 
-**Inventory sync contract**: Canonical inventory is the contents of `ai-research-toolkit/shared/commands/*.md` (12 files) plus `/pcv` which lives at `ai-research-toolkit/pcv/agents/*.md` and is invoked via the skills registry. Any PR adding/renaming a command must update this block AND the command file's frontmatter.
+**Inventory sync contract**: Canonical inventory is the contents of `shared/commands/*.md` (14 files) plus `/pcv` which lives at `pcv/agents/*.md` and is invoked via the skills registry. Any PR adding/renaming a command must update this block AND the command file's frontmatter.
 
 Grouped by problem-shape:
 
@@ -248,7 +248,7 @@ If by end of fall 2026 NONE of the three success criteria hold, `/help` is a can
 ## Verify Your Install
 
 ```bash
-cat ai-research-toolkit/tests/smoke/help_triage.md
+cat tests/smoke/help_triage.md
 # The smoke fixture documents 4 expected cases (shape A, B, C, no-match).
 # Invoke /help with each test input and confirm output shape matches expectations.
 ```

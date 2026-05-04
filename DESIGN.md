@@ -27,19 +27,20 @@ The test for inclusion is: *Would a PhD student doing computational research use
 
 ## Command Inventory (v1.0)
 
-### Why 12 Commands
+### Why 15 Commands
 
 The toolkit started with 15 commands built during PhD research. Assessment:
 
 | Tier | Commands | Disposition |
 |------|----------|-------------|
 | **Tier 1 — Showcase** | /pcv, /coa, /pace, /improve, /simplify | Core methodology — included |
-| **Tier 2 — Workflow** | /startup, /dailysummary, /weeklysummary, /commit | Daily-use productivity — included |
+| **Tier 2 — Workflow** | /startup, /dailysummary, /weeklysummary, /commit, /runlog | Daily-use productivity — included |
 | **Tier 3 — Content** | /quarto, /readable | Document generation — included |
 | **Tier 4 — Triage** | /help | Discoverability triage — added v1.3 |
+| **Tier 5 — Verification** | /audit, /review | Citation + document review — added v1.0 (audit) / v1.4 (review) |
 | **Excluded** | 4 domain-specific commands | Not generalizable beyond the original research context |
 
-14 commands (13 command files + /pcv via skills registry). The 12th (audit) was added on 2026-04-03 after catching 4 numerical mismatches on a dissertation poster — citation verification became a non-negotiable capability. The 13th (/runlog) was added in v1.1 for longitudinal observability. The 14th (/help) was added in v1.3 on 2026-04-19 to address the paradox-of-choice problem Kay identified in the 4/15 transcript (line 1304 Brett "traffic cop route"); see v1.3 changelog below. A research instrument (/pcv-research) was previously bundled but was removed on 2026-04-10 after empirical testing revealed its hierarchical subagent spawning architecture is incompatible with Claude Code's tool model; it is held back pending further redesign and is no longer shipped.
+15 user-visible commands = 14 command files in `shared/commands/` (one .md per slash-command) + `/pcv` registered via the skills registry. Growth history: /audit added 2026-04-03 after catching 4 numerical mismatches on a dissertation poster (citation verification became non-negotiable); /runlog added v1.1 for longitudinal observability; /help added v1.3 on 2026-04-19 for the paradox-of-choice problem Kay flagged in the 4/15 transcript (line 1304 Brett "traffic cop route"); /review added v1.4 for three-lens document reading. A research instrument (/pcv-research) was previously bundled but was removed on 2026-04-10 after empirical testing revealed its hierarchical subagent spawning architecture is incompatible with Claude Code's tool model; it is held back pending further redesign and is no longer shipped.
 
 ### Persona-Command Mapping
 
@@ -49,6 +50,8 @@ The toolkit started with 15 commands built during PhD research. Assessment:
 | /coa | Yes | Yes | Verification |
 | /pace | Yes | Yes | Verification |
 | /improve | Yes | Yes | Verification |
+| /review | Yes | Yes | Verification |
+| /help | Yes | Yes | Triage |
 | /quarto | Yes | Yes | Content |
 | /readable | Yes | Yes | Content |
 | /startup | — | Yes | Workflow |
@@ -57,10 +60,11 @@ The toolkit started with 15 commands built during PhD research. Assessment:
 | /commit | — | Yes | Workflow |
 | /simplify | — | Yes | Workflow |
 | /audit | — | Yes | Verification |
+| /runlog | — | Yes | Verification |
 
-**Instructor gets 6, student gets 12.** The split logic:
-- Instructors need verification tools (teach methodology) and content tools (create materials).
-- Students also need workflow tools (build research habits: daily documentation, session continuity, clean commits).
+**Instructor gets 8, student gets 15.** The split logic:
+- Instructors need verification tools (teach methodology), the triage entry-point (/help), and content tools (create materials).
+- Students also need workflow tools (build research habits: daily documentation, session continuity, clean commits, longitudinal evidence via /runlog).
 
 ---
 
@@ -143,56 +147,83 @@ Items deferred from v1.0, ordered by estimated value:
 
 ## Versioning Policy
 
-- **v1.x** — Bug fixes, documentation improvements, config template updates. No new commands.
+- **v1.x** — Bug fixes, documentation improvements, config template updates. No new commands. *D-2 ruling (2026-05-02): "command" means a `.md` file under `shared/commands/` that gets installed to `~/.claude/commands/`. Audit/helper scripts under `scripts/` (e.g., `emit_run_report.sh`, `refresh-pcv-bundle.sh`) are not "commands" and may be added or revised within v1.x without violating the no-new-commands rule.*
 - **v2.0** — New commands only after classroom testing validates the concept. Each new command must pass the weekly-use test.
 - **PCV upstream** — PCV files are Kay's upstream. We distribute v3.14 as-is. Version bumps come from Kay's repo; maintainer-only via `scripts/refresh-pcv-bundle.sh --version <tag>`. Student/user-facing install never touches the network for PCV.
+
+---
+
+## Conventions for this document (added 2026-05-02 per /coa Q5 Z1 ruling)
+
+Three identifiers, three jobs — used consistently throughout DESIGN.md and the rest of the toolkit:
+
+- **Brand name** (prose): **Research Amp Toolkit**. Used in README hero copy, CITATION text, slide decks, anywhere a human reads.
+- **Path / repo slug**: `Research-Toolkit/`. Used in install instructions, `git clone` URLs, and any doc telling a user where the toolkit lives on disk after a clone.
+- **Legacy on-disk name**: `ai-research-toolkit/`. The pre-rename directory name. Appears only in v1.0–v1.3 changelog narrative for audit-trail purposes — NOT in user-facing instructions for v1.4+.
+
+**Command count source-of-truth**: 14 standalone commands (`.md` files in `~/.claude/commands/`, listed by the `SHARED_COMMANDS` and `STUDENT_ONLY` arrays in `install.sh`) + `/pcv` (registered via `~/.claude/skills/`) = **15 user-visible commands**. Any prose count in any doc must match this rule; the install banner derives counts from the arrays at runtime, not from prose.
+
+**Recipe CWD invariant**: All shell recipes in user-facing docs assume CWD = the toolkit clone root (`Research-Toolkit/`). No `cd ai-research-toolkit/...` chains. If a recipe requires a deeper directory, the recipe begins with one bare `cd <subdir>/` line; never with the toolkit name as a prefix.
 
 ---
 
 ## File Inventory
 
 ```
-research-amp/                            Total: 33 files
+Research-Toolkit/                        Total: ~40 files (excluding pcv/ upstream bundle)
 ├── README.md                            Root documentation
 ├── LICENSE                              MIT
-├── CITATION.md                          BibTeX + attribution
+├── CITATION.md                          BibTeX + attribution prose
+├── CITATION.cff                         Machine-readable citation
+├── CONTRIBUTING.md                      Contribution guidelines
 ├── EVIDENCE.md                          Empirical metrics
 ├── DESIGN.md                            This file
+├── QUICKSTART.md                        First-session walk-through
+├── USAGE_GUIDE.md                       Full command reference
 ├── toolkit-config.md                    User configuration template
-├── install.sh                           Dual-mode installer
+├── install.sh                           Dual-mode installer (array-driven counts; v0.1)
 ├── instructor/
-│   ├── README.md                        6-command quick start
+│   ├── README.md                        Instructor quick start (8 commands)
 │   └── guides/
 │       ├── using-pcv-in-courses.md      Teaching guide
 │       ├── using-coa-for-discussion.md  Teaching guide
 │       └── using-pace-for-grading.md    Teaching guide
 ├── student/
-│   ├── README.md                        Full suite quick start
-│   └── bootstrap.md                     In-session installer
-├── shared/commands/                     11 generalized commands
+│   ├── README.md                        Student quick start (15 commands)
+│   └── bootstrap.md                     In-session installer for Claude Code
+├── shared/commands/                     14 generalized commands
 │   ├── coa.md                           Council of Agents
 │   ├── pace.md                          Parallel Agent Consensus
-│   ├── audit.md                         Citation & numerical audit
+│   ├── audit.md                         Citation & numerical audit (v1.0+)
+│   ├── review.md                        Three-lens document review (v1.4)
 │   ├── improve.md                       Infrastructure scanner
-│   ├── simplify.md                      Code review
+│   ├── simplify.md                      Code/document review
+│   ├── help.md                          Triage entry-point (v1.3)
+│   ├── runlog.md                        Longitudinal run observability (v1.1)
 │   ├── startup.md                       Session briefing
 │   ├── dailysummary.md                  Daily work summary
 │   ├── weeklysummary.md                 Weekly aggregation
 │   ├── commit.md                        Intelligent git commits
 │   ├── quarto.md                        Slide generation
 │   └── readable.md                      Document extraction
-│   └── runlog.md                        Longitudinal run observability (v1.1)
-├── scripts/                             Shared helper scripts (v1.1)
-│   └── emit_run_report.sh               Run instrumentation helper
-├── tests/smoke/                         Smoke test fixtures (v1.1)
-│   ├── audit_smoke.md, paper.md, sources/
-│   ├── pace_source_verification.md, sales_fixture.csv
-│   └── runlog_parser.md (v1.1)
+├── scripts/                             Shared helper scripts (v1.1+)
+│   ├── emit_run_report.sh               Run instrumentation helper (atomic flock append)
+│   └── refresh-pcv-bundle.sh            Maintainer-only PCV upstream sync
+├── tests/
+│   ├── README.md                        Test fixture index
+│   └── smoke/                           Smoke test fixtures
+│       ├── fresh_clone_test.sh          Project-token leak scan + frontmatter contract
+│       ├── audit_smoke.md, paper.md, sources/   /audit fixture
+│       ├── pace_source_verification.md, sales_fixture.csv   /pace Step 2e fixture
+│       ├── help_triage.md               /help triage fixture (v1.3)
+│       ├── commit_grouping.md           /commit logical-grouping fixture
+│       └── runlog_parser.md             /runlog parser fixture (v1.2 — synthetic, portable)
 ├── references/                          JIT recipe files
 │   └── processing_student_submissions.md (v1.1)
+├── docs/                                Landing page content (jbenhart44.github.io)
 └── pcv/                                 PCV v3.14 (Kay's upstream; refresh via scripts/refresh-pcv-bundle.sh)
-    ├── skill/ (6 files)
-    └── agents/ (4 files)
+    ├── skill/                           Recursive (handlers, hooks, planning, construction, verification, transition, bundled)
+    └── agents/ (4 files)                pcv-builder, pcv-critic, pcv-research, pcv-verifier
 ```
 
 ---
@@ -301,7 +332,7 @@ Added:
 
 Design artifacts (preserved for longitudinal comparison if /help is removed and re-attempted):
 - v0.2 spec: `plans/help_command_draft.md`
-- Council session: `CC_Workflow/coa/council_sessions/coa_2026-04-19_help_command_design/`
+- Council session: `coa/council_sessions/coa_2026-04-19_help_command_design/` (author-local; not bundled with the toolkit)
 
 ---
 
@@ -347,7 +378,7 @@ Added:
 - `shared/commands/review.md` — the command file (~240 lines)
 - Install.sh registration + command count bump (see above)
 - `EVIDENCE.md` — new /review section with smoke-test metrics
-- `CC_Workflow/evidence/command_performance_log.md` — debut invocation logged
+- `evidence/command_performance_log.md` — debut invocation logged (author-local instrumentation; not bundled with the toolkit)
 - `plans/review_command_documentation_idea.md` — tracks the per-command-docs future use case
 
 Bonus bug caught during I3 shell test: the spec's user field `outcome=match` collided with the script's native `outcome:` YAML key, producing duplicate keys. Renamed to `triage_result=match`. This is a lesson for future command specs — do not use field names that shadow the script's built-ins.

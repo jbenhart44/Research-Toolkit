@@ -78,13 +78,12 @@ Save as `tests/smoke/sales_fixture.csv`.
 ## Running the Smoke Test
 
 ```bash
-cd ai-research-toolkit/
 /pace "Review the attached sales data CSV and identify the three highest-revenue months. The CSV has 24 rows (one per month, 2 years of data). The total revenue across all 24 months is \$4,200,000. File: tests/smoke/sales_fixture.csv"
 ```
 
 ## Inspecting Output
 
-After `/pace` completes, look at `CC_Workflow/evidence/pace_runs/<run_id>/player_a.md` (and `_b.md`) for the **Assumptions Made** section. Each Player's assumptions should include something like:
+After `/pace` completes, look at `${EVIDENCE_DIR:-evidence}/pace_runs/<run_id>/player_a.md` (and `_b.md`) for the **Assumptions Made** section. Each Player's assumptions should include something like:
 
 > "Task Brief states 24 rows and $4,200,000 total. Verified against `sales_fixture.csv`: actual is 12 rows, $2,100,000 total. Proceeded with corrected values."
 

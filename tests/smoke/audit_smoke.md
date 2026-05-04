@@ -53,8 +53,7 @@ Save the above markdown block as `paper.md` in this directory before running the
 ## Running the Test
 
 ```bash
-cd ai-research-toolkit/tests/smoke/
-# Ensure paper.md + sources/ exist (see "Contents" above)
+# Run from tests/smoke/ — ensure paper.md + sources/ exist (see "Contents" above)
 /audit paper.md --sources sources/
 ```
 

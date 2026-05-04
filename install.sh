@@ -1,9 +1,9 @@
 #!/bin/bash
 # Research Amp Toolkit — Installer
-# Usage:
-#   bash install.sh               # Full toolkit (14 commands)
-#   bash install.sh --minimal     # Instructor toolkit (8 commands)
-#   bash install.sh --hooks        # Also install optional hooks (token budget, folder guard)
+# Usage (counts derived at runtime — see SHARED_COMMANDS / STUDENT_ONLY arrays):
+#   bash install.sh               # Full toolkit
+#   bash install.sh --minimal     # Instructor toolkit
+#   bash install.sh --hooks       # Also install optional hooks (token budget, folder guard)
 #   bash install.sh --dry-run     # Show what would be installed without copying
 #   bash install.sh --help        # Show this help
 
@@ -20,6 +20,15 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
+
+# Command sets — single source of truth for both install paths AND banner counts.
+# Defined BEFORE show_help() so --help can render correct counts without running install.
+SHARED_COMMANDS=(coa pace improve quarto readable help review)
+STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify audit runlog)
+SHARED_COUNT=${#SHARED_COMMANDS[@]}
+STUDENT_COUNT=${#STUDENT_ONLY[@]}
+FULL_COUNT=$((SHARED_COUNT + STUDENT_COUNT + 1))   # +1 for /pcv (skill)
+MIN_COUNT=$((SHARED_COUNT + 1))                    # +1 for /pcv (skill)
 
 print_header() {
     echo ""
@@ -45,8 +54,8 @@ show_help() {
     echo "Research Amp Toolkit — Installer"
     echo ""
     echo "Usage:"
-    echo "  bash install.sh               Full toolkit (14 commands)"
-    echo "  bash install.sh --minimal     Instructor toolkit (8 commands)"
+    echo "  bash install.sh               Full toolkit (${FULL_COUNT} commands)"
+    echo "  bash install.sh --minimal     Instructor toolkit (${MIN_COUNT} commands)"
     echo "  bash install.sh --dry-run     Show what would be installed without copying"
     echo "  bash install.sh --help        Show this help"
     echo ""
@@ -120,9 +129,7 @@ else
     mkdir -p "$AGENTS_DIR"
 fi
 
-# Define command sets
-SHARED_COMMANDS=(coa pace improve quarto readable help review)
-STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify audit)
+# (SHARED_COMMANDS and STUDENT_ONLY arrays defined at top of file so show_help can use them.)
 
 # Install shared commands (both products)
 echo "Installing shared commands..."
@@ -217,9 +224,9 @@ echo ""
 echo "================================================"
 if [ "$DRY_RUN" = true ]; then
     if [ "$MINIMAL" = true ]; then
-        echo "  Instructor Toolkit dry run (8 commands + PCV)"
+        echo "  Instructor Toolkit dry run (${MIN_COUNT} commands incl. /pcv)"
     else
-        echo "  Full Toolkit dry run (14 commands)"
+        echo "  Full Toolkit dry run (${FULL_COUNT} commands incl. /pcv)"
     fi
     echo "================================================"
     echo ""
@@ -227,23 +234,26 @@ if [ "$DRY_RUN" = true ]; then
     echo "Run without --dry-run to install."
 else
     if [ "$MINIMAL" = true ]; then
-        echo "  Instructor Toolkit installed (8 commands + PCV)"
+        echo "  Instructor Toolkit installed (${MIN_COUNT} commands incl. /pcv)"
     else
-        echo "  Full Toolkit installed (14 commands)"
+        echo "  Full Toolkit installed (${FULL_COUNT} commands incl. /pcv)"
     fi
     echo "================================================"
     echo ""
     echo "Next steps:"
-    echo "  1. Edit ~/.claude/toolkit-config.md with your project details"
-    echo "  2. Open Claude Code in your project directory"
-    echo "  3. Type /pcv to start structured planning"
+    echo "  1. Restart Claude Code so it picks up the newly installed commands."
+    echo "  2. Edit ~/.claude/toolkit-config.md with your project details."
+    echo "  3. Open Claude Code in your project directory and type /pcv to start structured planning."
 fi
 echo ""
+# Render command list from the arrays (avoids hand-maintained drift)
 if [ "$MINIMAL" = true ]; then
-    echo "Commands installed: /pcv, /coa, /pace, /improve, /quarto, /readable, /help, /review"
+    INSTALLED_LIST="/pcv"
+    for c in "${SHARED_COMMANDS[@]}"; do INSTALLED_LIST="$INSTALLED_LIST, /$c"; done
 else
-    echo "Commands installed: /pcv, /coa, /pace, /audit,"
-    echo "  /improve, /simplify, /startup, /dailysummary, /weeklysummary,"
-    echo "  /commit, /quarto, /readable, /help, /review"
+    INSTALLED_LIST="/pcv"
+    for c in "${SHARED_COMMANDS[@]}"; do INSTALLED_LIST="$INSTALLED_LIST, /$c"; done
+    for c in "${STUDENT_ONLY[@]}";    do INSTALLED_LIST="$INSTALLED_LIST, /$c"; done
 fi
+echo "Commands installed: $INSTALLED_LIST"
 echo ""

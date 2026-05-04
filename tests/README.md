@@ -16,7 +16,7 @@ Tests `/audit`'s pass/fail/fabricated detection on a 3-citation test document (2
 
 **Run**:
 ```bash
-cd ai-research-toolkit/tests/smoke/
+cd tests/smoke/
 /audit paper.md --sources sources/
 ```
 
@@ -26,7 +26,7 @@ Tests `/pace`'s Step 2e Source Data Verification directive. Task Brief falsely c
 **Run**: feed the Task Brief from `pace_source_verification.md` to `/pace` and inspect Player outputs' Assumptions sections.
 
 ### smoke/runlog_parser.md
-Tests `/runlog`'s CSV parser against the live `CC_Workflow/evidence/run_log.csv`. Guards against regression to raw `awk -F','` (the v1.0 bug).
+Tests `/runlog`'s CSV parser against the live `${EVIDENCE_DIR:-evidence}/run_log.csv`. Guards against regression to raw `awk -F','` (the v1.0 bug).
 
 **Run** (one-liner):
 ```bash
@@ -34,7 +34,7 @@ cd "$(git rev-parse --show-toplevel)"
 python3 <<'PY'
 import csv
 from collections import Counter
-with open("CC_Workflow/evidence/run_log.csv") as f:
+with open("${EVIDENCE_DIR:-evidence}/run_log.csv") as f:
     rows = list(csv.DictReader(f))
 valid = [r for r in rows if r.get("tool", "") and not r["tool"].startswith(("2026-","2025-","pace_","coa_","pcv_"))]
 counts = Counter(r["tool"] for r in valid)

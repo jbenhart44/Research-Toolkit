@@ -1,15 +1,14 @@
 # Instructor Toolkit
 
-A curated 6-command subset of the Research Amp Toolkit, designed for professors integrating AI-assisted workflows into graduate courses.
+A curated 8-command subset of the Research Amp Toolkit, designed for professors integrating AI-assisted workflows into graduate courses.
 
 ## Installation
 
 ```bash
-cd ai-research-toolkit
 bash install.sh --minimal
 ```
 
-This installs 6 commands + PCV. Takes under 5 minutes.
+This installs 7 commands + /pcv (8 total). Takes under 5 minutes.
 
 ## Commands
 

@@ -17,21 +17,32 @@ set -uo pipefail
 TMP_DIR=$(mktemp -d)
 trap "rm -rf $TMP_DIR" EXIT
 
-TOOLKIT_ROOT="${TOOLKIT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null)/ai-research-toolkit}"
-if [ ! -d "$TOOLKIT_ROOT" ]; then
-    echo "FAIL: TOOLKIT_ROOT not found at $TOOLKIT_ROOT" >&2
+# Default: derive toolkit root from this script's location (works whether the
+# toolkit is its own repo OR vendored as a subdir of another repo).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TOOLKIT_ROOT="${TOOLKIT_ROOT:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
+if [ ! -d "$TOOLKIT_ROOT" ] || [ ! -f "$TOOLKIT_ROOT/install.sh" ]; then
+    echo "FAIL: TOOLKIT_ROOT not found or missing install.sh at $TOOLKIT_ROOT" >&2
     exit 2
 fi
 
 cp -r "$TOOLKIT_ROOT" "$TMP_DIR/toolkit"
 cd "$TMP_DIR/toolkit"
 
-# ── Smoke 1: project-specific tokens in command/script files ──────────────
-# Whitelist: refresh-pcv-bundle.sh's "Kay's upstream" attribution (legitimate
-# co-author credit per MEMORY.md toolkit_kay_coauthor.md rule).
-LEAKS=$(grep -rn -E "CC_Workflow|/mnt/c/Users/17247|jbenhart44\.github\.io|Strategic Driver|Paper [13]|ISE 754|advisor_feedback" \
-        shared/commands/ scripts/ toolkit-config.md 2>/dev/null \
-        | grep -v "^scripts/refresh-pcv-bundle.sh.*Kay's upstream" \
+# ── Smoke 1: project-specific tokens across the whole repo (D-6 widened scan) ──
+# Token regex covers genuinely Jake-private leaks. `jbenhart44.github.io` is the
+# author's legitimate public domain — NOT a leak; intentionally not in this regex.
+# Path excludes cover runtime artifacts (coa/council_sessions/), Kay's upstream
+# (pcv/, pcv.previous/), git internals, and the landing-page docs/ tree.
+LEAKS=$(grep -rn -E "CC_Workflow|/mnt/c/Users/17247|/mnt/c/Users/jebenhar|Strategic Driver|Paper [13]|ISE 754|advisor_feedback" \
+        --exclude-dir=.git \
+        --exclude-dir=pcv \
+        --exclude-dir=pcv.previous \
+        --exclude-dir=coa \
+        --exclude-dir=docs \
+        . 2>/dev/null \
+        | grep -v "scripts/refresh-pcv-bundle.sh.*Kay's upstream" \
+        | grep -v "tests/smoke/fresh_clone_test.sh" \
         || true)
 if [ -n "$LEAKS" ]; then
     echo "FAIL: project-specific tokens found in toolkit:"

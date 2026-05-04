@@ -2,7 +2,7 @@
 
 > **⚠️ v0.1 — experimental, no support commitment.** This is an early research release under active development. Breaking changes expected between versions. Issues and pull requests are welcome; responses are best-effort, not guaranteed. If you're looking for a stable production tool, this isn't it yet.
 
-14 Claude Code commands that amplify your research. The tools don't think — they verify, structure, and document. You bring the signal. Validated across hundreds of production sessions.
+15 Claude Code commands that amplify your research. The tools don't think — they verify, structure, and document. You bring the signal. Validated across hundreds of production sessions.
 
 **Authors:** Jake Benhart & Dr. Michael G. Kay (NC State University — Operations Research)
 
@@ -46,7 +46,7 @@ Then in Claude Code: type `/pcv` in any project directory to verify it works.
 
 **Verify your install** (30 seconds):
 ```bash
-cd research-amp/tests/smoke/
+cd tests/smoke/
 /audit paper.md --sources sources/
 # Expected: 1 VERIFIED + 1 MISMATCH + 1 NOT FOUND (1 fabricated citation flagged)
 ```
@@ -103,7 +103,7 @@ project_type: research
 
 | Path | What it holds |
 |---|---|
-| `shared/commands/` | 13 slash command definitions (one per command); `/pcv` is the 14th, invoked via skills registry from `pcv/agents/` |
+| `shared/commands/` | 14 slash command definitions (one per command); `/pcv` is the 15th, invoked via skills registry from `pcv/agents/` |
 | `scripts/` | Shared bash helpers called by commands (e.g., `emit_run_report.sh` for run instrumentation) — see `scripts/README.md` |
 | `tests/smoke/` | Fixtures verifying each command works as documented — see `tests/README.md` |
 | `references/` | JIT recipe files — workflows that are documents, not commands (e.g., `processing_student_submissions.md`) |

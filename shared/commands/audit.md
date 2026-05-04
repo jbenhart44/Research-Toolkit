@@ -122,7 +122,7 @@ Where `$VERDICT` is `pass` (zero mismatches/not-found) or `fail` (any mismatch o
 A smoke test fixture lives at `tests/smoke/audit_smoke.md` with 3 citations (2 valid + 1 fabricated). Run this to confirm `/audit` is working after installation:
 
 ```bash
-cd ai-research-toolkit/tests/smoke/
+cd tests/smoke/
 /audit paper.md --sources sources/
 # Expected: VERIFIED: 1, MISMATCH: 1 (Jones 42% vs 35%), NOT FOUND: 1 (Rodriguez)
 ```

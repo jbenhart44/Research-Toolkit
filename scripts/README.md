@@ -49,6 +49,6 @@ Do NOT add:
 
 ## Testing
 
-Smoke tests for helpers live in `ai-research-toolkit/tests/smoke/`. Each helper should have a paired smoke fixture.
+Smoke tests for helpers live in `tests/smoke/`. Each helper should have a paired smoke fixture.
 
 - `emit_run_report.sh` → smoke test embedded in `tests/smoke/runlog_parser.md` (verifies the CSV output)

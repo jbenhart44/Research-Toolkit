@@ -22,7 +22,7 @@ The Council of Agents spawns specialists with distinct professional perspectives
 
 | Metric | Value | Source |
 |--------|-------|--------|
-| Contamination tests conducted | 3 | Contamination test files in `coa/council_sessions/` |
+| Contamination tests conducted | 3 | Contamination test files saved to your project's `coa/council_sessions/` directory (auto-created on first /coa run) |
 | Independent perspective rate | Council members produce distinct analyses | ECL-lite scorecard methodology |
 | Cross-model validation | Gemini used as external check (optional) | Cross-model MCP integration |
 
@@ -93,12 +93,10 @@ Every PACE and CoA run automatically produces a structured run report with YAML 
 4. The report is saved to a tool-specific directory and a row is appended to `run_log.csv`
 5. Run `/improve --tools` anytime to see aggregate statistics across all runs
 
-**Storage:**
+**Storage** (paths are relative to your project's workflow directory; commands create them automatically on first use — no stub directories ship with the toolkit):
 - PACE reports: `evidence/pace_runs/`
 - CoA reports: `coa/council_sessions/` (YAML frontmatter added to session files)
 - CSV index: `evidence/run_log.csv`
-
-> These paths are relative to your project's workflow directory. Create them as needed — commands will create directories automatically on first use.
 
 **For new users:** You don't need to understand the schema to use the tools. Evidence collection is automatic. After 5+ runs, run `/improve --tools` to see your first aggregate statistics. After 10+ runs, trends become visible. See [QUICKSTART.md](QUICKSTART.md) for calibration tasks and baseline benchmarks.
 

@@ -54,7 +54,7 @@ If your goal is to surface common themes or errors across the class, use `/pace`
 
 ### Step 4 — Extract question sets
 
-If you run a class where students submit questions (Kay's ISE 754 format):
+If you run a class where students submit questions in a structured weekly format:
 
 ```
 /pace "Extract all student questions from submissions/fall-2026-week-3/. Produce: (1) the N distinct questions, (2) a ranking by how many students independently asked versions of the same question, (3) a prep note for each top-3 question covering what to say in class."

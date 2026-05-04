@@ -155,7 +155,7 @@ If you want structured debugging with multiple perspectives on WHY it's crashing
 
 **Pass condition**:
 - No recommendation is forced
-- Redirects to "check your project's local reference docs" WITHOUT naming specific Jake-only paths like `CC_Workflow/references/...`
+- Redirects to "check your project's local reference docs" WITHOUT naming specific author-private paths (e.g., a hardcoded `references/...` directory from one user's setup)
 - Offers `/coa` as an optional heavier tool, clearly framed as potentially overkill
 - CSV `triage_result=no_match` (not `match` or `needs_escalation`)
 - `recommendations` field is empty string (no command was primary)
@@ -175,16 +175,16 @@ If you want structured debugging with multiple perspectives on WHY it's crashing
 
 If future `/help` invocations in `run_log.csv` show any of these, open a v0.3 revision:
 
-- **R1 — Inventory drift**: `recommendations` includes a command not present in `ls ai-research-toolkit/shared/commands/` (plus `/pcv`)
+- **R1 — Inventory drift**: `recommendations` includes a command not present in `ls Research-Toolkit/shared/commands/` (plus `/pcv`)
 - **R2 — Clarification overrun**: `clarifying_questions=2` or more (should never happen per the hard cap)
 - **R3 — Budget overrun**: rendered output exceeds 5 functional chunks (not directly observable in CSV; requires qualitative review of sample transcripts)
-- **R4 — Project-path leak**: output includes `CC_Workflow/references/...` or other Jake-specific paths (not directly observable in CSV; requires qualitative review)
+- **R4 — Project-path leak**: output includes hardcoded author-specific paths (e.g., a single user's evidence directory) instead of generic `evidence/` / project-config-driven paths (not directly observable in CSV; requires qualitative review)
 - **R5 — Chain-and-execute**: output includes any `[y/n]` prompt offering to run the recommended command
 
 ---
 
 ## Related Artifacts
 
-- Command file: `ai-research-toolkit/shared/commands/help.md`
+- Command file: `Research-Toolkit/shared/commands/help.md`
 - v0.2 design spec: `plans/help_command_draft.md`
-- Council session: `CC_Workflow/coa/council_sessions/coa_2026-04-19_help_command_design/`
+- Council session: `coa/council_sessions/coa_2026-04-19_help_command_design/` (author-local; not bundled with the toolkit)
