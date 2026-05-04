@@ -332,6 +332,19 @@ Spawn the Chair as a separate Agent tool call with the Question Essence + anonym
 
 After Chair completes, re-attach persona labels.
 
+### Single-Panelist Unique Findings
+
+<!-- regime-shift v0.1: surfaces buried-best-findings hidden under aggregate Chair synthesis -->
+
+Findings raised by exactly ONE council member that no other panelist mentioned. These are NOT convergence (multiple agreement) and NOT divergence (active disagreement) — they are lens-exclusive observations.
+
+For each unique finding (max 4):
+- `[Member name] (lens: <persona>): <finding>` (1–2 lines)
+- Why this lens caught it (1 line)
+- Confidence flag: `[HIGH if downstream-actionable | LOW if speculative]`
+
+Rationale: regime-shift answers are often visible only through one perspective; aggregate Chair synthesis can bury them. Surface them explicitly.
+
 ---
 
 ## STEP 3: PRESENT COUNCIL SESSION

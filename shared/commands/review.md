@@ -238,6 +238,19 @@ Output in this exact order:
 - The Skeptic says X; the Practitioner says Y. The gap is <what it means for the user>.
 - (If no material divergence, say: "The three lenses converged cleanly — no material disagreements.")
 
+### Single-Panelist Unique Findings
+
+<!-- regime-shift v0.1: surfaces buried-best-findings hidden under aggregate Chair synthesis. Clerk acting as Chair extracts these inline — DO NOT spawn a 4th agent. -->
+
+Findings raised by exactly ONE lens (Skeptic, Practitioner, or Editor) that no other lens mentioned. These are NOT convergence (multiple agreement) and NOT divergence (active disagreement) — they are lens-exclusive observations.
+
+For each unique finding (max 4):
+- `[Skeptic | Practitioner | Editor]: <finding>` (1–2 lines)
+- Why this lens caught it (1 line)
+- Confidence flag: `[HIGH if downstream-actionable | LOW if speculative]`
+
+Rationale: regime-shift answers are often visible only through one perspective; aggregate synthesis can bury them. Surface them explicitly.
+
 ### Top 3 implications for the user (consolidated)
 1. **<Verb-led headline>** — <1–2 sentences of specifics>
 2. **<Verb-led headline>** — <1–2 sentences of specifics>

@@ -316,6 +316,19 @@ For each divergence, note:
 ### Unique Contributions
 Items in one team's output but not the other. Note whether the other team's Coach or Cross-Reviewer flagged the absence.
 
+### Single-Panelist Unique Findings
+
+<!-- regime-shift v0.1: surfaces buried-best-findings hidden under aggregate Cross-Reviewer synthesis -->
+
+Findings raised by exactly ONE agent (one Player or one Coach) that no other panelist mentioned. These are NOT convergence (multiple agreement) and NOT divergence (active disagreement) — they are agent-exclusive observations distinct from per-team Unique Contributions above.
+
+For each unique finding (max 4):
+- `[Player A | Player B | Coach A | Coach B]: <finding>` (1–2 lines)
+- Why this agent caught it (1 line)
+- Confidence flag: `[HIGH if downstream-actionable | LOW if speculative]`
+
+Rationale: regime-shift answers are often visible only through one perspective; aggregate synthesis can bury them. Surface them explicitly.
+
 ---
 
 ## STEP 6: PRESENT ANALYSIS TO COMMISSIONER

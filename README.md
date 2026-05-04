@@ -18,6 +18,12 @@ This toolkit is a working implementation of **Spec-Driven Development (SDD)** �
 
 ---
 
+## Topology
+
+Different problem shapes call for different topologies, and this toolkit bundles commands of two kinds. Hub-spoke commands (Chair-coordinated panels via `/coa`, `/pace`, `/review`) are right for decomposable work where synthesis benefits from orchestrated coherence. Market-shaped commands (`/coa --quick`'s 3-member panel) are right for brittle reasoning where independent retry beats hand-coordinated convergence. Global-state work (refactors, lockfiles, sync edits) stays solo — no agents at all. The choice is task-shape-dependent. See [DESIGN.md](DESIGN.md) `### Topology Selection` for the full taxonomy.
+
+---
+
 ## What This Gives You
 
 Reusable Claude Code commands that turn vague "help me with my research" prompts into structured, verifiable workflows. Three problems they solve:
@@ -71,7 +77,7 @@ project_type: research
 | Command | What it does |
 |---------|-------------|
 | **/pcv** | Plan-Construct-Verify — structured planning with clarification, adversarial review, and human approval gates |
-| **/coa** | Council of Agents — spawns specialists with distinct professional perspectives to analyze a question |
+| **/coa** | Council of Agents — multi-perspective decision support. Use `--quick` for fast/brittle questions (market-shaped); default for synthesis-heavy reviews (hub-spoke). |
 | **/pace** | Parallel Agent Consensus Engine — two independent players + two coaches + cross-reviewer |
 | **/audit** | Verifies every citation exists on disk and every quoted number matches the source paper |
 | **/improve** | Self-reflective meta-agent that audits your Claude Code infrastructure and proposes improvements |

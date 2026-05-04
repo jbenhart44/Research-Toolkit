@@ -142,6 +142,20 @@ Items deferred from v1.0, ordered by estimated value:
 6. **PII scanning** (`/sanitize`) — Only if we can integrate Presidio or equivalent, not a regex hack.
 7. **Cross-model council** — CoA with Gemini/GPT members alongside Claude. Currently works via MCP but requires manual setup.
 8. **DataFrame integration** — Instrumentation data in Julia/Python DataFrames for richer analysis.
+9. **Chair-vs-panelist token-cost telemetry** — Instrument Chair-synthesis vs panelist token consumption per `/coa`, `/pace`, `/review`, `/pcv` run. Motivation: surface hub-spoke coordination overhead empirically. (Inspired by 2026 commentary on agent-coordination cost; deferred until reproducible measurement is in scope.) v0.1 ships without; CSV schema migration deferred to avoid breaking `runlog.csv` contracts. Open question: per-panelist breakdown granularity vs single Chair-vs-rest aggregate.
+10. **Generalize `/meetingbreakdown` for toolkit** — Currently user-level only; toolkit counterpart deferred until generalization pattern stabilizes.
+
+### Topology Selection
+
+The toolkit's commands fall into two topological shapes; this table maps task shape to recommended command. This is documented as toolkit-internal best practice based on session experience.
+
+| Task shape | Topology | Recommended command |
+|---|---|---|
+| Global-state code (refactors, lockfiles, sync edits) | Solo | direct edit, no agents |
+| Brittle reasoning (parallelizable, unstable) | Market-shaped | `/coa --quick` |
+| Decomposable, coherent synthesis needed | Hub-spoke | `/coa`, `/pace`, `/review`, `/pcv` |
+
+External inspiration: hub-spoke vs market topology distinction echoes a recent advisor-shared analysis (n=15, no seeds — weakly supported); rows above are toolkit-internal best practice, not a citation of that result.
 
 ---
 
