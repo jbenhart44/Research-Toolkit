@@ -47,20 +47,31 @@ A typical `/coa` session uses 1–2 cross-model calls. Free-tier limits are well
 
 ---
 
-## Step 2 — Set up the cross-model MCP server
+## Step 2 — Register the cross-model MCP server
 
-The toolkit invokes Gemini through an MCP server (`mcp__crossmodel__query_model`). The toolkit doesn't bundle the server itself — it's a small standalone Python script.
+The toolkit invokes Gemini through an MCP server (`mcp__crossmodel__query_model`). A reference implementation is bundled at `coa/crossmodel-mcp/server.py` (zero dependencies, pure Python stdlib, ~290 lines). It supports Gemini, OpenAI, and Perplexity, and prefixes every response with `[META: finish_reason=<value>]` so the /coa skill can detect and diagnose truncation.
 
-**Reference implementation** (zero dependencies, pure stdlib): the parent project at <https://github.com/jbenhart44/Autonomous-Vehicle-Bidding> ships one at `CC_Workflow/coa/crossmodel-mcp/server.py`. You can copy that file to your own project and register it with Claude Code:
+Register it with Claude Code:
 
 ```bash
-# After placing server.py somewhere on your system:
+# From the directory where you cloned the toolkit:
+TOOLKIT_DIR="$(pwd)"
 claude mcp add crossmodel \
   -e GEMINI_API_KEY="$GEMINI_API_KEY" \
-  -- python3 "/full/path/to/server.py"
+  -- python3 "$TOOLKIT_DIR/coa/crossmodel-mcp/server.py"
 ```
 
 **IMPORTANT**: After `claude mcp add`, you must **`/exit` and relaunch Claude Code** for the new MCP registration to load. MCP servers register at session start.
+
+If you have multiple API keys set, pass them all to one registration so the /coa skill can cascade between providers when one truncates or rate-limits:
+
+```bash
+claude mcp add crossmodel \
+  -e GEMINI_API_KEY="$GEMINI_API_KEY" \
+  -e OPENAI_API_KEY="$OPENAI_API_KEY" \
+  -e PERPLEXITY_API_KEY="$PERPLEXITY_API_KEY" \
+  -- python3 "$TOOLKIT_DIR/coa/crossmodel-mcp/server.py"
+```
 
 ---
 
@@ -129,5 +140,5 @@ Re-register the MCP after adding new keys (`claude mcp remove crossmodel; claude
 ## Reference
 
 - Gemini API console: <https://aistudio.google.com>
-- /coa command: `ai-research-toolkit/shared/commands/coa.md`
-- Reference server.py: parent project, `CC_Workflow/coa/crossmodel-mcp/server.py`
+- /coa command source: `shared/commands/coa.md` (in this toolkit)
+- MCP server source: `coa/crossmodel-mcp/server.py` (in this toolkit)
