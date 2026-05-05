@@ -69,7 +69,7 @@ summary_folder: Daily Summary
 project_type: research
 ```
 
-**Optional but recommended — cross-model verification for /coa.** `/coa` runs a same-family council by default. Adding a single Gemini cross-check (free, ~2 min) gives you genuine cross-vendor disagreement detection. See [`coa/CROSSMODEL_SETUP.md`](coa/CROSSMODEL_SETUP.md) for the step-by-step. Skip if you don't want to set it up — `/coa` runs cleanly without it (with the same-model caveat noted in the synthesis).
+**Optional but recommended — cross-model verification for /coa.** `/coa` runs a same-family council by default. Adding a single Gemini cross-check (free, ~2 min) gives you genuine cross-vendor disagreement detection. See [`coa/CROSSMODEL_SETUP.md`](coa/CROSSMODEL_SETUP.md) for the step-by-step — or paste the "TL;DR" prompt at the top of that file into a Claude Code session and let it walk you through the install interactively (you only need to supply the API key when asked). Skip entirely if you don't want it; `/coa` runs cleanly without it (same-model caveat noted in the synthesis).
 
 ---
 

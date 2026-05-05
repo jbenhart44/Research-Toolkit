@@ -6,6 +6,66 @@ This guide walks a new toolkit user through the cheapest path: Google's free Gem
 
 ---
 
+## TL;DR — Have Claude Code do it for you
+
+If you'd rather have Claude Code walk you through the whole setup interactively (it'll read your filesystem, run the registration command, and verify the result), open a Claude Code session in the toolkit's clone directory and paste the prompt below. You'll only need to provide the Gemini API key when Claude Code asks for it.
+
+```text
+I just downloaded the Research Amp Toolkit and want to enable Gemini cross-model
+verification for /coa. Please walk me through the setup end-to-end. I'm in a
+fresh Claude Code session at the toolkit's clone directory.
+
+Step 1 — Confirm the install. Verify that `coa/crossmodel-mcp/server.py` exists
+in my current working directory. If not, ask me to `cd` into the toolkit clone
+first, then continue.
+
+Step 2 — Free Gemini key. Tell me to:
+  (a) Open https://aistudio.google.com in a browser
+  (b) Sign in with a Google account
+  (c) Accept the Generative AI Terms (first time only)
+  (d) Click "Get API key" -> "Create API key in new project"
+  (e) Copy the key and paste it back here
+
+Step 3 — Once I paste the key, persist it as GEMINI_API_KEY in my shell:
+    echo 'export GEMINI_API_KEY="<paste>"' >> ~/.bashrc
+    source ~/.bashrc
+Then verify with `echo "$GEMINI_API_KEY" | head -c 10` so I can confirm it loaded.
+
+Step 4 — Register the MCP server using the absolute path to the toolkit's
+bundled server.py:
+    TOOLKIT_DIR="$(pwd)"
+    claude mcp add crossmodel \
+      -e GEMINI_API_KEY="$GEMINI_API_KEY" \
+      -- python3 "$TOOLKIT_DIR/coa/crossmodel-mcp/server.py"
+
+Step 5 — Tell me to /exit and relaunch Claude Code so the MCP registration
+loads. (MCP servers register at session start; mid-session adds are not
+visible until restart.)
+
+Step 6 — When I'm back, smoke-test in this order:
+    mcp__crossmodel__list_available_models
+    (expect: gemini READY)
+
+    mcp__crossmodel__query_model(
+      model="gemini",
+      system_prompt="You are a 1-word answerer.",
+      user_prompt="Say hello in one word."
+    )
+    (expect a response prefixed with [META: finish_reason=STOP] followed by one word)
+
+Step 7 — If anything fails, consult coa/CROSSMODEL_SETUP.md "Troubleshooting"
+and walk me through the fix. Common cases: 401 (bad key), 429 (free-tier
+quota), or no [META] prefix (server reload didn't happen — restart again).
+
+Privacy note to flag once during setup: on Gemini's free tier, Google may use
+de-identified inputs and outputs to improve their models. If that's not
+acceptable for my use case, recommend the pay-as-you-go tier instead and stop.
+```
+
+If you'd rather follow the steps yourself, the same content is broken out below.
+
+---
+
 ## Why bother
 
 A 2026-05-01 /coa session classified a real Anthropic Claude Code feature (`.claude/rules/*.md` with `paths:` glob frontmatter) as `FABRICATED` with HIGH conviction across 3 Claude council members + a same-family Sonnet fallback. The feature was fully documented; the council had simply never seen it. Training-data absence is not feature absence — and same-model councils confidently reject things they don't recognize. A different vendor's model with different training data catches exactly this failure mode.
