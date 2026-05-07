@@ -107,6 +107,18 @@ project_type: research
 
 ---
 
+## Optional: Proactive Suggestion Fragment (v0.1.1)
+
+A 15-rule declarative CLAUDE.md fragment is bundled at `shared/proactive_fragment.md`. It tells Claude *when* to proactively suggest each command at the moment a user is about to take an action that the command would improve.
+
+**Default-OFF.** The installer does NOT modify your CLAUDE.md. To activate, manually add ONE `@import` line — `bash install.sh` prints the exact line for your installation.
+
+**Why declarative, not runtime?** Krishnan (2026), "Why Coase Needs Hayek," empirically showed that hub-spoke smart-routing of agentic tasks costs ~4× more than solo agents AND can lose on quality (6.7 vs. 7.2/7.2 across 15 tasks). A runtime always-active suggestion agent IS hub-spoke. The fragment achieves the same suggestion goal via static rules — no router, no observer, no per-turn cost. A runtime variant is gated behind a falsifiable pilot test (AONR ≥ 0.40 with FP weight w=4 from Krishnan's ratio); see the pilot-gate spec at the bottom of `shared/proactive_fragment.md`.
+
+**Drift detection**: `bash scripts/audit_pcv_trigger_sync.sh` performs a 4-check structural sync between the bundled `pcv/skill/SKILL.md` and the fragment's `/pcv` row. Exits 0 (clean), 1 (drift detected, with `--fix-list` for actionable items), or 2 (file missing). Run after upstream toolkit refreshes.
+
+---
+
 ## Directory Reference
 
 | Path | What it holds |
@@ -119,6 +131,7 @@ project_type: research
 | `student/` | Student-specific bootstrap (auto-run at install time on student machines) |
 | `hooks/` | Optional Claude Code hooks (SessionStart, PreToolUse, etc.) |
 | `pcv/` | Kay's PCV v3.14 upstream (bundled for zero-dependency install; refresh via `scripts/refresh-pcv-bundle.sh`) |
+| `shared/proactive_fragment.md` | Optional v0.1.1 declarative CLAUDE.md fragment — 15 per-command proactive-suggestion rules. Default-OFF; opt-in via `@import`. See "Optional: Proactive Suggestion Fragment" above. |
 
 ---
 

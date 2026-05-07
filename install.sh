@@ -246,6 +246,61 @@ else
     echo "  3. Open Claude Code in your project directory and type /pcv to start structured planning."
 fi
 echo ""
+
+# ──────────────────────────────────────────────────────────────────────────────
+# v0.1.1 Proactive Suggestion Fragment — opt-in print block (default OFF)
+# Behavior: detect CLAUDE.md, never modify it. Print the @import line so the
+# user can paste it manually if they choose. Idempotent on re-run.
+# Print-only by design (no read -p, no [y/N] prompt, no conditional write):
+# install-time interactive prompts replicate the hub-spoke topology this
+# fragment exists to avoid (Krishnan 2026, "Why Coase Needs Hayek").
+# ──────────────────────────────────────────────────────────────────────────────
+if [ "$DRY_RUN" != true ]; then
+    FRAGMENT_PATH="$TOOLKIT_DIR/shared/proactive_fragment.md"
+    IMPORT_LINE="@$FRAGMENT_PATH"
+
+    # Search candidate CLAUDE.md locations in priority order.
+    CLAUDE_MD=""
+    for candidate in "$PWD/CLAUDE.md" "$HOME/.claude/CLAUDE.md" "$HOME/CLAUDE.md"; do
+        if [ -f "$candidate" ]; then
+            CLAUDE_MD="$candidate"
+            break
+        fi
+    done
+
+    echo "================================================"
+    echo "  Optional: Proactive Suggestion Fragment (v0.1.1)"
+    echo "================================================"
+    echo ""
+    echo "A 15-rule declarative fragment is bundled at:"
+    echo "  $FRAGMENT_PATH"
+    echo ""
+    echo "It is NOT auto-imported. Read it first to decide whether to opt in."
+    echo ""
+
+    if [ -n "$CLAUDE_MD" ]; then
+        if grep -qF "$IMPORT_LINE" "$CLAUDE_MD" 2>/dev/null; then
+            print_success "Fragment already imported in $CLAUDE_MD"
+            echo "  No action needed (idempotent re-install detected)."
+        else
+            echo "To opt in, add ONE line to $CLAUDE_MD:"
+            echo ""
+            echo "  $IMPORT_LINE"
+            echo ""
+            echo "Then (recommended): delete any existing"
+            echo "  '## Council of Agents — Proactive Suggestion Rule'"
+            echo "section in your CLAUDE.md to avoid /coa firing twice per turn."
+            echo "(The fragment's row 2 is its successor with a sharper Gate.)"
+        fi
+    else
+        echo "No CLAUDE.md found at \$PWD/CLAUDE.md, ~/.claude/CLAUDE.md, or ~/CLAUDE.md."
+        echo "When you create one, add this line to opt in:"
+        echo ""
+        echo "  $IMPORT_LINE"
+    fi
+    echo ""
+fi
+
 # Render command list from the arrays (avoids hand-maintained drift)
 if [ "$MINIMAL" = true ]; then
     INSTALLED_LIST="/pcv"
