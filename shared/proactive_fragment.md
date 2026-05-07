@@ -70,7 +70,7 @@ Both Gate tests are required. Action-divergence is the necessary condition (no p
 
 ### 4. /audit
 
-- **Observable**: User message references a `.qmd` / `.tex` / `.md` document in dissertation/paper/NSF scope AND includes intent signal ("submit" / "final" / "send to" / "present" / "print").
+- **Observable**: User message references a `.qmd` / `.tex` / `.md` document representing an academic or scholarly deliverable AND includes intent signal ("submit" / "final" / "send to" / "present" / "print").
 - **Gate**: Document contains inline citations or numerical values that require source-file backing under the project's citation pipeline.
 - **Anti-trigger**: Document is a scratch note or exploratory analysis clearly marked as such; OR /audit already explicitly named and its output referenced in this turn.
 - **Failure mode caught**: Citation fabrication or placeholder value survives into a submitted academic deliverable.
