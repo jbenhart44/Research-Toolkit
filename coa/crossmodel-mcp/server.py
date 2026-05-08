@@ -42,7 +42,7 @@ def call_gemini(system_prompt: str, user_prompt: str) -> str:
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     payload = {
         "contents": [{"parts": [{"text": f"{system_prompt}\n\n{user_prompt}"}]}],
-        "generationConfig": {"maxOutputTokens": 8192, "temperature": 0.7}
+        "generationConfig": {"maxOutputTokens": 65536, "temperature": 0.7}
     }
     return _post_json(
         url, payload,
