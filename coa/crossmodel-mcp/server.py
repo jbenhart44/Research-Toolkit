@@ -63,7 +63,7 @@ def call_openai(system_prompt: str, user_prompt: str) -> str:
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ],
-        "max_tokens": 2048,
+        "max_tokens": 16384,
         "temperature": 0.7
     }
     headers = {"Authorization": f"Bearer {api_key}"}
@@ -86,7 +86,7 @@ def call_perplexity(system_prompt: str, user_prompt: str) -> str:
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ],
-        "max_tokens": 2048,
+        "max_tokens": 8192,
         "temperature": 0.7
     }
     headers = {"Authorization": f"Bearer {api_key}"}

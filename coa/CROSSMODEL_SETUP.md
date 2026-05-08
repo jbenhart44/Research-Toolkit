@@ -191,7 +191,7 @@ Re-register the MCP after adding new keys (`claude mcp remove crossmodel; claude
 | `gemini: NOT CONFIGURED` | Env var not visible to the MCP server | Re-export `GEMINI_API_KEY` and restart Claude Code |
 | HTTP 429 | Free-tier daily quota exhausted | Wait for daily reset, or upgrade to paid tier |
 | HTTP 401 | Invalid key | Re-check key from <https://aistudio.google.com/apikey> |
-| Response truncated mid-sentence | Gemini's `maxOutputTokens` cap was hit (default 2048 in reference server.py) | Bump to 8192 in `call_gemini()` config and restart |
+| Response truncated mid-sentence | Gemini's `maxOutputTokens` cap was hit. Default in this toolkit's `server.py` is **65536** (Gemini 2.5 Flash's published max). Check the response prefix: if `[META: finish_reason=MAX_TOKENS]` AND your prompt is unusually long (well above council-grade), the request genuinely exceeds the model's output capacity. If `[META: finish_reason=STOP]` BUT response is mid-sentence, the issue is upstream of the cap (response-streaming, thinking-token budget on Flash 2.5) — bumping the cap will not help; rephrase the prompt to be more concise, or fall back to a different provider. | Verify with `grep maxOutputTokens coa/crossmodel-mcp/server.py` (should show 65536). If you previously edited it down, restore to 65536 and restart. |
 | `[META: finish_reason=SAFETY]` | Gemini safety filter blocked output | Rephrase the prompt, or route the seat to OpenAI/Perplexity |
 | No `[META]` prefix in response | Server.py edits not loaded | Restart Claude Code so the MCP server re-reads the file |
 
