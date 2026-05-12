@@ -1,5 +1,7 @@
 # Research Amp Toolkit
 
+> *Every empirical value cites a file on disk. Every claim survives `grep`. Dissertation-grade, not vibe-grade.*
+
 > **⚠️ v0.1 — experimental, no support commitment.** This is an early research release under active development. Breaking changes expected between versions. Issues and pull requests are welcome; responses are best-effort, not guaranteed. If you're looking for a stable production tool, this isn't it yet.
 
 15 Claude Code commands that amplify your research. The tools don't think — they verify, structure, and document. You bring the signal. Validated across hundreds of production sessions.
@@ -8,7 +10,7 @@
 
 **Links:** [Landing page](https://jbenhart44.github.io/Research-Toolkit/) · [Download v0.1](https://github.com/jbenhart44/Research-Toolkit/releases) · [Report an issue](https://github.com/jbenhart44/Research-Toolkit/issues) · [Discussions](https://github.com/jbenhart44/Research-Toolkit/discussions) · [Contribute](CONTRIBUTING.md)
 
-Design rationale documented in [DESIGN.md](DESIGN.md).
+Design rationale: [DESIGN.md](DESIGN.md). Who this is for and not for: [POSITIONING.md](POSITIONING.md). Error classes the toolkit is built to prevent: [references/preventable_errors.md](references/preventable_errors.md). Consolidated rule index: [references/iron_rules.md](references/iron_rules.md).
 
 ## Spec-Driven Development
 
@@ -36,7 +38,7 @@ Reusable Claude Code commands that turn vague "help me with my research" prompts
 
 **How to use**: Install once (`bash install.sh`), edit `~/.claude/toolkit-config.md` with your project name and folders, run `/startup` to begin. Each command tells you what it does and when to use it.
 
-> **Skills are patterns to adapt, not install blindly.** (Panjwani 2025, VoxDev AI-Agents-for-Economics-Research.) If a command doesn't fit your workflow, modify its prompt file or skip it — the toolkit is designed to be forked per-user, not black-boxed.
+> **Skills are patterns to adapt, not install blindly.** If a command doesn't fit your workflow, modify its prompt file or skip it — the toolkit is designed to be forked per-user, not black-boxed.
 
 ---
 

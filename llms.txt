@@ -1,0 +1,59 @@
+# Research Amp Toolkit
+
+A Claude Code toolkit for dissertation-grade academic research workflows. The toolkit's design commitment: every empirical value cites a file on disk, every claim survives a grep against the cited source, and the planning, construction, and verification of a research deliverable are three separately auditable steps rather than one conflated prompt.
+
+Authors: Jake Benhart and Dr. Michael G. Kay (NC State University, Operations Research).
+
+License: MIT.
+
+Status: v0.1, early release, breaking changes expected between minor versions.
+
+## Who this is for
+
+PhD students, early-career researchers, faculty advisors, and instructors producing dissertation work, journal submissions, conference papers, and grant proposals where citation accuracy and methodological reproducibility are load-bearing. Optimized for Claude Code on the local machine. Not optimized for general-purpose software engineering, persistent agent memory, or production deployment.
+
+## What is in the toolkit
+
+Fifteen Claude Code slash commands, organized by workflow phase:
+
+- Planning: /pcv (structured plan-construct-verify), /coa (multi-perspective adversarial review), /pace (paired-agent verified deliverables), /pcv-research (parallel planning instrument)
+- Reading and ingestion: /readable (PDF text extraction with grep-citable output)
+- Verification: /audit (citation and numerical accuracy audit), /review (artifact review), /simplify (working-code cleanup)
+- Production: /quarto (slide deck and document generation), /improve (infrastructure-gap scan)
+- Shipping: /commit (workstream-scoped commit workflow with terminal-scope enforcement)
+- Observation: /runlog (longitudinal command performance), /dailysummary (per-day capture), /weeklysummary (aggregated review)
+- Bootstrap: /startup (multi-workstream state briefing), /help
+
+## Key documents
+
+- README.md — install, command catalog, contribution guidelines
+- POSITIONING.md — who this toolkit is for, who it is not for, what makes it distinct
+- DESIGN.md — architectural rationale, command-level design notes, changelog
+- EVIDENCE.md — validation evidence and version history
+- QUICKSTART.md — minimal install walkthrough
+- USAGE_GUIDE.md — command-by-command usage notes
+- CITATION.md, CITATION.cff — how to cite the toolkit
+- references/preventable_errors.md — twelve error classes the toolkit is built to prevent in academic deliverables
+- references/iron_rules.md — consolidated index of every iron rule across the command files
+
+## Key design commitments
+
+- Citation pipeline as the primary gate: deliverables refuse to incorporate unverified numbers or citations
+- Planning, construction, and verification are three separately auditable steps
+- Multi-perspective adversarial review is a first-class step, not a single-agent self-check
+- Text-first architecture: every artifact is plain text (Markdown, YAML, bash); binary formats appear only at the end of the production pipeline
+- Forkable per user: every command's prompt lives in a file the user is expected to read and may modify
+- No live network on the default execution path; cross-model verification is opt-in
+- No co-author attribution to AI assistants on commits; doctorate-holders referred to as "Dr. Surname" in reader-facing artifacts
+
+## How to install
+
+Clone the repository, run `bash install.sh`, edit `~/.claude/toolkit-config.md` with project-specific configuration, then run `/startup` from inside Claude Code.
+
+## How to cite
+
+See CITATION.md or CITATION.cff for citation metadata.
+
+## Repository
+
+https://github.com/jbenhart44/Research-Toolkit

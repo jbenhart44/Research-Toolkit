@@ -282,7 +282,7 @@ Changed:
 - `/commit` — instrumentation call
 - `/pace` — cross-linked /audit integration for grading workflow
 - `instructor/guides/using-pace-for-grading.md` — expanded with /audit integration
-- README.md — 3-problem student-facing rewrite + Panjwani disclaimer + /runlog + 13-command count
+- README.md — 3-problem student-facing rewrite + fork-friendly disclaimer + /runlog + 13-command count
 - `jbenhart44.github.io/index.html` — parallel updates
 
 Deferred to v1.2:
@@ -401,18 +401,15 @@ Bonus bug caught during I3 shell test: the spec's user field `outcome=match` col
 
 ## v1.5 Changelog (2026-05-11)
 
-**ARS-cousin enhancements: three coordinated prompt edits to `/audit`, `/quarto`, `/commit` after a multi-stage /pcv-research + /coa validation pass.**
+**Three coordinated prompt edits to `/audit`, `/quarto`, `/commit` after a multi-stage /pcv-research + /coa validation pass.**
 
-This is the first toolkit-wide enhancement wave driven by external comparison rather than internal incident. Prior changelogs (v1.1–v1.4) were motivated by direct user-encountered failures (commit-attribution bug, citation pipeline misses, PCV bundle drift). v1.5 is motivated by reading three reference toolkits sent by Dr. Kay on 2026-05-11 (Imbad0202/academic-research-skills "ARS", garrytan/gstack, garrytan/gbrain) and synthesizing the overlapping-goals patterns through:
+This is the first toolkit-wide enhancement wave driven by structured comparative review rather than direct user-encountered incident. Prior changelogs (v1.1–v1.4) were motivated by failures encountered during live use (commit-attribution bug, citation pipeline misses, PCV bundle drift). The v1.5 wave was produced by:
 
-1. `/pcv-research` BF-1 + BF-2 run 2026-05-11_154724 (`pcvplans/research_runs/2026-05-11_154724/`) → 10-item enhancement queue
-2. `/coa` Working Council session 2026-05-11_toolkit_queue_validity (`CC_Workflow/coa/council_sessions/coa_2026-05-11_toolkit_queue_validity/`) → 4-seat (Skeptic + Practitioner + End User + Editor) + Gemini cross-check → conditional partial proceed
-3. This v1.5 wave ships items 1, 2, 5 of the queue (Tier 1, three prompt-only edits). Items 3, 4 (Attack Intensity Preservation + /coa Concession Threshold) deferred 48h pending Dr. Kay surface decision per End User finding. Item 7 (/simplify prose-branch watchlist) deferred indefinitely pending domain-vocab allowlist per Editor finding ("robust" flagged as AI-tell would be a false positive on legitimate OR/ISE methodology vocabulary).
+1. `/pcv-research` BF-1 + BF-2 run on 2026-05-11 → 10-item enhancement queue
+2. `/coa` Working Council session on 2026-05-11 → 4-seat (Skeptic + Practitioner + End User + Editor) + Gemini cross-check → conditional partial proceed
+3. v1.5 ships items 1, 2, 5 of the queue (Tier 1, three prompt-only edits). Items 3, 4 (Attack Intensity Preservation + /coa Concession Threshold) deferred 48h pending advisor surface decision per End User finding. Item 7 (/simplify prose-branch watchlist) deferred indefinitely pending domain-vocabulary allowlist per Editor finding (operations-research methodology vocabulary would produce false-positive AI-tell flags under the proposed checklist).
 
-**Source artifacts**:
-- Charge: `pcvplans/2026-05-11_toolkit_three_way_comparison/charge_ars_deepdive.md`
-- Golden MakePlan Rev 2 (best-of-two synthesis): `pcvplans/2026-05-11_toolkit_three_way_comparison/golden_makeplan_rev2.md`
-- Council synthesis: `CC_Workflow/coa/council_sessions/coa_2026-05-11_toolkit_queue_validity/chair_synthesis.md`
+Source artifacts for this wave are tracked in the maintainer's internal planning surface; this changelog records the user-facing changes only.
 
 ### Change 1: `/audit` MATERIAL GAP refusal token (Item 1 of the queue)
 
@@ -420,28 +417,24 @@ This is the first toolkit-wide enhancement wave driven by external comparison ra
 
 **Sentinel-comment guard (binding constraint from /coa Editor seat)**: the marker emits to the audit report directly, but when /audit is also recommending an inline edit to the document being audited, the marker MUST render as a comment sentinel for that document's format (`% [...]` for LaTeX, `<!-- [...] -->` for Quarto/HTML/Markdown), NEVER as visible body text. Rationale (Editor's pre-mortem): a visible `[MATERIAL GAP: ...]` line in submitted prose is louder than the underlying gap — a reviewer reading it instantly knows the author used an LLM and didn't clean up before submission. The quiet placeholder convention defends author credibility; the loud version damages it.
 
-Pattern source: ARS v3.3 anti-leakage protocol (PaperOrchestra-inspired). Sentinel-comment guard is local addition — ARS does not specify a render-format constraint.
-
 ### Change 2: `/quarto` MATERIAL GAP speaker-note-only guard (Item 2 of the queue)
 
 `shared/commands/quarto.md` Step 3c "Data Accuracy" section gains a fifth rule extending Change 1 to slide bullets. When `/audit` returns NOT FOUND or MISMATCH for a value that would otherwise appear on a slide, the `[MATERIAL GAP: ...]` marker goes ONLY in the speaker-note block (`::: {.notes}` ... `:::`), NEVER as a slide-face bullet.
 
-**Why stricter than Change 1**: slide bullets are seen by audiences (conference attendees, committee members, NSF site visit panels), not just authors. A projected `[MATERIAL GAP: ...]` line at a committee meeting is a credibility hit that the comment-sentinel guard for prose drafts does not need to address. Speaker notes are author-only by default in the Quarto render pipeline.
+**Why stricter than Change 1**: slide bullets are seen by audiences (conference attendees, committee members, site-visit panels), not just authors. A projected `[MATERIAL GAP: ...]` line at a committee meeting is a credibility hit that the comment-sentinel guard for prose drafts does not need to address. Speaker notes are author-only by default in the Quarto render pipeline.
 
 ### Change 3: `/commit` workstream-scope pre-check (Item 5 of the queue — IRON RULE re-injection)
 
-`shared/commands/commit.md` gains a new Step 0a (after Step 0 "Survey All Changes", before Step 0b "Slow-Filesystem Detection") that mechanically enforces the project-level CLAUDE.md terminal-scope rule (2026-04-19) at the commit boundary.
+`shared/commands/commit.md` gains a new Step 0a (after Step 0 "Survey All Changes", before Step 0b "Slow-Filesystem Detection") that mechanically enforces the project-level CLAUDE.md terminal-scope rule at the commit boundary.
 
-Mechanism: after `git status --short`, count distinct top-level workstream directories across modified + untracked files. If ≥2 workstreams are touched, re-inject the terminal-scope hard rule into the user-facing output and require explicit confirmation (`scope-confirmed: <ws>` to stage only one workstream, or `multi-scope-acknowledged` for deliberate cross-scope commits). If only 1 workstream is touched, skip silently.
-
-Pattern source: ARS v3.1 Anti-Context-Rot Anchors / mid-conversation IRON RULE reinforcement. ARS injects reminders at every pipeline stage transition; we inject at the single highest-leverage boundary (commit) where cross-scope leak silently propagates to git history.
+Mechanism: after `git status --short`, count distinct top-level workstream directories across modified + untracked files. If ≥2 workstreams are touched, re-inject the terminal-scope hard rule into the user-facing output and require explicit confirmation (`scope-confirmed: <ws>` to stage only one workstream, or `multi-scope-acknowledged` for deliberate cross-scope commits). If only 1 workstream is touched, skip silently. This converts a previously discipline-only rule into a mechanically enforced check at the highest-leverage boundary, where cross-scope leak silently propagates to git history.
 
 ### Items deferred from this wave (and why)
 
-- **Items 3 + 4 (Attack Intensity Preservation + /coa Concession Threshold + Frame-Lock Detection)**: deferred 48h. Three Council seats converged on item 3 as the highest-risk item: Skeptic flagged that the same model self-assesses its own 1–5 evidence rubric (self-certification circularity); End User flagged that the "≥4" threshold is a free parameter with no documented calibration rationale, violating the "transparency is structural rather than procedural" tenet; Practitioner flagged that items 3 and 4 both modify `coa.md` and must ship as a single coordinated PR. Resolution requires a verification gate (V6 in the Council synthesis): Dr. Kay's surface preference for being notified before /pace and /coa behavioral changes ship.
-- **Item 7 (/simplify prose-branch style-tells)**: deferred indefinitely. Editor seat ($150 against) showed the ARS 25-term watchlist is calibrated for general writing — flagging "robust" as an AI-tell when "robust optimization" and "robust regression" are standard OR/ISE methodology vocabulary. Pursuing this requires a domain-vocabulary allowlist + report-only mode (no auto-edits) before adoption is safe.
-- **Items 6, 8, 9, 10 (Tier 2)**: deferred to week of 2026-05-19, post Paper 1 §3+§4 submission. Item 9 (passport.yaml triple) was further gated on V3 (a `grep` of `startup.md` for prior passport/mtime logic) — V3 returned zero hits, confirming item 9 needs full mtime-read implementation from scratch (Practitioner estimate: 2.5h, the largest item in the queue).
-- **Tier 3 / v2.0**: ARS Semantic Scholar Tier-0 existence check (H2 violation — live network on default path); ARS Sprint Contract Schema 13.1 two-call gate (structure not verified against captured README per Inst-1 Critic F7); ARS plugin marketplace packaging (changes install architecture, defer past v1.x stability promise); gstack-style cross-model benchmark utility (post-NSF-RFE).
+- **Items 3 + 4 (Attack Intensity Preservation + /coa Concession Threshold + Frame-Lock Detection)**: deferred 48h. Three Council seats converged on item 3 as the highest-risk item: Skeptic flagged that the same model self-assesses its own 1–5 evidence rubric (self-certification circularity); End User flagged that the "≥4" threshold is a free parameter with no documented calibration rationale, violating the "transparency is structural rather than procedural" tenet; Practitioner flagged that items 3 and 4 both modify `coa.md` and must ship as a single coordinated PR. Resolution requires an advisor surface decision on whether /pace and /coa behavioral changes ship with prior notification or post-hoc changelog.
+- **Item 7 (/simplify prose-branch style-tells)**: deferred indefinitely. Editor seat showed the proposed style-tell watchlist is calibrated for general writing — flagging terms like "robust" as AI-tells when they are standard operations-research methodology vocabulary ("robust optimization", "robust regression"). Pursuing this requires a domain-vocabulary allowlist + report-only mode (no auto-edits) before adoption is safe.
+- **Items 6, 8, 9, 10 (Tier 2)**: deferred to the week of 2026-05-19, post-submission. Item 9 (passport.yaml triple for cross-command state) was further gated on a prior-work `grep` of `startup.md` — which returned zero hits, confirming the item needs full implementation from scratch.
+- **Tier 3 / v2.0 deferrals**: live-network paper existence checks (default-path H2 violation); two-call generator-evaluator gate structure (not verified against current `/coa` and `/pace` orchestrators); plugin-marketplace install architecture (changes install surface, deferred past v1.x stability promise); cross-model benchmark utility (deferred until post-grant-submission).
 
 ### Hard rules honored
 
@@ -454,11 +447,55 @@ Pattern source: ARS v3.1 Anti-Context-Rot Anchors / mid-conversation IRON RULE r
 
 - No new commands. No new files in `shared/commands/`. No new dependencies. No new install.sh registration. No version bump in `pcv/skill/VERSION` (Dr. Kay's project, untouched). The three edits are additive prompt rules within existing command files; the toolkit's command count and install surface are unchanged.
 
-### Cross-model verification gate (V5) — gate fired, found a real fix
+### Cross-model verification gate — gate fired, found a real fix
 
-Before commit, the actual edited prompts for Changes 1 and 2 were handed to Gemini (`mcp__crossmodel__query_model`) with a synthetic scenario ("Drivers earn $0.80/hr (Chen 2024)" where Chen 2024 has no on-disk source). Gemini was asked to predict the behavior and flag any failure mode.
+Before commit, the actual edited prompts for Changes 1 and 2 were handed to a cross-model query (via `mcp__crossmodel__query_model`) with a synthetic scenario: a value attributed to a fabricated paper. The cross-model verifier was asked to predict the behavior of the edited prompt and flag any failure mode.
 
-- **Change 1 (/audit)**: Gemini predicted correct behavior. Ship as is.
-- **Change 2 (/quarto)**: Gemini flagged a real failure mode the Claude implementation missed: the rule said "the marker goes ONLY in the speaker-note block," but did not handle slides that have NO `::: {.notes}` block yet. The implementer (same Sonnet model that drafted the queue) could silently omit the marker when the speaker-note section is absent — losing the gap-tracking artifact entirely. Fix applied pre-commit: an explicit "if the slide does NOT already have a `::: {.notes}` block, create one" clause. Cross-model session log: `CC_Workflow/coa/council_sessions/coa_2026-05-11_toolkit_queue_validity/crossmodel_gemini.md` (initial divergence) + the in-line V5 query (verification + flagged fix).
+- **Change 1 (/audit)**: cross-model verifier predicted correct behavior. Shipped as drafted.
+- **Change 2 (/quarto)**: cross-model verifier flagged a real failure mode the original drafting missed — the rule said "the marker goes ONLY in the speaker-note block," but did not handle slides that have no `::: {.notes}` block yet. The implementing model could silently omit the marker when the speaker-note section was absent, losing the gap-tracking artifact entirely. Fix applied pre-commit: an explicit "if the slide does not already have a `::: {.notes}` block, create one" clause.
 
-This is the first instance of the cross-model verification gate (Council Surprise Finding S1) catching a real underspecification on a Tier-1 toolkit edit. Worth codifying as a v2.0 standing policy.
+This is the first instance of cross-model verification catching an underspecification on a Tier-1 toolkit edit before merge. Worth codifying as a v2.0 standing policy: any prompt edit to a citation-pipeline command is handed to an independent model for behavior prediction on a synthetic-failure scenario before the edit is committed.
+
+---
+
+## v1.6 Changelog (2026-05-11) — Documentation pass
+
+**Five additive documentation artifacts: `POSITIONING.md`, `references/preventable_errors.md`, `references/iron_rules.md`, README headline philosophy, `llms.txt`. No command-prompt changes; no behavioral changes; no install-surface changes.**
+
+The v1.5 wave added rules to commands; v1.6 makes the toolkit's positioning, error surface, and rule index discoverable in their own right. The motivation is that a user evaluating whether to install the toolkit, a contributor proposing a change, or a future maintainer auditing a load-bearing rule should not have to read the entire command corpus to find the answer to "who is this for?", "what does it prevent?", or "where is rule X enforced?". Each of these questions now has a single navigable file.
+
+### Change 1: `POSITIONING.md` — what this toolkit is for, and what it is not
+
+A dedicated positioning artifact, separate from `README.md` (install + catalog) and `DESIGN.md` (architecture + changelog). States the toolkit's target users (PhD students, early-career researchers, faculty advisors, instructors) and the categories of work it is deliberately not optimized for (general-purpose software engineering, persistent-memory agents, hidden AI use, production CI/CD, black-box installation). Articulates six design commitments — citation pipeline as primary gate; planning/construction/verification as three auditable steps; multi-perspective adversarial review as first-class; text-first architecture; per-user forkability; honorific and authorship discipline — and four intentional non-goals so the omissions are not mistaken for oversights. This file is the answer to "should I install this?" and "who is this for?"
+
+### Change 2: `references/preventable_errors.md` — twelve error classes and what prevents each
+
+A catalog of the categories of academic-research error this toolkit's rules and commands are designed to prevent in deliverables. Twelve classes (E1 through E12): misquoted figures attributed to real sources, fabricated citations, premature filling of unknown values, silent methodology changes, plausible-sounding filler, frame-lock under user pushback, single-context simulation of multi-agent review, slide-face leakage of author-only markers, cross-workstream commit bleed, honorific drift in reader-facing artifacts, co-author attribution to AI assistance, and submission-time discovery of an open gate. Each entry pairs the error pattern with the command or rule that prevents it. This file is the answer to "what is the toolkit's friction buying me?" and to "would this simplification weaken a load-bearing guardrail?"
+
+### Change 3: `references/iron_rules.md` — consolidated rule index
+
+The toolkit's iron rules live in the command files that enforce them. That distribution is correct for invocation-time enforcement, but it makes it hard to scan the constraint surface in one place. This file is the navigation surface: every iron rule, the file it lives in, and a one-line summary of which preventable-errors entry motivates it. Rules are grouped by domain — citation and verification, deliverable integrity, multi-agent discipline, authorship and attribution, workstream and commit hygiene, methodology and reproducibility, read-only constraints. This file is the answer to "where does rule X live?" and "what rules does my proposed change need to respect?"
+
+### Change 4: README headline philosophy
+
+The README opener gains a single-line philosophical framing — "Every empirical value cites a file on disk. Every claim survives `grep`. Dissertation-grade, not vibe-grade." — placed above the v0.1 status warning. The line is meant to be the first thing a reader encounters and to set expectations about what kind of tool this is before they reach feature lists. The README also gains pointers to `POSITIONING.md`, `references/preventable_errors.md`, and `references/iron_rules.md` in the existing "Design rationale" links line.
+
+### Change 5: `llms.txt` — LLM-consumable summary at repo root
+
+A short, single-file summary at the repository root in the conventional `llms.txt` discoverability format. States the toolkit's purpose, target users, command catalog organized by workflow phase, key documents, design commitments, and install instructions. Intended for consumption by language-model agents orienting to the repository — downstream installers, contribution helpers, indexing agents — that benefit from a concise self-contained summary rather than having to read multiple documents to understand what the toolkit is and is not.
+
+### What did NOT change
+
+- No new commands. No new files in `shared/commands/`. No new dependencies. No new install.sh registration. No version bump in `pcv/skill/VERSION` (out of toolkit scope). The five additions are pure documentation; the toolkit's command count, install surface, and runtime behavior are unchanged.
+- No command-prompt edits and no rule changes. v1.6 documents the existing rule surface; the rules themselves are as v1.5 left them.
+
+### Disclosure of source pattern
+
+The v1.6 wave is informed by reviewing the documentation layouts of several other Claude Code toolkits in adjacent problem categories (general-purpose software engineering, persistent-agent memory). The patterns adopted — a separate positioning file, a named error-class reference, a consolidated rule index, a one-line README framing, an `llms.txt` summary — are overarching documentation patterns observed widely across well-maintained toolkit repositories. The content of every file shipped in v1.6 is written from this toolkit's own provenance, its own rule structure, and its own design commitments. No external taxonomies, no external citations, and no external toolkit structures are reproduced.
+
+### Hard rules honored
+
+- **Honorifics**: "Dr. Surname" used throughout where doctorate-holders are named.
+- **No AI co-author**: the v1.6 commit follows the standing no-attribution rule.
+- **Citation pipeline**: no empirical values attributed to external sources are introduced in v1.6 artifacts — the new files describe the toolkit's own commitments and rule surface, with no numerical claims.
+- **Workstream scope**: the v1.6 commit stages files exclusively from the `ai-research-toolkit/` workstream; the parent-repo submodule pointer bump is a separate commit in the parent repo.
