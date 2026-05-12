@@ -55,6 +55,24 @@ Some PDFs contain scanned images with no extractable text (e.g., screenshots of 
 ### HTML Extraction
 Strip all `<script>`, `<style>`, `<nav>`, `<header>`, `<footer>` tags before extracting text. Use `get_text(separator='\n', strip=True)` for clean output.
 
+### Typed extraction-gap markers (v1.7 — upstream side of the citation pipeline)
+
+When a page cannot be extracted to readable text — pypdf returns empty for that page AND the fitz fallback returns empty AND the image-render visual-subagent path also fails (encoding error, corrupt page, image too low-resolution to OCR, table that did not transcribe cleanly) — the `.txt` MUST NOT omit the page silently and MUST NOT approximate. Instead, emit an explicit typed gap marker at the corresponding `=== PAGE N ===` boundary in the output file:
+
+```
+=== PAGE 7 ===
+[MATERIAL GAP: extraction failure on page 7 — <one-line reason, e.g., "image-only page; OCR returned 12 non-printable characters"; "table render contains overlapping cells the subagent could not disambiguate"; "page contains scanned handwriting"; "encoding errors prevented decode">. Source PDF: <relative path>.]
+```
+
+The marker rules:
+
+- **One marker per failing page.** Never collapse multiple failed pages into one marker — each page that could not be read gets its own line with its own reason. Downstream consumers (`/audit`) need to know which page boundary the gap occupies.
+- **Reason is mandatory.** A bare `[MATERIAL GAP]` with no reason is a defect; future maintainers and downstream `/audit` consumers cannot distinguish "image-only page" from "encoding error" from "subagent ran out of context" without it. The reason should be one line, plain English, no jargon.
+- **The marker is the page content for that page** — do not also write best-guess approximated text. Plausible-looking filler from a failed OCR is exactly the failure mode the marker prevents.
+- **Page-render fallback PNGs (when produced) remain on disk** at the standard `/tmp/<slug>_p<N>.png` path. The marker may reference the PNG path so the author can inspect manually.
+
+Why this rule exists: when `/audit` later greps the extracted `.txt` for a cited number, a silent page-skip is indistinguishable from "the number is genuinely not in the source." That false-negative is the upstream-side analog of the silent-fabrication problem the citation pipeline exists to prevent. Typed gap markers make the failure mode greppable: `/audit` can distinguish "page extracted, number not there" (genuine NOT FOUND) from "page failed to extract, number may or may not be there" (new GAP-IN-SOURCE status — see `/audit` command for downstream handling).
+
 ## Output Location
 - `.txt` files are saved **in the same directory as the source file**
 - Image renders (for image-based PDFs) go to `/tmp/` as PNG files

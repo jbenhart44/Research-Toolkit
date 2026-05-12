@@ -14,6 +14,8 @@ Each entry is an error *class*, grounded in patterns observed during the toolkit
 
 **Why it matters more than fabrication:** a wrong number attributed to a real paper passes the cheapest plausibility checks. Catching it requires opening the source, finding the value, and confirming the context matches the document's claim. The toolkit automates that loop.
 
+**Extension (v1.7) — methodology-level misquotation.** A number can survive the grep gate (the value appears in the source PDF at the cited page) yet still be misquoted at the methodology level: it may be from a robustness or supplementary section presented as a headline finding, or from a paper whose methodology has since been retracted, corrected, or superseded. `/audit --deep` (claim-chain mode) extends the single-step grep gate to a five-step chain — PDF presence, grep hit, methodology section locatable, retraction/correction notice absent, not from a robustness-only context — with a mandatory terminal verdict (`verified` / `partial` / `unverifiable` / `misattributed` / `retracted`). The deep mode cannot terminate in ambiguity; an entry without a verdict is a defect.
+
 ---
 
 ## E2 — Fabricated citations

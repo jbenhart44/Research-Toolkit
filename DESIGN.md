@@ -499,3 +499,65 @@ The v1.6 wave is informed by reviewing the documentation layouts of several othe
 - **No AI co-author**: the v1.6 commit follows the standing no-attribution rule.
 - **Citation pipeline**: no empirical values attributed to external sources are introduced in v1.6 artifacts — the new files describe the toolkit's own commitments and rule surface, with no numerical claims.
 - **Workstream scope**: the v1.6 commit stages files exclusively from the `ai-research-toolkit/` workstream; the parent-repo submodule pointer bump is a separate commit in the parent repo.
+
+---
+
+## v1.7 Changelog (2026-05-12) — End-to-end citation pipeline
+
+**Two coordinated edits that close the upstream-to-downstream loop on the citation gate: `/readable` now emits typed extraction-gap markers when a page cannot be read; `/audit` now recognizes those markers and additionally exposes a `--deep` sub-mode that extends the single-step grep gate to a five-step claim chain with a mandatory terminal verdict per citation.**
+
+The motivation. v1.6 documented the citation pipeline as the toolkit's primary gate. Two failure modes in that pipeline survived the prior wave: (a) `/readable` could silently skip a page when extraction failed (image-only PDFs with OCR-resistant content, encoding errors, table renders the visual subagent could not disambiguate), leaving the downstream `/audit` unable to distinguish "the cited value is genuinely not in the paper" from "we never managed to read the cited page;" and (b) `/audit` ran a single-step grep gate that caught misquoted *numbers* but did not catch misquoted *methodology* — a value that appears in a paper's robustness section presented as a headline finding, or a value cited from a paper whose methodology has since been retracted or corrected. v1.7 addresses both.
+
+### Change 1: `/readable` — typed extraction-gap markers
+
+When pypdf returns empty for a page AND the fitz fallback returns empty AND the image-render visual-subagent path also fails to produce readable text, the `.txt` MUST contain an explicit typed gap marker at the corresponding `=== PAGE N ===` boundary, of the form `[MATERIAL GAP: extraction failure on page N — <reason>]`. The reason is mandatory and human-readable. The marker is the page content for that page — no best-guess approximation is written alongside it.
+
+The marker is greppable: a downstream consumer can distinguish a clean empty page from an extraction failure with a single grep. Most importantly, it composes with `/audit`'s grep gate — see Change 2.
+
+This is the upstream half of E5 (plausible filler) prevention. The toolkit's prior `/readable` design assumed an extraction failure was a transient problem the user would notice; the rest of the pipeline did not have a structural way to know an extraction had failed silently. The marker closes that hole.
+
+### Change 2: `/audit` — GAP-IN-SOURCE recognition + `--deep` claim-chain sub-mode
+
+Two additions to `/audit`, both additive.
+
+**Addition 2a: GAP-IN-SOURCE status.** When the standard grep gate returns zero matches for a cited value, `/audit` now grep-checks the source `.txt` for a typed `[MATERIAL GAP: extraction failure on page <P>]` marker at the cited page before emitting NOT FOUND. If the marker is present, the status is GAP-IN-SOURCE — a different actionable finding than NOT FOUND. NOT FOUND tells the author "the cited value is not in the paper, fix the citation"; GAP-IN-SOURCE tells the author "we could not read the cited page, re-extract or inspect manually." Conflating the two produced wrong author behavior in the prior gate.
+
+**Addition 2b: `--deep` sub-mode (claim-chain audit).** Invoked via `/audit <file> --deep`. Extends the single-step grep gate to a five-step chain. For every citation that passed the standard grep gate, the deep mode additionally checks: methodology section locatable in the source `.txt`; absence of any retraction or correction notice in the source paper or in a co-located retraction-notes file; and whether the cited value's location falls inside a robustness, supplementary, sensitivity, or appendix section while the document cites it as a headline result. The deep mode emits a structured YAML verdict per citation, one of five mandatory terminal states: `verified`, `partial`, `unverifiable`, `misattributed`, `retracted`. The verdict field is mandatory — the deep audit cannot terminate in ambiguity. An entry without a verdict is a defect.
+
+The deep mode does not call external services. Retraction signals come from local `.txt` extractions and from user-curated co-located retraction-notes files (`<paper-stem>.retraction.md` or directory-level `RETRACTION_NOTES.md`). Live-network retraction lookup (CrossRef, Retraction Watch, Semantic Scholar) is explicitly out of scope for v1.7 — it would violate the no-live-network default-path constraint and is not addable as an opt-in flag within v1.7's scope.
+
+The deep mode is a pre-submission gate, not an every-session step. The standard `/audit` remains the daily-use command. The deep mode adds the chain on top of the standard audit; a document submitted without the standard audit having passed is not made safer by skipping straight to deep mode.
+
+### What did NOT change
+
+- No new commands. The two changes are additive prompt edits within existing command files (`readable.md`, `audit.md`) and additive content within existing reference files (`preventable_errors.md`, `iron_rules.md`). The toolkit's command count, install surface, and runtime behavior outside the augmented modes are unchanged.
+- No new dependencies. The deep mode uses Read + Grep tools the standard audit already has access to. No additional Python packages required.
+- No changes to `/audit`'s default-mode behavior. Documents that the standard audit previously marked VERIFIED, MISMATCH, NOT FOUND continue to receive those statuses in the default mode. GAP-IN-SOURCE replaces NOT FOUND only when a typed extraction-gap marker is present at the cited page — a state that did not previously exist in `.txt` outputs.
+- No changes to `/pcv` or `/pcv-research`. Out of scope per the standing rule that those commands are Dr. Kay's project.
+
+### Verification gate that gated this change
+
+A V1 mechanism-test gate was applied to the deep-mode design before any prompt edit was drafted. The three checks:
+
+1. **No live-network on the default path.** The deep mode uses only local PDFs, local `.txt` extractions, and local co-located retraction-notes files. No HTTP requests, no SDK calls, no opt-in network flag introduced. ✓
+2. **No DB or daemon dependency.** All chain steps are file reads; the YAML verdict is written to disk; no background process, no shared store. ✓
+3. **Maps to a named error class in `preventable_errors.md`.** Refines E1 (misquoted figures) by extending the gate from value-level to methodology-level. The E1 entry now carries an explicit extension paragraph documenting the v1.7 refinement. ✓
+
+The gate passed. Documented here so the precedent is visible: any future toolkit edit that proposes augmenting an existing command with a behavior whose mechanism resembles an external pattern must pass this three-check gate before the prompt is drafted, and the gate result is recorded in the changelog.
+
+### Smoke fixtures
+
+Two smoke fixtures ship with v1.7 — both stubs that document the test, since neither can be executed inside the prompt-edit harness:
+
+- `tests/smoke/audit_deep_smoke.md` — fixture exercising the five-step chain on three citations: one clean (expected `verified`), one whose source `.txt` contains a retraction marker (expected `retracted`), one whose cited value falls inside a Robustness section but is cited as a headline result (expected `misattributed`).
+- `tests/smoke/readable_gap_smoke.md` — fixture exercising the typed gap marker emission when a page cannot be extracted (image-only PDF page with OCR-resistant content). Documents the expected marker shape and the downstream `/audit` GAP-IN-SOURCE recognition.
+
+Both fixtures should be run as part of the next test pass when a Python environment with the `/readable` dependencies is available.
+
+### Hard rules honored
+
+- **Honorifics**: "Dr. Surname" used throughout where doctorate-holders are named.
+- **No AI co-author**: the v1.7 commit follows the standing no-attribution rule.
+- **Citation pipeline**: no empirical values attributed to external sources are introduced in v1.7 artifacts — the changes describe the toolkit's own pipeline extensions, with no numerical claims requiring grep verification.
+- **Workstream scope**: the v1.7 commit stages files exclusively from the `ai-research-toolkit/` workstream; the parent-repo submodule pointer bump is a separate commit in the parent repo.
+- **Describe in own terms**: the v1.7 changes are framed as extensions of the toolkit's existing citation-pipeline commitment from v1.6; no external toolkits, papers, or feature names appear in the prompt edits, reference files, or this changelog.

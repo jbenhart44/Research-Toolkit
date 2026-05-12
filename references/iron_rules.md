@@ -16,6 +16,14 @@ Each entry states the rule, the file it lives in, and a one-line summary of what
 - Lives in: `shared/commands/audit.md`
 - Prevents: E1 (misquoted figures)
 
+**Typed extraction-gap markers.** When `/readable` cannot extract text from a page (image-only with OCR failure, malformed encoding, table render that cannot be disambiguated, etc.), it emits a typed `[MATERIAL GAP: extraction failure on page N — <reason>]` line in the `.txt` at the corresponding page boundary, rather than silently omitting the page or writing best-guess approximated text. One marker per failing page; the reason is mandatory.
+- Lives in: `shared/commands/readable.md`
+- Prevents: E5 (plausible filler) at the upstream side — distinguishes "page read but value not present" (genuine NOT FOUND) from "page could not be read" (GAP-IN-SOURCE) for the downstream `/audit` gate.
+
+**Claim-chain audit with mandatory terminal verdict.** `/audit --deep` extends the single-step grep gate to a five-step chain (PDF presence → grep hit → methodology section locatable → retraction/correction notice absent → not from a robustness-only context) and emits a structured YAML verdict per citation. The verdict field is mandatory — the deep audit cannot terminate in ambiguity. Pre-submission gate; the standard `/audit` remains the daily-use command.
+- Lives in: `shared/commands/audit.md` (Deep Mode section)
+- Prevents: refined E1 (misquoted figures, methodology-level)
+
 **Empirical values in code comments cite their source.** Every R², coefficient, correction factor, or other computed value reported in a comment includes the source file path and line/row that produced it. Placeholders are mandatory while a computation is in flight; values are written only after computation finishes.
 - Lives in: project `CLAUDE.md` hard-rule section
 - Prevents: E3 (premature filling)
