@@ -22,6 +22,33 @@ If there are **NO changes** (no modified, deleted, staged, or untracked files), 
 
 ---
 
+## Step 0a: Workstream-Scope Pre-Check (added v1.2 — terminal-scope IRON RULE re-injection)
+
+After surveying changes via `git status --short` and **before staging anything**, scan the changed file paths for distinct top-level workstream directories. The toolkit-config (`~/.claude/toolkit-config.md`) declares this user's workstreams; common ones include directories like `Strategic Driver/`, `Worker Voice/`, `MVP Class Paper/`, `NSF Documentation/`, `Strategic Customer/`, `PatrickMooreWork/`, `Bearden/`, `CBB/`, `Smart Vending/`, `ai-research-toolkit/`, etc.
+
+Count distinct top-level workstream prefixes across modified + untracked files (treat any directory listed in `workstreams` in toolkit-config, or any first-level directory if no config is loaded).
+
+**If ≥2 distinct workstreams are touched**, re-inject the terminal-scope hard rule into the user-facing output BEFORE proceeding to Step 1:
+
+> **⚠ MULTI-WORKSTREAM COMMIT DETECTED**
+>
+> Staged + unstaged changes span [N] workstreams: `<ws1>`, `<ws2>`, ...
+>
+> Terminal-scope hard rule (from project CLAUDE.md, 2026-04-19):
+> > "Each terminal must stage and commit ONLY files belonging to its own declared workstream. Never `git add -A`, never `git add .`, never stage broad glob patterns. Stage files by explicit path. Before committing, always `git diff --cached --name-only` and verify every staged file is in-scope."
+>
+> Before staging anything: declare this terminal's intended workstream. Files outside that workstream must be left unstaged for the terminal that owns them.
+>
+> Reply with **scope-confirmed: \<workstream\>** to proceed with that workstream only, OR **multi-scope-acknowledged** if this is a deliberate cross-workstream commit (e.g., shared CLAUDE.md edit). The latter requires explicit acknowledgment so cross-scope commits are intentional, not accidental.
+
+Wait for the user's confirmation. Then:
+- On `scope-confirmed: <ws>`: stage ONLY files matching that workstream prefix, using `git add` with explicit per-path arguments. Leave the other workstreams' files unstaged.
+- On `multi-scope-acknowledged`: proceed to Step 1 normally; the user has accepted intentional cross-scope.
+
+**If only 1 workstream is touched**, skip this gate silently and proceed to Step 0b. This step is a re-injection of an existing CLAUDE.md hard rule at the commit boundary, not a new constraint — the goal is mechanical enforcement of a rule that was previously discipline-only.
+
+---
+
 ## Step 0b: Slow-Filesystem Detection (added 2026-05-03)
 
 Some environments (notably **WSL2 + OneDrive** and certain network-mounted filesystems) impose 10s–2min disk-wait latency on `git commit` because background sync processes block writes to `.git/index` and pack files. Foreground `git commit` calls in these environments cause the assistant to block for tens of seconds with empty tool output until the commit finally returns.

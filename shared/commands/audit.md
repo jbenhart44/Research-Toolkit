@@ -88,6 +88,12 @@ If all verified:
 - **Context matters.** Same paper may have different values in abstract vs. table vs. robustness check. Verify the specific value matches the specific claim.
 - **Currency conversions are NOT automatic.** Flag any unit conversions for manual review.
 - **A wrong number from a real paper is as bad as a fabricated citation.** Both are academic misrepresentation.
+- **MATERIAL GAP refusal token** (v1.2 — sentinel-comment guard). When a NOT FOUND or MISMATCH finding is identified, emit it in the audit report as `[MATERIAL GAP: <claim> — no grep hit for "<pattern>" in <searched dirs>]`. If you are *also* recommending an inline edit to the document, render the marker ONLY as a comment sentinel for that document's format — NEVER as visible body text:
+  - LaTeX (`.tex`):    `% [MATERIAL GAP: <claim>]`
+  - Quarto / HTML:     `<!-- [MATERIAL GAP: <claim>] -->`
+  - Markdown:          `<!-- [MATERIAL GAP: <claim>] -->`
+
+  Rationale: the token is a *quiet placeholder for the author* (replaces the pre-v1.2 informal `% TODO: citation needed` convention with a structured form), not a public artifact. Visible refusal text in submitted prose is louder than a fabricated citation — a reviewer encountering `[MATERIAL GAP: ...]` in body prose instantly knows the author used an LLM and didn't clean up before submission. The token belongs in the audit report and in author-only comment sentinels; never on a slide face, never in body prose, never in a rendered HTML/PDF reader-facing output.
 
 ## Dependencies
 - Source papers should have .txt extractions alongside the PDFs (use `/readable` first)

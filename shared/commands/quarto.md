@@ -291,6 +291,14 @@ Dark-background (Moon):
 - If a claim cannot be verified, add a speaker note: `- TODO: verify [claim] against [source]`
 - Do NOT round or average numbers without showing your work in speaker notes
 - Do NOT propagate numbers from conversation context without checking the source
+- **MATERIAL GAP refusal token** (v1.2 — speaker-note-only guard). When `/audit` returns NOT FOUND or MISMATCH for a value that would otherwise appear on a slide, the `[MATERIAL GAP: ...]` marker goes ONLY in the speaker-note block (`::: {.notes}`), NEVER as a slide-face bullet. The slide-face content is either (a) dropped entirely or (b) replaced with a verified value from a different source. A visible `[MATERIAL GAP: ...]` line projected at a committee meeting, conference, or NSF site visit is a credibility hit — louder than the underlying gap it documents. Speaker-note format:
+  ```
+  ::: {.notes}
+  - [MATERIAL GAP: <claim> — needed from <source>, not found on disk]
+  - Either acquire the source via /acquire and re-render, or drop this slide.
+  :::
+  ```
+  **If the slide does NOT already have a `::: {.notes}` block, create one** with the MATERIAL GAP marker as its first entry. Do NOT silently omit the marker because the speaker-note block is missing — the absence of a notes section is a stylistic default, not a directive to drop the gap-tracking artifact.
 
 ### 3d. CSS Companion File
 

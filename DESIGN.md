@@ -396,3 +396,69 @@ Added:
 - `plans/review_command_documentation_idea.md` — tracks the per-command-docs future use case
 
 Bonus bug caught during I3 shell test: the spec's user field `outcome=match` collided with the script's native `outcome:` YAML key, producing duplicate keys. Renamed to `triage_result=match`. This is a lesson for future command specs — do not use field names that shadow the script's built-ins.
+
+---
+
+## v1.5 Changelog (2026-05-11)
+
+**ARS-cousin enhancements: three coordinated prompt edits to `/audit`, `/quarto`, `/commit` after a multi-stage /pcv-research + /coa validation pass.**
+
+This is the first toolkit-wide enhancement wave driven by external comparison rather than internal incident. Prior changelogs (v1.1–v1.4) were motivated by direct user-encountered failures (commit-attribution bug, citation pipeline misses, PCV bundle drift). v1.5 is motivated by reading three reference toolkits sent by Dr. Kay on 2026-05-11 (Imbad0202/academic-research-skills "ARS", garrytan/gstack, garrytan/gbrain) and synthesizing the overlapping-goals patterns through:
+
+1. `/pcv-research` BF-1 + BF-2 run 2026-05-11_154724 (`pcvplans/research_runs/2026-05-11_154724/`) → 10-item enhancement queue
+2. `/coa` Working Council session 2026-05-11_toolkit_queue_validity (`CC_Workflow/coa/council_sessions/coa_2026-05-11_toolkit_queue_validity/`) → 4-seat (Skeptic + Practitioner + End User + Editor) + Gemini cross-check → conditional partial proceed
+3. This v1.5 wave ships items 1, 2, 5 of the queue (Tier 1, three prompt-only edits). Items 3, 4 (Attack Intensity Preservation + /coa Concession Threshold) deferred 48h pending Dr. Kay surface decision per End User finding. Item 7 (/simplify prose-branch watchlist) deferred indefinitely pending domain-vocab allowlist per Editor finding ("robust" flagged as AI-tell would be a false positive on legitimate OR/ISE methodology vocabulary).
+
+**Source artifacts**:
+- Charge: `pcvplans/2026-05-11_toolkit_three_way_comparison/charge_ars_deepdive.md`
+- Golden MakePlan Rev 2 (best-of-two synthesis): `pcvplans/2026-05-11_toolkit_three_way_comparison/golden_makeplan_rev2.md`
+- Council synthesis: `CC_Workflow/coa/council_sessions/coa_2026-05-11_toolkit_queue_validity/chair_synthesis.md`
+
+### Change 1: `/audit` MATERIAL GAP refusal token (Item 1 of the queue)
+
+`shared/commands/audit.md` "Important Rules" section gains a sixth rule documenting the `[MATERIAL GAP: <claim> — no grep hit for "<pattern>" in <searched dirs>]` token. The token replaces the pre-v1.5 informal `% TODO: citation needed` convention with a structured form that is machine-greppable.
+
+**Sentinel-comment guard (binding constraint from /coa Editor seat)**: the marker emits to the audit report directly, but when /audit is also recommending an inline edit to the document being audited, the marker MUST render as a comment sentinel for that document's format (`% [...]` for LaTeX, `<!-- [...] -->` for Quarto/HTML/Markdown), NEVER as visible body text. Rationale (Editor's pre-mortem): a visible `[MATERIAL GAP: ...]` line in submitted prose is louder than the underlying gap — a reviewer reading it instantly knows the author used an LLM and didn't clean up before submission. The quiet placeholder convention defends author credibility; the loud version damages it.
+
+Pattern source: ARS v3.3 anti-leakage protocol (PaperOrchestra-inspired). Sentinel-comment guard is local addition — ARS does not specify a render-format constraint.
+
+### Change 2: `/quarto` MATERIAL GAP speaker-note-only guard (Item 2 of the queue)
+
+`shared/commands/quarto.md` Step 3c "Data Accuracy" section gains a fifth rule extending Change 1 to slide bullets. When `/audit` returns NOT FOUND or MISMATCH for a value that would otherwise appear on a slide, the `[MATERIAL GAP: ...]` marker goes ONLY in the speaker-note block (`::: {.notes}` ... `:::`), NEVER as a slide-face bullet.
+
+**Why stricter than Change 1**: slide bullets are seen by audiences (conference attendees, committee members, NSF site visit panels), not just authors. A projected `[MATERIAL GAP: ...]` line at a committee meeting is a credibility hit that the comment-sentinel guard for prose drafts does not need to address. Speaker notes are author-only by default in the Quarto render pipeline.
+
+### Change 3: `/commit` workstream-scope pre-check (Item 5 of the queue — IRON RULE re-injection)
+
+`shared/commands/commit.md` gains a new Step 0a (after Step 0 "Survey All Changes", before Step 0b "Slow-Filesystem Detection") that mechanically enforces the project-level CLAUDE.md terminal-scope rule (2026-04-19) at the commit boundary.
+
+Mechanism: after `git status --short`, count distinct top-level workstream directories across modified + untracked files. If ≥2 workstreams are touched, re-inject the terminal-scope hard rule into the user-facing output and require explicit confirmation (`scope-confirmed: <ws>` to stage only one workstream, or `multi-scope-acknowledged` for deliberate cross-scope commits). If only 1 workstream is touched, skip silently.
+
+Pattern source: ARS v3.1 Anti-Context-Rot Anchors / mid-conversation IRON RULE reinforcement. ARS injects reminders at every pipeline stage transition; we inject at the single highest-leverage boundary (commit) where cross-scope leak silently propagates to git history.
+
+### Items deferred from this wave (and why)
+
+- **Items 3 + 4 (Attack Intensity Preservation + /coa Concession Threshold + Frame-Lock Detection)**: deferred 48h. Three Council seats converged on item 3 as the highest-risk item: Skeptic flagged that the same model self-assesses its own 1–5 evidence rubric (self-certification circularity); End User flagged that the "≥4" threshold is a free parameter with no documented calibration rationale, violating the "transparency is structural rather than procedural" tenet; Practitioner flagged that items 3 and 4 both modify `coa.md` and must ship as a single coordinated PR. Resolution requires a verification gate (V6 in the Council synthesis): Dr. Kay's surface preference for being notified before /pace and /coa behavioral changes ship.
+- **Item 7 (/simplify prose-branch style-tells)**: deferred indefinitely. Editor seat ($150 against) showed the ARS 25-term watchlist is calibrated for general writing — flagging "robust" as an AI-tell when "robust optimization" and "robust regression" are standard OR/ISE methodology vocabulary. Pursuing this requires a domain-vocabulary allowlist + report-only mode (no auto-edits) before adoption is safe.
+- **Items 6, 8, 9, 10 (Tier 2)**: deferred to week of 2026-05-19, post Paper 1 §3+§4 submission. Item 9 (passport.yaml triple) was further gated on V3 (a `grep` of `startup.md` for prior passport/mtime logic) — V3 returned zero hits, confirming item 9 needs full mtime-read implementation from scratch (Practitioner estimate: 2.5h, the largest item in the queue).
+- **Tier 3 / v2.0**: ARS Semantic Scholar Tier-0 existence check (H2 violation — live network on default path); ARS Sprint Contract Schema 13.1 two-call gate (structure not verified against captured README per Inst-1 Critic F7); ARS plugin marketplace packaging (changes install architecture, defer past v1.x stability promise); gstack-style cross-model benchmark utility (post-NSF-RFE).
+
+### Hard rules honored
+
+- **No /pcv or /pcv-research changes** in this wave. Per memory `feedback_pcv_is_kays_project.md` (2026-04-15), /pcv changes go through Dr. Kay. Items 3 + 4 touch `coa.md`, not `/pcv` — but the End User finding raised an analogous "co-author surface" concern about /pace behavioral changes that the user (Jake) will address with Dr. Kay before items 3 + 4 ship.
+- **Same-model caveat preserved**: the queue was generated by Sonnet 4.6 BF instances, synthesized by Sonnet 4.6 Chair, and implemented by Sonnet 4.6 in this commit. The /coa Gemini cross-check returned a strong divergent signal ("WAIT and revise — postpone all enhancements until after Paper 1 submission"), which the Chair downgraded as paternalistic on the urgency framing but preserved as the top Surprise Finding (S1: mono-model audit chain) — addressed in this commit by limiting the wave to items 1, 2, 5 (the three highest-confidence, lowest-coordination-risk items) and deferring everything else pending additional verification gates.
+- **Honorifics**: "Dr. Kay" and "Dr. McConnell" used consistently throughout the changelog and v1.5 sources.
+- **No Claude-Code coauthor**: this commit follows the toolkit's standing no-attribution rule.
+
+### What did NOT change
+
+- No new commands. No new files in `shared/commands/`. No new dependencies. No new install.sh registration. No version bump in `pcv/skill/VERSION` (Dr. Kay's project, untouched). The three edits are additive prompt rules within existing command files; the toolkit's command count and install surface are unchanged.
+
+### Cross-model verification gate (V5) — gate fired, found a real fix
+
+Before commit, the actual edited prompts for Changes 1 and 2 were handed to Gemini (`mcp__crossmodel__query_model`) with a synthetic scenario ("Drivers earn $0.80/hr (Chen 2024)" where Chen 2024 has no on-disk source). Gemini was asked to predict the behavior and flag any failure mode.
+
+- **Change 1 (/audit)**: Gemini predicted correct behavior. Ship as is.
+- **Change 2 (/quarto)**: Gemini flagged a real failure mode the Claude implementation missed: the rule said "the marker goes ONLY in the speaker-note block," but did not handle slides that have NO `::: {.notes}` block yet. The implementer (same Sonnet model that drafted the queue) could silently omit the marker when the speaker-note section is absent — losing the gap-tracking artifact entirely. Fix applied pre-commit: an explicit "if the slide does NOT already have a `::: {.notes}` block, create one" clause. Cross-model session log: `CC_Workflow/coa/council_sessions/coa_2026-05-11_toolkit_queue_validity/crossmodel_gemini.md` (initial divergence) + the in-line V5 query (verification + flagged fix).
+
+This is the first instance of the cross-model verification gate (Council Surprise Finding S1) catching a real underspecification on a Tier-1 toolkit edit. Worth codifying as a v2.0 standing policy.
