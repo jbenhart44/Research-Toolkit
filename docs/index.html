@@ -366,6 +366,7 @@
     <a href="#what-it-is">Performance Gaps</a>
     <a href="#commands">Commands</a>
     <a href="#evidence">Evidence</a>
+    <a href="#reference-docs">Docs</a>
     <a href="#install">Install</a>
     <a href="#cite">Cite</a>
     <a href="https://github.com/jbenhart44/Research-Toolkit" class="nav-github">GitHub &rarr;</a>
@@ -378,7 +379,7 @@
   <div class="sdd-prose">
     <h2>Spec-Driven Development, in practice</h2>
     <p>Spec-Driven Development is the working assumption that <strong>planning, constructing, and verifying are three separate jobs</strong> &mdash; not one blurred conversation with a model. You write down what you intend before you build it, you build against that written intent, and you audit the built artifact against the intent with something other than the agent that produced it.</p>
-    <p>This didn't start as an SDD project. It started as a PhD-research toolkit where a fabricated citation or a misquoted number is the kind of mistake that ends a dissertation. The hard rules and verification commands are the scar tissue from those mistakes. The SDD label is <strong>retroactive</strong> &mdash; the pattern became visible when the broader AI-engineering conversation (GitHub's SpecKit, Obra's Superpowers, the <code>agents.md</code> convention) converged on the same decomposition.</p>
+    <p>This didn't start as an SDD project. It started as a PhD-research toolkit where a fabricated citation or a misquoted number is the kind of mistake that ends a dissertation. The hard rules and verification commands are the scar tissue from those mistakes. The SDD label is <strong>retroactive</strong> &mdash; the pattern became visible when the broader AI-engineering conversation converged on the same decomposition: plan first, build against the plan, verify the build against the plan with something other than the agent that produced it.</p>
     <p>If you want to see SDD running in a single command, <code>/pcv-research</code> is the clearest example: it spins up independent proposer agents, runs a critic pass, converges them on a written plan, then hands off to construction. Plan-Construct-Verify, with the seams visible. Everything else in the toolkit is a variation on that discipline.</p>
   </div>
 </section>
@@ -592,6 +593,28 @@ These commands have been used daily across a PhD dissertation project spanning s
 
 <p><strong>Why not just use ChatGPT, Copilot, or another AI assistant?</strong><br>
 Those tools are general-purpose. This toolkit is a structured layer on top of Claude Code specifically — commands that enforce verification discipline, manage persistent context across sessions, and coordinate multiple independent agents. The value is in the workflow, not the underlying model.</p>
+
+<h2 id="reference-docs">Reference documents</h2>
+
+<p>Three companion documents shipped alongside the commands. Each one answers a question that comes up before someone decides to install, contribute, or audit.</p>
+
+<table>
+  <thead><tr><th>Document</th><th>Answers the question</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><a href="https://github.com/jbenhart44/Research-Toolkit/blob/main/POSITIONING.md"><code>POSITIONING.md</code></a></td>
+      <td>Who the toolkit is for, who it is deliberately not optimized for, and the six design commitments &amp; four intentional non-goals that follow from that positioning.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/jbenhart44/Research-Toolkit/blob/main/references/preventable_errors.md"><code>references/preventable_errors.md</code></a></td>
+      <td>Twelve error classes the toolkit&rsquo;s rules and commands are built to prevent in research deliverables &mdash; misquoted figures, fabricated citations, premature filling, silent methodology changes, plausible filler, frame-lock, single-context simulation, slide-face leakage, cross-workstream commit bleed, honorific drift, AI co-authorship, submission-time gap discovery &mdash; each paired with the command or rule that addresses it.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/jbenhart44/Research-Toolkit/blob/main/references/iron_rules.md"><code>references/iron_rules.md</code></a></td>
+      <td>Consolidated index of every iron rule across the command files, grouped by domain. The command file remains the source of truth; this is the navigation surface.</td>
+    </tr>
+  </tbody>
+</table>
 
 <h2 id="install">Installation</h2>
 

@@ -8,20 +8,26 @@ This document states what this toolkit is for, who it serves, and what it is del
 
 ## What this toolkit is for
 
-Producing **dissertation-grade research artifacts** — papers, proposals, posters, slide decks, and the verification trail behind them — with a Claude Code workflow that treats every cited number, every quoted source, and every methodological claim as something that has to survive an audit.
+Producing **structured, verifiable research artifacts** — papers, proposals, posters, slide decks, code, analyses, and the verification trail behind them — with a Claude Code workflow that treats every cited number, every quoted source, and every methodological claim as something that has to survive an audit.
 
-The unit of work the toolkit is built around is the academic deliverable: an artifact that a committee, journal reviewer, NSF panel, or future co-author may scrutinize months or years after it was written. A wrong number in that artifact is not a runtime bug to be patched in a later release — it is a permanent record that the writer mis-stated a fact. The toolkit's commands exist to make that class of error mechanically hard to commit.
+The toolkit was built for complex, multi-component projects where AI assistance is real but the artifact has to be defensible afterwards — to a committee, a reviewer, a co-author, a collaborator, a teammate, or a future version of yourself. A wrong number in a deliverable is not a runtime bug to be patched in a later release; it is a permanent record that the writer mis-stated a fact. The toolkit's commands exist to make that class of error mechanically hard to commit, regardless of which discipline you work in.
 
 ---
 
 ## Who this is for
 
-- **PhD students and early-career researchers** producing dissertation work, journal submissions, conference papers, and NSF/grant proposals where citation accuracy and methodological reproducibility are load-bearing.
-- **Faculty advisors** who want their students' AI-augmented drafting workflows to leave behind an inspectable trail (PCV plan → construction artifact → verification report → audit log) rather than an opaque "the model wrote it" handoff.
-- **Instructors** teaching AI-augmented research methods who want students to learn the *separation* of planning, construction, and verification as distinct steps with their own deliverables, rather than as a single conflated prompt-and-pray loop.
-- **Solo researchers** in disciplines where reviewer-defensibility outweighs narrative sharpness and where "we couldn't find the source" is a stronger reason to remove a claim than "the model was confident."
+Anyone whose AI-augmented work needs to leave an audit trail. The toolkit was developed inside a PhD research environment where the cost of a fabricated citation or a misquoted number is unusually visible, but the discipline it enforces (verification, structured planning, multi-perspective review, persistent context across sessions) applies wherever AI assistance is real and the artifact has to be defensible.
 
-If you are writing for a reviewer who could ask "where does this number come from?" and expect a verifiable answer, you are in scope.
+Concrete user shapes the toolkit serves well:
+
+- **PhD students and early-career researchers** producing dissertation work, journal submissions, conference papers, and grant proposals where citation accuracy and methodological reproducibility are load-bearing.
+- **Faculty advisors and committee members** who want students' AI-augmented drafting to leave behind an inspectable trail (plan → construction artifact → verification report → audit log) rather than an opaque "the model wrote it" handoff.
+- **Instructors and TAs** teaching AI-augmented research, writing, or programming methods who want students to learn the *separation* of planning, construction, and verification as distinct steps with their own deliverables, rather than as a single conflated prompt-and-pray loop.
+- **Collaborative research labs and teams** where multiple people share a codebase, dataset, or document and need a common discipline for what counts as "verified" before something is committed or sent.
+- **Solo researchers, engineers, and analysts** working on complex multi-component projects across simulation, analysis, documentation, code review, and presentation — the recurring failure modes (unverified numbers, fabricated citations, premature filling, frame-lock, cross-workstream commit bleed) are not discipline-specific.
+- **Anyone working on a project where reviewer-defensibility outweighs narrative sharpness** and where "we couldn't find the source" is a stronger reason to remove a claim than "the model was confident."
+
+If you are writing, building, or analyzing something where a reviewer (human or future-you) could ask "where does this number come from?" and expect a verifiable answer, you are in scope.
 
 ---
 
