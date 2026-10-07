@@ -14,6 +14,8 @@ You have a 48-hour deadline for a lab meeting presentation and you're starting f
 
 **Note**: Two stop-points before any slides are rendered — you approve the outline first, then the full deck. Source documents should be readable text files; run `/readable` on PDFs first if needed. Rendering can fail if text overflows slides — `/quarto` handles CSS adjustments automatically.
 
+**Requires Quarto**: `/quarto` renders with the Quarto program, which the toolkit does not include. Install it from [quarto.org/docs/get-started](https://quarto.org/docs/get-started/) (macOS: `brew install --cask quarto`; Windows: `winget install Posit.Quarto`), then run `quarto --version` to confirm. If Quarto is missing, `/quarto` stops before it writes any slides and tells you how to install it.
+
 ## Worked example
 
 Priya is presenting her RNA-seq pipeline at a lab group meeting in 48 hours. She has her methods paper draft and a benchmark comparison table, but no slides.

@@ -337,6 +337,8 @@
 
 <p><strong>Note</strong>: Two approval gates before any slides are rendered — you approve the slide outline first, then review the full rendered deck before it's final. Source documents should be readable text files; run <code>/readable</code> on PDFs first if needed. Rendering can fail if text overflows slides &mdash; <code>/quarto</code> handles CSS adjustments automatically.</p>
 
+<p><strong>Requires Quarto</strong>: <code>/quarto</code> renders with the Quarto program, which the toolkit does not include. Install it from <a href="https://quarto.org/docs/get-started/">quarto.org/docs/get-started</a> (macOS: <code>brew install --cask quarto</code>; Windows: <code>winget install Posit.Quarto</code>), then run <code>quarto --version</code> to confirm. If Quarto is missing, <code>/quarto</code> stops before it writes any slides and tells you how to install it.</p>
+
 <h2>Worked example</h2>
 
 <p>Priya is presenting her RNA-seq pipeline at a lab group meeting in 48 hours. She has her methods paper draft and a benchmark comparison table, but no slides.</p>
