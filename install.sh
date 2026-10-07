@@ -116,6 +116,18 @@ if ! command -v claude &> /dev/null; then
     echo ""
 fi
 
+# /quarto renders with the Quarto CLI. It is not bundled, so warn now
+# rather than at the user's first render.
+if command -v quarto &> /dev/null; then
+    print_success "Quarto found ($(quarto --version 2>/dev/null)) — /quarto can render slides."
+else
+    print_warning "Quarto not found in PATH. /quarto will install, but it cannot"
+    print_warning "render slides until you install Quarto:"
+    print_warning "  https://quarto.org/docs/get-started/"
+    print_warning "  (macOS: brew install --cask quarto · Windows: winget install Posit.Quarto)"
+    echo ""
+fi
+
 # Create directories
 if [ "$DRY_RUN" = true ]; then
     for d in "$COMMANDS_DIR" "$SKILLS_DIR/pcv" "$AGENTS_DIR"; do

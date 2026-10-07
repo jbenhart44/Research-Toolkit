@@ -11,6 +11,32 @@ You are generating a Quarto RevealJS slide deck from background documents provid
 
 ---
 
+## STEP 0: CHECK THAT QUARTO IS INSTALLED
+
+Run this before anything else:
+
+```bash
+quarto --version
+```
+
+- **It prints a version number** (for example `1.5.57`): continue to "Before you start".
+- **It fails** (`command not found`, or no output): **STOP.** Do not read sources or write slides, because the deck cannot render. Tell the user:
+
+  > "Quarto is not installed, so I cannot render slides. Install it, then run `/quarto` again.
+  >
+  > - **All platforms:** download the installer from https://quarto.org/docs/get-started/
+  > - **macOS (Homebrew):** `brew install --cask quarto`
+  > - **Windows:** `winget install Posit.Quarto`
+  > - **Linux / WSL (Debian or Ubuntu):** download the `.deb` file from the page above, then `sudo dpkg -i quarto-*.deb`
+  >
+  > After you install it, open a new terminal and run `quarto --version` to confirm it works."
+
+  Give only the line for the user's platform if you know it, and keep the download page link in every case.
+
+Do not install Quarto yourself. The installers need administrator rights on many machines, and the user must choose the install method.
+
+---
+
 ## BEFORE YOU START
 
 1. **Identify the argument**: Parse `$ARGUMENTS` for:
