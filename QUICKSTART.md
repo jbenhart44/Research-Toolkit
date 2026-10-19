@@ -4,6 +4,16 @@
 
 ---
 
+## Step 0: Run /setup (once)
+
+After `bash install.sh`, open Claude Code in your project and run:
+
+```
+/setup
+```
+
+It asks where your summaries, plans and evidence should live, which workstreams you track, and how you like to commit, then writes `~/.claude/toolkit-config.md`. Every command reads that file. Re-run `/setup` any time to change an answer.
+
 ## Step 1: Pick a Real Task
 
 Don't test with a toy problem. Pick something you're actually working on today:
@@ -33,7 +43,7 @@ PACE spawns two independent agents, has each coached, then cross-compares. You'l
 
 After PACE completes, look at:
 - The run report file it created (path shown at the end of output)
-- The CSV index row appended to `evidence/run_log.csv`
+- The CSV index row appended to `run_log.csv` in your evidence folder (the `evidence_dir` you gave `/setup`; default `.toolkit/evidence/`)
 
 That's it. Your first evidence record exists. Every future PACE and CoA run adds to it automatically.
 

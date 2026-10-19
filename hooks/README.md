@@ -1,34 +1,51 @@
 # Hooks — Optional Automation Layer
 
-These hooks extend the toolkit with automated safety and hygiene checks. **All hooks are optional** — the 11 core commands work without them.
+These hooks extend the toolkit with automated safety, hygiene and measurement. **All hooks are optional** — every command works without them.
 
 ## Available Hooks
 
 | Hook | Type | Purpose | Blocking? |
 |------|------|---------|-----------|
+| `usage_counter.sh` (+ `usage_counter.py`) | PostToolUse (Skill) and UserPromptSubmit | Records one row per command use; `python3 scripts/usage_counts.py` reports the counts | Silent (appends a CSV row; never blocks or prints) |
 | `token_budget_guard.sh` | PreToolUse | Warns when session token usage approaches a configurable limit | Soft (ask) |
 | `summary_folder_guard.sh` | PostToolUse | Warns when date-prefixed files are written outside configured summary folders | Soft (info) |
-| `command_evidence.sh` | PostToolUse | Auto-logs pros/cons/disagreements after each command run | Silent (appends log) |
+
+`command_evidence.sh`, an empty placeholder since it was added, was removed in v2.0. What it was named for is done by the usage counter (what ran) and `scripts/emit_run_report.sh` (how each run went).
+
+The usage counter is tested: `python3 hooks/usage_counter_selftest.py` checks it, and `python3 hooks/usage_counter_mutations.py` proves the self-test catches seven ways it could miscount or break a session.
 
 ## Installation
 
 ### 1. Copy hooks to your Claude Code config
 
+`bash install.sh --hooks` copies every `hooks/*.sh` and `hooks/*.py` file to `~/.claude/hooks/` and marks the scripts executable. By hand:
+
 ```bash
 mkdir -p ~/.claude/hooks
-cp hooks/token_budget_guard.sh ~/.claude/hooks/
-cp hooks/summary_folder_guard.sh ~/.claude/hooks/
-cp hooks/command_evidence.sh ~/.claude/hooks/
+cp hooks/*.sh hooks/*.py ~/.claude/hooks/
 chmod +x ~/.claude/hooks/*.sh
 ```
 
+The usage counter needs `python3`.
+
 ### 2. Register hooks in `.claude/settings.json`
 
-Add to your project's `.claude/settings.json` (or create one):
+Add to your project's `.claude/settings.json` (or create one). Register the usage counter on both events, so typed commands and commands Claude runs are both counted:
 
 ```json
 {
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/usage_counter.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Agent",
@@ -57,7 +74,7 @@ Add to your project's `.claude/settings.json` (or create one):
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/hooks/command_evidence.sh",
+            "command": "~/.claude/hooks/usage_counter.sh",
             "timeout": 5
           }
         ]
@@ -67,7 +84,18 @@ Add to your project's `.claude/settings.json` (or create one):
 }
 ```
 
-### 3. Configure token budget (optional)
+### 3. Where the usage log goes
+
+`<evidence_dir>/usage_events.csv`, with `evidence_dir` read from `~/.claude/toolkit-config.md` (set by `/setup`; default `.toolkit/evidence` in the project). Set `USAGE_EVENTS_CSV` to override. Counts:
+
+```bash
+python3 scripts/usage_counts.py                 # per-command counts, first and last use
+python3 scripts/usage_counts.py --tools coa,pace
+```
+
+A typed `/x` that Claude then runs through the Skill tool counts once, not twice. Typed built-ins such as `/clear` are not counted.
+
+### 4. Configure token budget (optional)
 
 Create `~/.claude/token-budget.json`:
 
@@ -79,41 +107,13 @@ Create `~/.claude/token-budget.json`:
 
 Default is 500K tokens per session (~1 PACE run + 1 CoA session). Adjust based on your API plan.
 
-### 4. Create the command performance log (for command_evidence.sh)
-
-Create `evidence/command_performance_log.md` in your project root:
-
-```markdown
-# Command Performance Log
-
-Append one entry per command invocation. Each entry captures what the command produced,
-where it succeeded, where it failed, and any disagreements surfaced.
-
-**Format**: Append entries chronologically. Do NOT edit previous entries — they are immutable records.
-
----
-
-<!-- APPEND NEW ENTRIES BELOW THIS LINE -->
-```
-
-The hook will remind the orchestrator to append entries after each `/pace`, `/coa`, `/improve`, `/dailysummary`, `/weeklysummary`, and `/quarto` run. Lightweight commands (`/commit`, `/readable`, `/startup`, `/simplify`) are skipped.
-
-Each entry captures:
-- **Pros**: What the command did well
-- **Cons**: What caused friction or was suboptimal
-- **Disagreements**: Where multi-agent commands had divergence (and how it was resolved)
-- **Evidence quality**: Whether run reports and CSV rows were generated
-- **Improvement signal**: What would make the next run better
-
-Review the log periodically with `/improve --tools` or manually to spot patterns.
-
 ---
 
 ## Design Principles
 
 - **Soft warnings, not hard blocks.** Hooks inform; you decide.
-- **Fast execution (<100ms).** Uses `/tmp/` text files for state, not JSON parsing. No `jq` dependency.
-- **Session-aware.** Token counter resets daily. No persistent state beyond `/tmp/`.
+- **Fast execution (<100ms).** No `jq` dependency.
+- **Never break a session.** A hook that fails exits 0 and stays silent rather than interrupting your work.
 - **Zero config required.** Sensible defaults work out of the box. Config files are optional overrides.
 
 ## Troubleshooting
@@ -125,4 +125,4 @@ Review the log periodically with `/improve --tools` or manually to spot patterns
 
 **Hook too noisy?** Increase `session_limit` in `token-budget.json`. Default 500K is conservative.
 
-**WSL2 latency?** The hooks use `/tmp/` for all read/write operations to avoid OneDrive filesystem latency. If you still see >100ms execution, check `free -h` for memory pressure.
+**Slow filesystem (WSL2, network or cloud-synced folders)?** The token and folder hooks use `/tmp/` for their state to avoid that latency.

@@ -1,0 +1,54 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Release gate (command contract, no home paths, credentials or private emails)
+        run: python3 tests/check_toolkit.py
+      - name: Claims gate (every count and version matches install.sh and VERSION)
+        run: python3 tests/check_claims.py
+      - name: Gates are proven to fail (mutation checks)
+        run: |
+          python3 tests/check_toolkit.py --self-test
+          python3 tests/check_toolkit_mutations.py
+          python3 tests/check_claims.py --self-test
+          python3 tests/check_claims_mutations.py
+
+      - name: Usage counter and report (self-tests and mutation checks)
+        run: |
+          python3 hooks/usage_counter_selftest.py
+          python3 hooks/usage_counter_mutations.py
+          python3 scripts/usage_counts.py --self-test
+          python3 scripts/usage_counts_mutations.py
+
+      - name: Shell scripts parse
+        run: for f in install.sh hooks/*.sh scripts/*.sh; do bash -n "$f"; done
+
+      - name: Token-budget hook runs on the system bash (bash 3.2 on macOS) without errors
+        run: |
+          out=$(echo '{"tool_name":"Agent","tool_input":{"prompt":"hi"}}' | HOME="$RUNNER_TEMP" /bin/bash hooks/token_budget_guard.sh 2>&1 >/dev/null)
+          if [ -n "$out" ]; then echo "stderr from token_budget_guard.sh: $out"; exit 1; fi
+
+      - name: Real install into a temporary HOME
+        run: |
+          export HOME="$RUNNER_TEMP/home" && mkdir -p "$HOME"
+          bash install.sh --hooks
+          test "$(ls "$HOME/.claude/commands" | wc -l | tr -d ' ')" -eq 15
+          test -f "$HOME/.claude/skills/pcv/SKILL.md"
+          test -f "$HOME/.claude/hooks/usage_counter.py"
+          bash install.sh --dry-run >/dev/null

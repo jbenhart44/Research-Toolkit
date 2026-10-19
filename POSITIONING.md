@@ -33,7 +33,7 @@ If you are writing, building, or analyzing something where a reviewer (human or 
 
 ## Who this is not for
 
-- **General-purpose software engineering** — production-system development, browser automation, release engineering, design-system construction, real-time agent coordination across multiple vendors. Other tool families address those needs; this toolkit's design choices (text-first, citation-gated, audit-trailed) are wrong defaults for that work.
+- **Shipping production software** — browser automation, release pipelines, design systems, real-time agent coordination across vendors. The verification patterns transfer (plans critiqued before they are built, gates watched failing before they are trusted; this repository's own CI is built that way), but the commands are tuned for research deliverables: documents, analyses, decks and the code behind them. For a product codebase, other tool families are better defaults.
 - **Personal-agent memory layers** — persistent knowledge graphs, autonomous overnight enrichment cycles, durable cross-session job queues. The toolkit is fundamentally synchronous, session-scoped, and stateless beyond what the user explicitly commits to git. If you want an agent that ingests your meetings, emails, and tweets and surfaces them tomorrow, this is the wrong shape of tool.
 - **Hidden AI use** — workflows where the goal is to obscure that AI helped produce the artifact. Every command in this toolkit leaves a trail in git. The disclosure trail is a feature.
 - **Production CI/CD or live deployment** — there is no daemon, no database, no scheduled job runner, no service component. The toolkit runs when invoked and stops when finished.

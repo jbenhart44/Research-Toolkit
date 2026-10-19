@@ -2,11 +2,11 @@
 
 A Claude Code toolkit for dissertation-grade academic research workflows. The toolkit's design commitment: every empirical value cites a file on disk, every claim survives a grep against the cited source, and the planning, construction, and verification of a research deliverable are three separately auditable steps rather than one conflated prompt.
 
-Authors: Jake Benhart and Dr. Michael G. Kay (NC State University, Operations Research).
+Author: Jake Benhart (NC State University, Operations Research). Contact: jebenhar@ncsu.edu. The bundled /pcv skill (Plan-Construct-Verify) is the work of Dr. Michael G. Kay.
 
 License: MIT.
 
-Status: v0.1, early release, breaking changes expected between minor versions.
+Status: v2.0.0 (2026-10-19). Every push runs the test suite in CI on Linux and macOS.
 
 ## Who this is for
 
@@ -14,9 +14,10 @@ PhD students, early-career researchers, faculty advisors, and instructors produc
 
 ## What is in the toolkit
 
-Fifteen Claude Code slash commands, organized by workflow phase:
+Sixteen Claude Code slash commands, organized by workflow phase:
 
-- Planning: /pcv (structured plan-construct-verify), /coa (multi-perspective adversarial review), /pace (paired-agent verified deliverables), /pcv-research (parallel planning instrument)
+- Setup: /setup (asks about your workspace and writes ~/.claude/toolkit-config.md, which the other commands read)
+- Planning: /pcv (structured plan-construct-verify), /coa (multi-perspective adversarial review), /pace (paired-agent verified deliverables)
 - Reading and ingestion: /readable (PDF text extraction with grep-citable output)
 - Verification: /audit (citation and numerical accuracy audit), /review (artifact review), /simplify (working-code cleanup)
 - Production: /quarto (slide deck and document generation), /improve (infrastructure-gap scan)
@@ -24,12 +25,14 @@ Fifteen Claude Code slash commands, organized by workflow phase:
 - Observation: /runlog (longitudinal command performance), /dailysummary (per-day capture), /weeklysummary (aggregated review)
 - Bootstrap: /startup (multi-workstream state briefing), /help
 
+Also included: a usage-counter hook that records each command use to a local CSV, and scripts/usage_counts.py, which reports the counts. Companion tool, released separately: captioner (alt text for PowerPoint images), https://github.com/jbenhart44/captioner.
+
 ## Key documents
 
 - README.md — install, command catalog, contribution guidelines
 - POSITIONING.md — who this toolkit is for, who it is not for, what makes it distinct
 - DESIGN.md — architectural rationale, command-level design notes, changelog
-- EVIDENCE.md — validation evidence and version history
+- EVIDENCE.md — what each claim rests on: reproducible gates, measured usage counts, observed notes
 - QUICKSTART.md — minimal install walkthrough
 - USAGE_GUIDE.md — command-by-command usage notes
 - CITATION.md, CITATION.cff — how to cite the toolkit
@@ -48,7 +51,7 @@ Fifteen Claude Code slash commands, organized by workflow phase:
 
 ## How to install
 
-Clone the repository, run `bash install.sh`, edit `~/.claude/toolkit-config.md` with project-specific configuration, then run `/startup` from inside Claude Code.
+Clone the repository, run `bash install.sh`, then run `/setup` inside Claude Code. It asks about your workspace and writes `~/.claude/toolkit-config.md`. Then run `/startup`.
 
 ## How to cite
 

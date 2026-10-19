@@ -1,8 +1,8 @@
 # Design Rationale — Research Amp Toolkit
 
-**Version:** 1.4
-**Date:** 2026-04-19 (v1.4 adds `/review` command + PCV v3.14 bundle bump; see changelog at bottom)
-**Authors:** Jake Benhart & Michael G. Kay
+**Version:** 2.0.0
+**Date:** 2026-10-19 (v2.0 adds `/setup`, the release gates and the usage counter; see the changelog at the bottom)
+**Author:** Jake Benhart. `/pcv` (Plan-Construct-Verify), bundled in `pcv/`, is the work of Dr. Michael G. Kay.
 
 This document records every significant design decision in the toolkit: what was chosen, what was rejected, and why. It serves as the authoritative reference when evaluating proposed additions or changes.
 
@@ -40,12 +40,15 @@ The toolkit started with 15 commands built during PhD research. Assessment:
 | **Tier 5 — Verification** | /audit, /review | Citation + document review — added v1.0 (audit) / v1.4 (review) |
 | **Excluded** | 4 domain-specific commands | Not generalizable beyond the original research context |
 
-15 user-visible commands = 14 command files in `shared/commands/` (one .md per slash-command) + `/pcv` registered via the skills registry. Growth history: /audit added 2026-04-03 after catching 4 numerical mismatches on a dissertation poster (citation verification became non-negotiable); /runlog added v1.1 for longitudinal observability; /help added v1.3 on 2026-04-19 for the paradox-of-choice problem Kay flagged in the 4/15 transcript (line 1304 Brett "traffic cop route"); /review added v1.4 for three-lens document reading. A research instrument (/pcv-research) was previously bundled but was removed on 2026-04-10 after empirical testing revealed its hierarchical subagent spawning architecture is incompatible with Claude Code's tool model; it is held back pending further redesign and is no longer shipped.
+15 user-visible commands = 14 command files in `shared/commands/` (one .md per slash-command) + `/pcv` registered via the skills registry. Growth history: /audit added 2026-04-03 after catching 4 numerical mismatches on a dissertation poster (citation verification became non-negotiable); /runlog added v1.1 for longitudinal observability; /help added v1.3 on 2026-04-19 for the paradox-of-choice problem a growing command list creates; /review added v1.4 for three-lens document reading. A research instrument (/pcv-research) was previously bundled but was removed on 2026-04-10 after empirical testing revealed its hierarchical subagent spawning architecture is incompatible with Claude Code's tool model; it is held back pending further redesign and is no longer shipped.
+
+**As of v2.0: 16 commands** (15 command files + `/pcv`). `/setup` was added so that no command carries one author's folders, workstreams or habits as defaults: it asks, and writes the answers to `toolkit-config.md`.
 
 ### Persona-Command Mapping
 
 | Command | Instructor (`--minimal`) | Student (full) | Layer |
 |---------|:---:|:---:|---|
+| /setup | Yes | Yes | Configuration |
 | /pcv | Yes | Yes | Verification |
 | /coa | Yes | Yes | Verification |
 | /pace | Yes | Yes | Verification |
@@ -62,7 +65,7 @@ The toolkit started with 15 commands built during PhD research. Assessment:
 | /audit | — | Yes | Verification |
 | /runlog | — | Yes | Verification |
 
-**Instructor gets 8, student gets 15.** The split logic:
+**Instructor gets 9, student gets 16.** The split logic:
 - Instructors need verification tools (teach methodology), the triage entry-point (/help), and content tools (create materials).
 - Students also need workflow tools (build research habits: daily documentation, session continuity, clean commits, longitudinal evidence via /runlog).
 
@@ -129,7 +132,7 @@ Each command was generalized from a project-specific version. Here's what was in
 
 Items deferred from v1.0, ordered by estimated value:
 
-### v2 (after classroom testing)
+### Deferred (not in v2.0; still waiting on classroom testing)
 
 1. **Overlay commands** (`/pcv-class`, `/coa-class`, `/pace-grade`) — PCV structured for course assignments, CoA reframed as discussion prompts, PACE for rubric grading. Requires testing with actual students first.
 2. **Session history tracking** — Optional PRECEDENT_INDEX for CoA sessions. Configurable via toolkit-config.md.
@@ -162,8 +165,9 @@ External inspiration: hub-spoke vs market topology distinction echoes a recent a
 ## Versioning Policy
 
 - **v1.x** — Bug fixes, documentation improvements, config template updates. No new commands. *D-2 ruling (2026-05-02): "command" means a `.md` file under `shared/commands/` that gets installed to `~/.claude/commands/`. Audit/helper scripts under `scripts/` (e.g., `emit_run_report.sh`, `refresh-pcv-bundle.sh`) are not "commands" and may be added or revised within v1.x without violating the no-new-commands rule.*
-- **v2.0** — New commands only after classroom testing validates the concept. Each new command must pass the weekly-use test.
-- **PCV upstream** — PCV files are Kay's upstream. We distribute v3.14 as-is. Version bumps come from Kay's repo; maintainer-only via `scripts/refresh-pcv-bundle.sh --version <tag>`. Student/user-facing install never touches the network for PCV.
+- **v2.0** — Generalizes and hardens the commands v1.x already shipped. The one new command, `/setup`, exists to remove author-specific defaults, not to add a capability.
+- **After v2.0** — New commands are added one at a time, each approved individually and each passing the weekly-use test. A change to a command's name or arguments is listed in the changelog of the release that makes it.
+- **PCV upstream** — PCV files are Dr. Kay's upstream. We distribute v3.14 as-is. Version bumps come from Dr. Kay's repo; maintainer-only via `scripts/refresh-pcv-bundle.sh --version <tag>`. Student/user-facing install never touches the network for PCV.
 
 ---
 
@@ -175,7 +179,7 @@ Three identifiers, three jobs — used consistently throughout DESIGN.md and the
 - **Path / repo slug**: `Research-Toolkit/`. Used in install instructions, `git clone` URLs, and any doc telling a user where the toolkit lives on disk after a clone.
 - **Legacy on-disk name**: `ai-research-toolkit/`. The pre-rename directory name. Appears only in v1.0–v1.3 changelog narrative for audit-trail purposes — NOT in user-facing instructions for v1.4+.
 
-**Command count source-of-truth**: 14 standalone commands (`.md` files in `~/.claude/commands/`, listed by the `SHARED_COMMANDS` and `STUDENT_ONLY` arrays in `install.sh`) + `/pcv` (registered via `~/.claude/skills/`) = **15 user-visible commands**. Any prose count in any doc must match this rule; the install banner derives counts from the arrays at runtime, not from prose.
+**Command count source-of-truth**: the standalone commands listed by the `SHARED_COMMANDS` and `STUDENT_ONLY` arrays in `install.sh` (15 at v2.0) + `/pcv` (registered via `~/.claude/skills/`) = **16 user-visible commands**. Any prose count in any doc must match this rule; the install banner derives counts from the arrays at runtime, and `tests/check_claims.py` fails the build when a page disagrees.
 
 **Recipe CWD invariant**: All shell recipes in user-facing docs assume CWD = the toolkit clone root (`Research-Toolkit/`). No `cd ai-research-toolkit/...` chains. If a recipe requires a deeper directory, the recipe begins with one bare `cd <subdir>/` line; never with the toolkit name as a prefix.
 
@@ -184,28 +188,34 @@ Three identifiers, three jobs — used consistently throughout DESIGN.md and the
 ## File Inventory
 
 ```
-Research-Toolkit/                        Total: ~40 files (excluding pcv/ upstream bundle)
+Research-Toolkit/                        (v2.0.0; pcv/ is the upstream bundle)
 ├── README.md                            Root documentation
 ├── LICENSE                              MIT
+├── VERSION                              The release version; check_claims.py holds every page to it
 ├── CITATION.md                          BibTeX + attribution prose
 ├── CITATION.cff                         Machine-readable citation
 ├── CONTRIBUTING.md                      Contribution guidelines
-├── EVIDENCE.md                          Empirical metrics
+├── EVIDENCE.md                          What each claim rests on (reproducible / measured / observed)
 ├── DESIGN.md                            This file
+├── POSITIONING.md                       Who the toolkit is for and not for
 ├── QUICKSTART.md                        First-session walk-through
 ├── USAGE_GUIDE.md                       Full command reference
-├── toolkit-config.md                    User configuration template
-├── install.sh                           Dual-mode installer (array-driven counts; v0.1)
+├── llms.txt                             Plain-text summary for language-model readers
+├── toolkit-config.md                    User configuration template (/setup fills it in)
+├── install.sh                           Dual-mode installer (array-driven counts)
+├── .github/workflows/tests.yml          CI: gates, mutation checks, shell parse, real install (Linux + macOS)
 ├── instructor/
-│   ├── README.md                        Instructor quick start (8 commands)
-│   └── guides/
-│       ├── using-pcv-in-courses.md      Teaching guide
-│       ├── using-coa-for-discussion.md  Teaching guide
-│       └── using-pace-for-grading.md    Teaching guide
+│   ├── README.md                        Instructor quick start (9 commands)
+│   └── guides/                          Teaching guides: PCV in courses, CoA for discussion,
+│                                        PACE for grading, /audit for student submissions
 ├── student/
-│   ├── README.md                        Student quick start (15 commands)
-│   └── bootstrap.md                     In-session installer for Claude Code
-├── shared/commands/                     14 generalized commands
+│   ├── README.md                        Student quick start (16 commands)
+│   └── bootstrap.md                     In-session installer for Claude Code (globs, never a typed list)
+├── coa/                                 CoA roster, personas, optional cross-model setup
+├── hooks/                               Optional hooks (install with --hooks): usage counter + its
+│                                        self-test and mutation check, token budget, summary-folder guard
+├── shared/commands/                     15 generalized commands
+│   ├── setup.md                         Config interview (v2.0)
 │   ├── coa.md                           Council of Agents
 │   ├── pace.md                          Parallel Agent Consensus
 │   ├── audit.md                         Citation & numerical audit (v1.0+)
@@ -220,22 +230,26 @@ Research-Toolkit/                        Total: ~40 files (excluding pcv/ upstre
 │   ├── commit.md                        Intelligent git commits
 │   ├── quarto.md                        Slide generation
 │   └── readable.md                      Document extraction
-├── scripts/                             Shared helper scripts (v1.1+)
+├── scripts/                             Shared helper scripts
 │   ├── emit_run_report.sh               Run instrumentation helper (atomic flock append)
-│   └── refresh-pcv-bundle.sh            Maintainer-only PCV upstream sync
+│   ├── usage_counts.py                  Per-command usage report (+ usage_counts_mutations.py)
+│   └── refresh-pcv-bundle.sh, check-pcv-upstream.sh, ...   Maintainer-only PCV upstream sync
 ├── tests/
-│   ├── README.md                        Test fixture index
-│   └── smoke/                           Smoke test fixtures
-│       ├── fresh_clone_test.sh          Project-token leak scan + frontmatter contract
+│   ├── README.md                        Gate and fixture index
+│   ├── check_toolkit.py                 Release gate: command contract, home paths, credentials, emails, private tokens
+│   ├── check_claims.py                  Release gate: every count and version matches the tree
+│   ├── check_*_mutations.py             Proof that each gate can fail
+│   └── smoke/                           Hand-run fixtures
 │       ├── audit_smoke.md, paper.md, sources/   /audit fixture
+│       ├── audit_deep_smoke.md          /audit --deep fixture (v1.7)
+│       ├── readable_gap_smoke.md        /readable gap-marker fixture (v1.7)
 │       ├── pace_source_verification.md, sales_fixture.csv   /pace Step 2e fixture
 │       ├── help_triage.md               /help triage fixture (v1.3)
 │       ├── commit_grouping.md           /commit logical-grouping fixture
 │       └── runlog_parser.md             /runlog parser fixture (v1.2 — synthetic, portable)
-├── references/                          JIT recipe files
-│   └── processing_student_submissions.md (v1.1)
-├── docs/                                Landing page content (jbenhart44.github.io)
-└── pcv/                                 PCV v3.14 (Kay's upstream; refresh via scripts/refresh-pcv-bundle.sh)
+├── references/                          JIT recipe files: preventable_errors.md, iron_rules.md,
+│                                        processing_student_submissions.md
+└── pcv/                                 PCV v3.14 (Dr. Kay's upstream; refresh via scripts/refresh-pcv-bundle.sh)
     ├── skill/                           Recursive (handlers, hooks, planning, construction, verification, transition, bundled)
     └── agents/ (4 files)                pcv-builder, pcv-critic, pcv-research, pcv-verifier
 ```
@@ -296,9 +310,9 @@ Deferred to v1.2:
 
 **Renamed: `AI-Assisted Research Toolkit` → `Research Amp Toolkit`**
 
-Rationale: The prior name read as "toolkit doing AI research" rather than "toolkit for doing research with AI" (Kay 4/15 transcript line 1805-1811). Two-round naming process documented in `plans/toolkit_rename_preview.md`. Round 1 winner (`socratic-research-toolkit`, 18/20 score) was rejected by Jake on tone — too academic-jargon-heavy. Round 2 surfaced human-dependence-framed candidates; `research-amp` won the deployment-criteria comparison (113/125, narrowly behind `thinking-tools-research` at 114/125 on K2 methodological-anchor only). After the Round 2 lock, Jake appended "Toolkit" (4/19) to restore the collection-of-commands signal and improve student-fit readability — final name: **Research Amp Toolkit**.
+Rationale: The prior name read as "toolkit doing AI research" rather than "toolkit for doing research with AI" (design review with Dr. Kay, 2026-04-15). Two-round naming process. Round 1 winner (`socratic-research-toolkit`, 18/20 score) was rejected by Jake on tone — too academic-jargon-heavy. Round 2 surfaced human-dependence-framed candidates; `research-amp` won the deployment-criteria comparison (113/125, narrowly behind `thinking-tools-research` at 114/125 on K2 methodological-anchor only). After the Round 2 lock, Jake appended "Toolkit" (4/19) to restore the collection-of-commands signal and improve student-fit readability — final name: **Research Amp Toolkit**.
 
-Why "Research Amp" as the metaphor core: the amplifier framing is literal — the tool produces zero output without the user's signal. This honors Kay's "user thinks / tool guides" criterion (transcript line 1825-1832) and avoids both SaaS-marketing fluff (Kay's companion/copilot rejection at line 1820-1828) and the agent-overloaded vocabulary (line 4565). Single-syllable hook ("amp") for outreach memorability.
+Why "Research Amp" as the metaphor core: the amplifier framing is literal — the tool produces zero output without the user's signal. This honors Dr. Kay's "user thinks / tool guides" criterion from the same review and avoids both SaaS-marketing fluff (he rejected "companion" and "copilot" names) and agent-overloaded vocabulary. Single-syllable hook ("amp") for outreach memorability.
 
 Why append "Toolkit": (a) restores the collection-of-things signal that a 13-command repo needs, (b) improves student-fit — "the Research Amp Toolkit" reads more natural than bare "Research Amp" in a Kay-to-student email, (c) keeps URL reasonable at 49 chars for `research-amp-toolkit`, still shorter than the pre-rename `ai-research-toolkit`.
 
@@ -311,10 +325,10 @@ Changed:
 - Directory references inside docs: `ai-research-toolkit/` → `research-amp/` (mechanical replace across 13 files)
 
 Not changed (deferred):
-- Directory rename on disk — pending coordinated commit (see `plans/charge_toolkit_v1_1_release.md`)
+- Directory rename on disk — pending coordinated commit
 - GitHub repo URL — separate operation, may keep `Research-Toolkit` as the public repo slug for inbound link continuity
 
-Earlier shortlist (Round 1, superseded): socratic-research-toolkit / claude-research-assistant / research-scaffold / guided-research-toolkit. See `plans/toolkit_rename_preview.md` for full Round 2 scoring against the K1-K6 Kay-validated criteria.
+Earlier shortlist (Round 1, superseded): socratic-research-toolkit / claude-research-assistant / research-scaffold / guided-research-toolkit. Round 2 was scored against six naming criteria (K1-K6) reviewed with Dr. Kay.
 
 ---
 
@@ -322,7 +336,7 @@ Earlier shortlist (Round 1, superseded): socratic-research-toolkit / claude-rese
 
 **Added: `/help` — Socratic triage command (EXPERIMENTAL)**
 
-Motivation: Kay 4/15 transcript line 1304 (Brett's "traffic cop route" comment) flagged the paradox-of-choice problem as the 13-command toolkit grows. A stressed student on a Pro plan at 11pm shouldn't have to read the README to find the right command. `/help` takes a one-line situation and recommends 1-3 commands after 0-1 clarifying questions.
+Motivation: design review feedback (2026-04-15) flagged the paradox-of-choice problem as the 13-command toolkit grows. A stressed student on a Pro plan at 11pm shouldn't have to read the README to find the right command. `/help` takes a one-line situation and recommends 1-3 commands after 0-1 clarifying questions.
 
 Design process: The v0.1 draft was reviewed by a 3-seat CoA Quick Panel (Skeptic + Practitioner + Cognitive Ergonomist) on 2026-04-19. All three converged on "NOT ship-ready, but minor revision not redesign" via three independent causal chains:
 - Skeptic: structural defects (inventory drift, leaked Jake-specific paths)
@@ -344,9 +358,7 @@ Added:
 - DESIGN.md — this changelog + Tier 4 row in command inventory
 - jbenhart44.github.io — /help added to command list + tag cloud (pending)
 
-Design artifacts (preserved for longitudinal comparison if /help is removed and re-attempted):
-- v0.2 spec: `plans/help_command_draft.md`
-- Council session: `coa/council_sessions/coa_2026-04-19_help_command_design/` (author-local; not bundled with the toolkit)
+Design artifacts (the v0.2 spec and the council session) are kept in the maintainer's planning notes and are not bundled with the toolkit.
 
 ---
 
@@ -360,7 +372,7 @@ Dr. Kay released PCV v3.14 on 2026-04-19. Per his email: "significantly more eff
 
 v3.14 upstream claim of 3× speed / 50% token reduction is **upstream pending local remeasurement** — we have not independently benchmarked it in this toolkit. See `EVIDENCE.md`.
 
-Migration plan: `plans/charge_pcv_v314_migration.md` (8 open questions, 10-phase plan produced by `/pcv-research` on 2026-04-19 at `plans/research_runs/2026-04-19_104834/`).
+Migration plan: 8 open questions and a 10-phase plan, produced with `/pcv-research` on 2026-04-19 (kept in the maintainer's planning notes).
 
 Bundle changes:
 - `pcv/` updated from Kay's upstream (shallow clone from `github.com/mgkay/mgkay.github.io/main/pcv/`, SHA pinned via `.upstream-sha`)
@@ -382,18 +394,17 @@ Takes an external document (paper, advisor memo, spec draft) and runs it through
 
 Design: The three lenses are the mandatory Skeptic + Practitioner from the /coa ROSTER plus Editor (the ROSTER's designated Historian-replacement for prose documents). Chair role is inline synthesis by the Clerk — no 4th agent, reducing token cost vs /coa Quick Panel while preserving multi-perspective coverage.
 
-Design process: Lean adversarial self-review on the spec caught two issues before smoke (project-context extraction not specified; PDF/docx guard missing from Step 0); both patched. Smoke test was the command's first substantive invocation — running /review against Kay's text-formats doc (`Kay Meetings/text_based_formats_for_claude_code.md`). Results: three agents ~30s each in parallel, ~106K tokens total (within 80-120K projected envelope), non-overlapping outputs, Chair synthesis produced cleanly, shipped as v1.0 with no post-smoke revisions.
+Design process: Lean adversarial self-review on the spec caught two issues before smoke (project-context extraction not specified; PDF/docx guard missing from Step 0); both patched. Smoke test was the command's first substantive invocation — running /review against a design memo on text-based formats for Claude Code. Results: three agents ~30s each in parallel, ~106K tokens total (within 80-120K projected envelope), non-overlapping outputs, Chair synthesis produced cleanly, shipped as v1.0 with no post-smoke revisions.
 
-**Smoke-test artifact**: `Kay Meetings/reviews/review_2026-04-19_text_based_formats_for_claude_code.md` — validates the command's value proposition with a real document. This file is referenced from `EVIDENCE.md` as the v1.0 baseline.
+**Smoke-test artifact**: the review output of that run (kept privately, not bundled) validated the command's value proposition on a real document; `EVIDENCE.md` records it as the v1.0 baseline.
 
-**Future work tracked**: /review as a template for per-command documentation on the public toolkit website. See `plans/review_command_documentation_idea.md`.
+**Future work tracked**: /review as a template for per-command documentation on the public toolkit website.
 
 Added:
 - `shared/commands/review.md` — the command file (~240 lines)
 - Install.sh registration + command count bump (see above)
 - `EVIDENCE.md` — new /review section with smoke-test metrics
 - `evidence/command_performance_log.md` — debut invocation logged (author-local instrumentation; not bundled with the toolkit)
-- `plans/review_command_documentation_idea.md` — tracks the per-command-docs future use case
 
 Bonus bug caught during I3 shell test: the spec's user field `outcome=match` collided with the script's native `outcome:` YAML key, producing duplicate keys. Renamed to `triage_result=match`. This is a lesson for future command specs — do not use field names that shadow the script's built-ins.
 
@@ -438,9 +449,9 @@ Mechanism: after `git status --short`, count distinct top-level workstream direc
 
 ### Hard rules honored
 
-- **No /pcv or /pcv-research changes** in this wave. Per memory `feedback_pcv_is_kays_project.md` (2026-04-15), /pcv changes go through Dr. Kay. Items 3 + 4 touch `coa.md`, not `/pcv` — but the End User finding raised an analogous "co-author surface" concern about /pace behavioral changes that the user (Jake) will address with Dr. Kay before items 3 + 4 ship.
-- **Same-model caveat preserved**: the queue was generated by Sonnet 4.6 BF instances, synthesized by Sonnet 4.6 Chair, and implemented by Sonnet 4.6 in this commit. The /coa Gemini cross-check returned a strong divergent signal ("WAIT and revise — postpone all enhancements until after Paper 1 submission"), which the Chair downgraded as paternalistic on the urgency framing but preserved as the top Surprise Finding (S1: mono-model audit chain) — addressed in this commit by limiting the wave to items 1, 2, 5 (the three highest-confidence, lowest-coordination-risk items) and deferring everything else pending additional verification gates.
-- **Honorifics**: "Dr. Kay" and "Dr. McConnell" used consistently throughout the changelog and v1.5 sources.
+- **No /pcv or /pcv-research changes** in this wave. PCV is Dr. Kay's upstream project, so /pcv changes go through him. Items 3 + 4 touch `coa.md`, not `/pcv` — but the End User finding raised an analogous "co-author surface" concern about /pace behavioral changes that the user (Jake) will address with Dr. Kay before items 3 + 4 ship.
+- **Same-model caveat preserved**: the queue was generated by Sonnet 4.6 BF instances, synthesized by Sonnet 4.6 Chair, and implemented by Sonnet 4.6 in this commit. The /coa Gemini cross-check returned a strong divergent signal (paraphrased: wait, and postpone all enhancements until the author's next paper is submitted), which the Chair downgraded as paternalistic on the urgency framing but preserved as the top Surprise Finding (S1: mono-model audit chain) — addressed in this commit by limiting the wave to items 1, 2, 5 (the three highest-confidence, lowest-coordination-risk items) and deferring everything else pending additional verification gates.
+- **Honorifics**: "Dr." used consistently for faculty throughout the changelog and v1.5 sources.
 - **No Claude-Code coauthor**: this commit follows the toolkit's standing no-attribution rule.
 
 ### What did NOT change
@@ -561,3 +572,53 @@ Both fixtures should be run as part of the next test pass when a Python environm
 - **Citation pipeline**: no empirical values attributed to external sources are introduced in v1.7 artifacts — the changes describe the toolkit's own pipeline extensions, with no numerical claims requiring grep verification.
 - **Workstream scope**: the v1.7 commit stages files exclusively from the `ai-research-toolkit/` workstream; the parent-repo submodule pointer bump is a separate commit in the parent repo.
 - **Describe in own terms**: the v1.7 changes are framed as extensions of the toolkit's existing citation-pipeline commitment from v1.6; no external toolkits, papers, or feature names appear in the prompt edits, reference files, or this changelog.
+
+---
+
+## v2.0 Changelog (2026-10-19) — Generalized, and checked by its own gates
+
+**v2.0 brings the shipped commands up to the author's current versions, removes everything that only made sense for one author, and makes the toolkit's own claims checkable.** The rule for the release: the commands v1.x already published are updated and generalized; anything new is approved one at a time. The only new command is `/setup`.
+
+### Generalization: the tools ask instead of assuming
+
+Where a command used to carry the author's folders, workstreams, course names or habits, it now reads them from `~/.claude/toolkit-config.md`, and `/setup` writes that file by asking. Optional keys (`startup_exclude`, `backlog_file`, `scheduled_jobs`, `extra_repos`, `commit_mode`, `shared_code_dirs`, `author_affiliation`, `quarto_theme_dir`, `slides_folder`) are asked by the command that needs them, the first time it needs them. Research examples stay where they explain a command; they are examples, not defaults.
+
+### Refreshed commands
+
+Nine commands were rebuilt from the author's current working versions and generalized: `/coa`, `/pace`, `/improve`, `/quarto`, `/startup`, `/dailysummary`, `/weeklysummary`, `/commit`, `/simplify`. `/help` gained `/setup`, `/review` and a pointer to the separate captioner tool.
+
+### The toolkit checks itself
+
+| Added | What it refuses | Proof it can fail |
+|---|---|---|
+| `tests/check_toolkit.py` (replaces `tests/smoke/fresh_clone_test.sh`) | a command without its contract, an absolute home path, a credential, an email outside the allowlist, a term from the user's private-token file | `tests/check_toolkit_mutations.py` |
+| `tests/check_claims.py` | a count or version on any page that disagrees with `install.sh` and `VERSION`; it walks the tree, so a new page is checked the day it is added | `tests/check_claims_mutations.py` |
+| `.github/workflows/tests.yml` | a push where any gate, self-test or mutation check is red, a shell script that does not parse, or an install that does not land (Linux and macOS) | the steps above |
+
+The claims gate earned its place before release. Pages in the tree said 8, 12, 13 and 15 commands, and the landing page said 14. The first version of the gate missed five of them. Four sat in the instructor and student READMEs and the in-session installer, which it did not read because they were not on its hand-typed list; the fifth was written "12-command", a form it did not match. The list was replaced by discovery, the hyphenated form was added, and a mutation proves each fix would be caught if it were undone.
+
+### Usage counter
+
+`hooks/usage_counter.py` (opt-in with `install.sh --hooks`) records one row per command use; `scripts/usage_counts.py` reports the counts with a balance line. EVIDENCE.md's measured tier comes from this report over the author's own logs.
+
+### Fixes
+
+- `student/bootstrap.md` copied from a typed file list. The list had no `setup.md`, and it named 6 of the PCV skill's 41 files, so `/pcv` installed this way failed at its first handler call. It now globs each folder and verifies against the glob.
+- `hooks/token_budget_guard.sh` declared an unused `declare -A` table, which prints an error on macOS's system bash 3.2. Removed; CI runs the hook under the system bash.
+- USAGE_GUIDE.md linked every command to a page that returned 404. The links now point at the live command pages.
+- EVIDENCE.md is rewritten in three tiers (reproducible, measured, observed). Claims with nothing behind them were removed.
+
+### Removed
+
+- `docs/` (31 files). The landing page lives in the site repository, which is its only copy now.
+- `tests/smoke/fresh_clone_test.sh`, replaced by `tests/check_toolkit.py`. Every check it made is covered: the command contract and frontmatter window directly, the home paths by pattern, and its hand-picked project-term list by the private-token file, which every user now writes for their own terms instead of the gate carrying the author's. The old script, run against the v2.0 tree, passes.
+- `hooks/command_evidence.sh`, an empty file since it was added. The usage counter and `scripts/emit_run_report.sh` do what its name promised.
+
+### Attribution
+
+The toolkit is by Jake Benhart. `/pcv` is Dr. Michael G. Kay's work, bundled unmodified at v3.14 and credited in LICENSE, CITATION.cff (`references:`), CITATION.md and the README.
+
+### What did NOT change
+
+- The PCV bundle (`pcv/`) is unchanged in this release.
+- No command was renamed and no argument was removed. Checked by comparing every `--flag` and every usage line in each changed command file against the previous release, and by reading the argument handling of the commands that take free text.

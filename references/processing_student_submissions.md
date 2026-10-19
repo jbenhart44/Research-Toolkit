@@ -8,9 +8,9 @@
 
 ## Why This Is a Reference, Not a Command
 
-Kay flagged in an advisor conversation: "the key is to have that thing, you know, between when a student submits something" — i.e., a feedback loop from student work to grading/response.
+The need this reference serves: a feedback loop from student work to grading and response, between the moment a student submits something and the moment they hear back.
 
-We considered building a `/feedback` or `/grading-rubric` command for v1.1 and rejected both. Reasons documented in `ai-research-toolkit/DESIGN.md`:
+We considered building a `/feedback` or `/grading-rubric` command for v1.1 and rejected both. Reasons documented in `DESIGN.md`:
 
 1. **No premature implementation.** No instructor has run this loop end-to-end in a classroom yet. Building it speculatively would produce a command whose prompts don't match actual classroom needs.
 2. **Existing commands already do this.** `/pace` + `/audit` + `/dailysummary` already cover citation-checking, multi-agent review, and submission-tracking. A new command would duplicate capability.
@@ -124,4 +124,4 @@ Report usage back to the toolkit maintainer. Classroom evidence is what moves th
 
 ## Verification
 
-This reference is itself PLN-verifiable: re-run the recipe in Steps 1-6 on the same submission batch, and you get the same clusters and the same flag counts. The recipe is not an opaque black box; it is transparent chain of `/audit` + `/pace` + `/dailysummary` invocations against deterministic inputs.
+This reference is itself reproducible: re-run the recipe in Steps 1-6 on the same submission batch, and you get the same clusters and the same flag counts. The recipe is not an opaque black box; it is transparent chain of `/audit` + `/pace` + `/dailysummary` invocations against deterministic inputs.

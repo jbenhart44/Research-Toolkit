@@ -1,8 +1,8 @@
 # Contributing
 
-This toolkit is maintained part-time by a PhD student (Jake Benhart) and his advisor (Dr. Michael G. Kay) at NC State University — Operations Research.
+This toolkit is maintained part-time by its author, Jake Benhart (NC State University — Operations Research). The bundled `/pcv` skill is Dr. Michael G. Kay's work and is maintained upstream at https://mgkay.github.io/pcv/; report PCV issues there.
 
-## Response posture at v0.1
+## Response posture
 
 **Best-effort, no SLA.** Expect 3–10 days for Issue triage; Discussions may take longer.
 
@@ -31,11 +31,20 @@ For new commands or architectural changes, **open a Discussion (Ideas) first** s
 
 ## Code style
 
-Match the surrounding code. No required formatter at v0.1. If you touch a command's logic, include a minimal repro in the PR description.
+Match the surrounding code. No required formatter. If you touch a command's logic, include a minimal repro in the PR description.
+
+Before you open a PR, run the gates CI runs:
+
+```bash
+python3 tests/check_toolkit.py && python3 tests/check_claims.py
+python3 tests/check_toolkit_mutations.py && python3 tests/check_claims_mutations.py
+```
+
+If you add a command, `install.sh` is the source of truth for the count; `tests/check_claims.py` will tell you every page that now disagrees.
 
 ## Stability contract
 
-v0.x means **breaking changes allowed between minor versions** with no deprecation cycle. SemVer guarantees begin at v1.0. Expect command renames, argument changes, and skill-directory reorganization between 0.1 and 1.0.
+A change to a command's name or arguments is listed in the DESIGN.md changelog for the release that makes it. Read the changelog before you upgrade.
 
 ## Conduct
 

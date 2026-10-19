@@ -10,7 +10,7 @@ Usage:
      export GEMINI_API_KEY=your_key
      export OPENAI_API_KEY=your_key
      export PERPLEXITY_API_KEY=your_key
-  2. Register via: claude mcp add crossmodel -- python3 /home/jbenhart/crossmodel-mcp/server.py
+  2. Register via: claude mcp add crossmodel -- python3 /path/to/coa/crossmodel-mcp/server.py
   3. The Clerk calls: mcp__crossmodel__query_model(model, system_prompt, user_prompt)
 """
 
@@ -116,7 +116,7 @@ def _post_json(url: str, payload: dict, headers: dict = None, extract_path: list
     [META: finish_reason=<value>] line followed by a blank line. This is
     backwards-compatible: callers that don't parse the [META] prefix simply
     see it as part of the text. The Clerk's crossmodel-logging template
-    uses this to capture finish_reason in CC_Workflow/evidence/crossmodel_attempts.csv.
+    uses this to capture finish_reason in crossmodel_attempts.csv under the configured evidence_dir.
 
     Added 2026-05-05 (queued for next-restart activation) to enable the
     "symptom-vs-cause" diagnosis on Gemini truncation: if finish_reason

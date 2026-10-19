@@ -3,7 +3,7 @@
 # Usage (counts derived at runtime — see SHARED_COMMANDS / STUDENT_ONLY arrays):
 #   bash install.sh               # Full toolkit
 #   bash install.sh --minimal     # Instructor toolkit
-#   bash install.sh --hooks       # Also install optional hooks (token budget, folder guard)
+#   bash install.sh --hooks       # Also install optional hooks (usage counter, token budget, folder guard)
 #   bash install.sh --dry-run     # Show what would be installed without copying
 #   bash install.sh --help        # Show this help
 
@@ -23,7 +23,7 @@ NC='\033[0m' # No Color
 
 # Command sets — single source of truth for both install paths AND banner counts.
 # Defined BEFORE show_help() so --help can render correct counts without running install.
-SHARED_COMMANDS=(coa pace improve quarto readable help review)
+SHARED_COMMANDS=(setup coa pace improve quarto readable help review)
 STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify audit runlog)
 SHARED_COUNT=${#SHARED_COMMANDS[@]}
 STUDENT_COUNT=${#STUDENT_ONLY[@]}
@@ -200,7 +200,7 @@ if [ ! -f "$CONFIG_FILE" ]; then
         print_success "Would install: toolkit-config.md → $CONFIG_FILE"
     else
         cp "$TOOLKIT_DIR/toolkit-config.md" "$CONFIG_FILE"
-        print_success "toolkit-config.md (edit this to match your project)"
+        print_success "toolkit-config.md (run /setup in Claude Code to fill it in)"
     fi
 else
     print_warning "toolkit-config.md already exists — not overwriting"
@@ -218,7 +218,7 @@ if [ "$INSTALL_HOOKS" = true ]; then
     else
         mkdir -p "$HOOKS_DIR"
     fi
-    for f in "$TOOLKIT_DIR"/hooks/*.sh; do
+    for f in "$TOOLKIT_DIR"/hooks/*.sh "$TOOLKIT_DIR"/hooks/*.py; do
         fname=$(basename "$f")
         install_file "$f" "$HOOKS_DIR/$fname" "hooks/$fname"
     done
@@ -254,8 +254,9 @@ else
     echo ""
     echo "Next steps:"
     echo "  1. Restart Claude Code so it picks up the newly installed commands."
-    echo "  2. Edit ~/.claude/toolkit-config.md with your project details."
-    echo "  3. Open Claude Code in your project directory and type /pcv to start structured planning."
+    echo "  2. Open Claude Code in your project directory and type /setup. It asks about your"
+    echo "     folders and workstreams and writes ~/.claude/toolkit-config.md."
+    echo "  3. Type /pcv to start structured planning, or /help if you are not sure where to start."
 fi
 echo ""
 
@@ -281,7 +282,7 @@ if [ "$DRY_RUN" != true ]; then
     done
 
     echo "================================================"
-    echo "  Optional: Proactive Suggestion Fragment (v0.1.1)"
+    echo "  Optional: Proactive Suggestion Fragment"
     echo "================================================"
     echo ""
     echo "A 15-rule declarative fragment is bundled at:"
