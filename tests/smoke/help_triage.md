@@ -186,5 +186,4 @@ If future `/help` invocations in `run_log.csv` show any of these, open a v0.3 re
 ## Related Artifacts
 
 - Command file: `Research-Toolkit/shared/commands/help.md`
-- v0.2 design spec: `plans/help_command_draft.md`
-- Council session: `coa/council_sessions/coa_2026-04-19_help_command_design/` (author-local; not bundled with the toolkit)
+- v0.2 design spec and council session: kept in the maintainer's planning notes (not bundled with the toolkit)

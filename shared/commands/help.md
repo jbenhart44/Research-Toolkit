@@ -5,7 +5,7 @@ description: Socratic triage — ask 0-1 clarifying questions, then recommend 1-
 
 # /help — Socratic Triage for the Research Amp Toolkit
 
-> **When to use**: You're stuck and not sure which of the toolkit's 13 commands fits your situation. Describe it in one line; /help asks a clarifying question if needed and points you to the right command(s). For the paradox-of-choice problem at 11pm on a Pro plan.
+> **When to use**: You're stuck and not sure which of the toolkit's 16 commands fits your situation. Describe it in one line; /help asks a clarifying question if needed and points you to the right command(s). For the paradox-of-choice problem at 11pm on a Pro plan.
 
 A triage tool. `/help` recommends commands — it does NOT execute them. The student runs the recommended command themselves. This preserves the "you think, tools amplify" contract of the Research Amp Toolkit.
 
@@ -35,7 +35,7 @@ A triage tool. `/help` recommends commands — it does NOT execute them. The stu
 
 **Shape B**: exactly ONE question. The test: *if the answer doesn't change which command I recommend, don't ask it.* Bad: "tell me more." Good: "are you WRITING the paper, or READING it to cite from?"
 
-**Shape C**: offer a 4-option scaffold menu (Hick's Law: 4 options = log2(4)=2 bits vs 12-command log2(12)=3.6 bits, 45% faster to selection, fits within Miller-under-stress ceiling of 5 chunks).
+**Shape C**: offer a 4-option scaffold menu (Hick's Law: 4 options = log2(4) = 2 bits against log2(16) = 4 bits for the full 16-command list, so half the decision load; it also fits within the Miller-under-stress ceiling of 5 chunks).
 
 ```
 What are you trying to do? Pick the closest:
@@ -105,7 +105,9 @@ Do NOT offer to run the recommended command.
 
 ## Command Inventory
 
-**Inventory sync contract**: Canonical inventory is the contents of `shared/commands/*.md` (14 files) plus `/pcv` which lives at `pcv/agents/*.md` and is invoked via the skills registry. Any PR adding/renaming a command must update this block AND the command file's frontmatter.
+**Inventory sync contract**: Canonical inventory is the contents of `shared/commands/*.md` (15 files) plus `/pcv`, which installs as a skill from `pcv/skill/` and is invoked via the skills registry. Any PR adding/renaming a command must update this block AND the command file's frontmatter; `tests/check_claims.py` catches a count that drifts.
+
+**Before anything else**: if `~/.claude/toolkit-config.md` does not exist, recommend `/setup` first. The other commands read their folders and workstreams from it.
 
 Grouped by problem-shape:
 
@@ -118,6 +120,7 @@ Grouped by problem-shape:
 - `/simplify` — reduce redundancy in code or documents
 
 **Workflow** (project state / continuity):
+- `/setup` — first run: answer a few questions about your workspace; writes the config the other commands read
 - `/startup` — where did I leave off across workstreams?
 - `/dailysummary` — capture today's work
 - `/weeklysummary` — roll up the week by workstream
@@ -127,6 +130,12 @@ Grouped by problem-shape:
 **Content** (produce something):
 - `/quarto` — slide deck from notes
 - `/readable` — extract text from PDFs/DOCX for grep/cite
+- `/review` — read a paper or memo through three expert lenses in parallel
+
+**Triage**:
+- `/help` — this command
+
+**Not a toolkit command, but a common ask**: alt text for the images in a PowerPoint deck is the separate `captioner` tool (https://github.com/jbenhart44/captioner). Point to it; do not recommend a toolkit command for it.
 
 ---
 
@@ -257,5 +266,5 @@ cat tests/smoke/help_triage.md
 
 ## Design Artifacts
 
-- v0.2 spec: `plans/help_command_draft.md`
+- v0.2 spec: kept in the maintainer's planning notes (not bundled)
 - Shipped without premise pilot — deferred to live-signal resolution per "Success Metrics" above.

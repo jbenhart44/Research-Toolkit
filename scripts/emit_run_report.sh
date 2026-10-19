@@ -16,7 +16,7 @@
 #   <run-dir>/run_report.md (YAML frontmatter + body sections)
 #   <evidence-dir>/run_log.csv (one row appended, creates with header if absent)
 #
-# PLN-verifiability: all fields are deterministic inputs. No LLM-judged quality scores.
+# Reproducibility: all fields are deterministic inputs. No LLM-judged quality scores.
 # Re-running on the same inputs produces the same outputs (modulo timestamp).
 #
 # v1.1 — shared by /audit, /improve, /dailysummary, /commit, /startup (and /pace, /coa,

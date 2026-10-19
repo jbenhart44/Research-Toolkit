@@ -31,6 +31,17 @@ evidence_dir: .toolkit/evidence
 # "research" or "teaching" — affects how /startup frames its briefing
 project_type: research
 
+## Optional (each command asks once, the first time it needs one, and offers to save it here)
+# startup_exclude: [old-project]          # /startup: workstreams never reported
+# backlog_file: plans/BACKLOG.md          # /startup: backlog whose deferred items it checks; none disables
+# scheduled_jobs: [nightly | daily | logs/nightly.log]   # /startup: job | cadence | log path, checked for missed runs
+# extra_repos: [../paper-overleaf]        # /dailysummary: other repos this project's sessions commit to
+# commit_mode: ask                        # /commit: ask (default) | auto | review
+# shared_code_dirs: [src/utils]           # /simplify: folders checked for cross-file duplication
+# author_affiliation: Your Department     # /quarto: affiliation under the author, and a branded footer
+# quarto_theme_dir: ~/themes/myorg        # /quarto: folder holding your branded RevealJS theme
+# slides_folder: Slides                   # /quarto: where decks go when they belong to no project folder
+
 # ─────────────────────────────────────────────────────────
 # EXAMPLES — Delete everything below and fill in your own.
 # ─────────────────────────────────────────────────────────

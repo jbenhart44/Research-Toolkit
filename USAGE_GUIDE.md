@@ -1,10 +1,12 @@
 # Research Amp Toolkit — Usage Guide
 
-The 13 commands in this toolkit work best as a system, not as isolated tools. This guide gets you from "just installed" to productive in under 10 minutes.
+The 16 commands in this toolkit work best as a system, not as isolated tools. This guide gets you from "just installed" to productive in under 10 minutes.
 
 ---
 
 ## Part 1: Start Here
+
+**First, once:** run `/setup`. It asks where your summaries, plans and evidence live, which workstreams you track, and how you commit, then writes `~/.claude/toolkit-config.md`. Every other command reads that file, so nothing below assumes anyone else's folders.
 
 Three situations cover 80% of first-year use cases.
 
@@ -87,16 +89,19 @@ MISMATCH and NOT ON DISK are findings, not failures. Some number variations are 
 
 | Command | One line | Landing page |
 |---|---|---|
-| `/audit` | Verify every cited figure against the source paper | [Guide](https://jbenhart44.github.io/commands/audit.md) |
-| `/coa` | Get 6 expert perspectives on a research decision | [Guide](https://jbenhart44.github.io/commands/coa.md) |
-| `/commit` | Group and commit changes with clean messages | [Guide](https://jbenhart44.github.io/commands/commit.md) |
-| `/dailysummary` | Record what happened this session | [Guide](https://jbenhart44.github.io/commands/dailysummary.md) |
-| `/help` | Not sure which command to use? Start here | [Guide](https://jbenhart44.github.io/commands/help.md) |
-| `/improve` | Audit your Claude Code setup for stale references and gaps | [Guide](https://jbenhart44.github.io/commands/improve.md) |
-| `/pace` | Verify a deliverable through two independent agents | [Guide](https://jbenhart44.github.io/commands/pace.md) |
-| `/quarto` | Generate a slide deck from background documents | [Guide](https://jbenhart44.github.io/commands/quarto.md) |
-| `/readable` | Extract text from PDFs for batch search and citation work | [Guide](https://jbenhart44.github.io/commands/readable.md) |
-| `/review` | Read a paper or memo through three expert lenses | [Guide](https://jbenhart44.github.io/commands/review.md) |
-| `/simplify` | Clean up working code or documents | [Guide](https://jbenhart44.github.io/commands/simplify.md) |
-| `/startup` | Orient at the start of a session | [Guide](https://jbenhart44.github.io/commands/startup.md) |
-| `/weeklysummary` | Roll up the week's work by workstream | [Guide](https://jbenhart44.github.io/commands/weeklysummary.md) |
+| `/setup` | Answer a few questions; writes the config every other command reads | [Source](https://github.com/jbenhart44/Research-Toolkit/blob/main/shared/commands/setup.md) |
+| `/audit` | Verify every cited figure against the source paper | [Guide](https://jbenhart44.github.io/toolkit/commands/audit.html) |
+| `/coa` | Get 6 expert perspectives on a research decision | [Guide](https://jbenhart44.github.io/toolkit/commands/coa.html) |
+| `/commit` | Group and commit changes with clean messages | [Guide](https://jbenhart44.github.io/toolkit/commands/commit.html) |
+| `/dailysummary` | Record what happened this session | [Guide](https://jbenhart44.github.io/toolkit/commands/dailysummary.html) |
+| `/help` | Not sure which command to use? Start here | [Guide](https://jbenhart44.github.io/toolkit/commands/help.html) |
+| `/improve` | Audit your Claude Code setup for stale references and gaps | [Guide](https://jbenhart44.github.io/toolkit/commands/improve.html) |
+| `/pace` | Verify a deliverable through two independent agents | [Guide](https://jbenhart44.github.io/toolkit/commands/pace.html) |
+| `/pcv` | Plan, construct and verify a project in three auditable phases | [Guide](https://jbenhart44.github.io/toolkit/commands/pcv.html) |
+| `/quarto` | Generate a slide deck from background documents | [Guide](https://jbenhart44.github.io/toolkit/commands/quarto.html) |
+| `/readable` | Extract text from PDFs for batch search and citation work | [Guide](https://jbenhart44.github.io/toolkit/commands/readable.html) |
+| `/review` | Read a paper or memo through three expert lenses | [Guide](https://jbenhart44.github.io/toolkit/commands/review.html) |
+| `/runlog` | See how your commands have performed across runs | [Source](https://github.com/jbenhart44/Research-Toolkit/blob/main/shared/commands/runlog.md) |
+| `/simplify` | Clean up working code or documents | [Guide](https://jbenhart44.github.io/toolkit/commands/simplify.html) |
+| `/startup` | Orient at the start of a session | [Guide](https://jbenhart44.github.io/toolkit/commands/startup.html) |
+| `/weeklysummary` | Roll up the week's work by workstream | [Guide](https://jbenhart44.github.io/toolkit/commands/weeklysummary.html) |

@@ -1,6 +1,6 @@
 ---
 allowed-tools: Read, Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(ls:*), Bash(date:*), Bash(sort:*), Bash(awk:*), Glob
-description: Render a cross-command longitudinal table of recent toolkit runs (convergence, tokens, outcomes) from existing CSVs. Read-only aggregation, PLN-verifiable.
+description: Render a cross-command longitudinal table of recent toolkit runs (convergence, tokens, outcomes) from existing CSVs. Read-only aggregation; re-running gives the same table.
 ---
 
 # /runlog — Longitudinal Toolkit Observability
@@ -11,7 +11,7 @@ description: Render a cross-command longitudinal table of recent toolkit runs (c
 
 ## What It Does
 
-Pure aggregation. Reads three existing CSVs produced by the instrumented commands (/pace, /coa, /pcv-research, /audit, /improve, /dailysummary, /commit, /startup) and renders a longitudinal table. No new data collection. No external services. **PLN-verifiable by construction**: re-running produces the same table modulo new rows appended since last run.
+Pure aggregation. Reads three existing CSVs produced by the instrumented commands (/pace, /coa, /audit, /improve, /dailysummary, /commit, /startup, /help) and renders a longitudinal table. No new data collection. No external services. **Reproducible by construction**: re-running produces the same table modulo new rows appended since last run.
 
 ## Inputs (reads only, never writes to)
 
@@ -51,7 +51,7 @@ A markdown table + optional summary footer. Output paths:
 |---------|----------------|-----------------|-------------|-------------------------------------|----------|------------------------|
 | /pace | 3 | 0.82 | 85K | 3/0/0 | 2026-04-15 | "Verify source data directly" |
 | /coa | 2 | 0.75 | 120K | 2/0/0 | 2026-04-16 | "Gemini quota insufficient" |
-| /pcv-research | 2 | 0.82 | 200K | 2/0/0 | 2026-04-17 | "Supplementary-question pattern" |
+| /pcv | 2 | 0.82 | 200K | 2/0/0 | 2026-04-17 | "Supplementary-question pattern" |
 | /dailysummary | 7 | — | 15K | 6/1/0 | 2026-04-16 | "--append-pointer mode needed" |
 | /audit | 2 | — | 10K | 2/0/0 | 2026-04-10 | "None" |
 | /improve | 2 | — | 45K | 2/0/0 | 2026-04-16 | "Gate Pass-1 reads by session friction" |
@@ -63,7 +63,7 @@ A markdown table + optional summary footer. Output paths:
 - Total runs: N
 - Mean outcome rate: X% complete, Y% partial, Z% failed
 - Mean tokens per run (across all commands): M
-- Highest-token command: /pcv-research (~200K mean)
+- Highest-token command: /pcv (~200K mean)
 - Lowest-convergence command: /coa (0.75) — consider root-cause
 
 ## Top Recurring Improvement Signals (frequency >= 2)
@@ -148,7 +148,7 @@ Filter by `--since`, `--command`, `--all` flags. Default: last 14 days.
 
 For each command appearing in the filtered set:
 - Count runs
-- Compute mean convergence from `fields_json` if the command emits it (pace/coa/pcv-research)
+- Compute mean convergence from `fields_json` if the command emits it (pace/coa)
 - Compute mean tokens if present in fields or notes
 - Tally outcomes (complete/partial/failed)
 - Find most recent run
@@ -189,7 +189,7 @@ bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
 
 - **Read-only**: NEVER write to `run_log.csv` or `command_performance_log.md`. These are append-only artifacts produced by other commands.
 - **No network**: `/runlog` never calls external services. All data is local.
-- **Deterministic**: Re-running with the same CSVs produces the same table. This is the PLN verifiability guarantee.
+- **Deterministic**: Re-running with the same CSVs produces the same table. Anyone can check the report by re-running it.
 - **Silent on missing data**: If a command has no runs in the window, it's omitted from the table (not "N/A" row). Transparent about absence.
 - **Never break on malformed rows**: If a CSV row has wrong column count or unparseable values, skip it and continue; include a note in the evidence footer: "Skipped N malformed rows."
 

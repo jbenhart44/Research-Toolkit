@@ -18,12 +18,6 @@
 # Session token limit (default: 500K tokens — roughly /pace + /coa in one session)
 DEFAULT_SESSION_LIMIT=500000
 
-# Per-command estimated costs (tokens) — used when exact prompt size unavailable
-declare -A COMMAND_COSTS=(
-    ["pace"]=150000
-    ["coa"]=100000
-)
-
 # Session tracker file — in /tmp for speed, resets on reboot
 SESSION_FILE="/tmp/claude_session_tokens"
 SESSION_DATE_FILE="/tmp/claude_session_date"

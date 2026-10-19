@@ -1,70 +1,84 @@
-# tests/ — Smoke Fixtures
+# tests/ — Release Gates and Smoke Fixtures
 
-Lightweight fixtures that exercise the toolkit's commands and helpers to confirm they work as documented. NOT a full test suite — just enough to catch regressions before they reach users.
+Two kinds of test live here:
+
+- **Release gates** are Python scripts with an exit code. CI runs them on every push (`.github/workflows/tests.yml`, Linux and macOS). Each one is proven by a mutation check.
+- **Smoke fixtures** are Markdown specifications you run by hand inside Claude Code, because they exercise a command's judgment rather than a script.
 
 ## Directory structure
 
 ```
 tests/
-└── smoke/          Smoke-test fixtures (run by hand or in a post-release check)
+├── check_toolkit.py            release gate: command contract, no home paths, credentials, private emails or private tokens
+├── check_toolkit_mutations.py  proves check_toolkit.py can fail
+├── check_claims.py             release gate: every count and version matches install.sh and VERSION
+├── check_claims_mutations.py   proves check_claims.py can fail
+└── smoke/                      hand-run fixtures (below)
 ```
 
-## Available fixtures (v1.1)
+## Release gates
+
+```bash
+python3 tests/check_toolkit.py              # exit 0 = clean, 1 = findings (each printed as file:line)
+python3 tests/check_toolkit.py --tokens my-private-terms.txt   # also refuse your own private terms
+python3 tests/check_claims.py               # exit 0 = every page agrees with install.sh and VERSION
+python3 tests/check_claims.py path/to/page.html          # also check a page outside the tree
+```
+
+**Your private terms.** List the names that must never reach a public fork (project names, course codes, private folder names) in `~/.claude/toolkit-private-tokens.txt`, one regular expression per line, `#` for comments. `check_toolkit.py` reads it automatically (or from `--tokens FILE` or `$TOOLKIT_PRIVATE_TOKENS`) and refuses any match outside `pcv/`. Keep the file out of the repository: a list of private terms is itself private. With no file, the gate prints `private-token scan: SKIPPED`, so a missing list is never mistaken for a clean scan.
+
+Both have a `--self-test`. A self-test that passes proves nothing on its own, so each gate also has a mutation check: it writes a copy of the gate with one defect planted, runs the copy's self-test, and requires the named case to go red. A mutant that still passes means a check is vacuous.
+
+```bash
+python3 tests/check_toolkit_mutations.py    # every mutant must print CAUGHT; exit 0 = proven
+python3 tests/check_claims_mutations.py     # same contract
+```
+
+The usage counter has the same pair in `hooks/` (`usage_counter_selftest.py`, `usage_counter_mutations.py`), and its report in `scripts/` (`usage_counts.py --self-test`, `usage_counts_mutations.py`).
+
+## Smoke fixtures
 
 ### smoke/audit_smoke.md + paper.md + sources/
 Tests `/audit`'s pass/fail/fabricated detection on a 3-citation test document (2 valid + 1 intentionally fabricated). Expected: 1 VERIFIED, 1 MISMATCH (Jones 42% → 35%), 1 NOT FOUND (Rodriguez).
 
-**Run**:
 ```bash
 cd tests/smoke/
 /audit paper.md --sources sources/
 ```
 
-### smoke/pace_source_verification.md + sales_fixture.csv
-Tests `/pace`'s Step 2e Source Data Verification directive. Task Brief falsely claims CSV has 24 rows totaling $4.2M; actual CSV has 12 rows totaling $2.1M. At least one Player must flag the discrepancy.
+### smoke/audit_deep_smoke.md
+Tests `/audit --deep` (claim-chain mode). Three citations, each engineered to land at a different terminal verdict: `verified`, `retracted`, `misattributed`. The fixture file holds the templates for `paper_deep.md` and its sources; create them first.
 
-**Run**: feed the Task Brief from `pace_source_verification.md` to `/pace` and inspect Player outputs' Assumptions sections.
+### smoke/readable_gap_smoke.md
+Tests that `/readable` writes a typed `[MATERIAL GAP: ...]` marker for an image-only page instead of skipping it or inventing text. The fixture file holds the script that builds `gap_fixture.pdf`.
+
+### smoke/pace_source_verification.md + sales_fixture.csv
+Tests `/pace`'s source-data verification. The task brief falsely claims the CSV has 24 rows totaling $4.2M; the CSV has 12 rows totaling $2.1M. At least one player must flag the discrepancy.
 
 ### smoke/runlog_parser.md
-Tests `/runlog`'s CSV parser against the live `${EVIDENCE_DIR:-evidence}/run_log.csv`. Guards against regression to raw `awk -F','` (the v1.0 bug).
-
-**Run** (one-liner):
-```bash
-cd "$(git rev-parse --show-toplevel)"
-python3 <<'PY'
-import csv
-from collections import Counter
-with open("${EVIDENCE_DIR:-evidence}/run_log.csv") as f:
-    rows = list(csv.DictReader(f))
-valid = [r for r in rows if r.get("tool", "") and not r["tool"].startswith(("2026-","2025-","pace_","coa_","pcv_"))]
-counts = Counter(r["tool"] for r in valid)
-print(f"{len(valid)}/{len(rows)} rows valid: {dict(counts)}")
-assert counts.get("pcv-research", 0) >= 10
-print("PASS")
-PY
-```
+Tests `/runlog`'s CSV parser against a synthetic 8-row fixture (5 valid, 3 legacy or malformed). Portable: it writes its own fixture and needs no project history. Copy the block from the file and run it; expected output `PASS: 5/8 rows valid`.
 
 ### smoke/commit_grouping.md
-Tests `/commit`'s logical grouping claim. 6 files in 3 natural groups → expects 3 separate commits, not 1 (concatenation) or 6 (over-fragmentation).
+Tests `/commit`'s logical grouping. 6 files in 3 natural groups → expects 3 separate commits, not 1 (concatenation) or 6 (over-fragmentation).
 
-**Run**: follow setup block in `commit_grouping.md`, invoke `/commit`, verify with the automated verification block.
+### smoke/help_triage.md
+A specification, not a script: four inputs (shapes A, B, C, no match) and the output shape `/help` should produce for each.
 
----
+## When to run them
 
-## When to run all fixtures
+- **Gates**: every change. CI runs them anyway; running them locally first saves a red build.
+- **Smoke fixtures**: before a release, and after editing the command a fixture covers.
 
-- Before cutting a v1.x release
-- After edits to `shared/commands/` (especially the command the fixture covers)
-- Kay's classroom fall rollout — run the full suite as the install validation gate
+## What is not tested
 
-## What's NOT tested (v1.1 deferred)
-
-- `/weeklysummary`, `/quarto`, `/readable`, `/simplify` have no smoke fixtures (no usage evidence yet — these are v1.2 work)
-- End-to-end classroom simulation (install.sh → /startup → ... → /coa) — tracked separately in `plans/charge_toolkit_v1_1_release.md`
+- `/weeklysummary`, `/quarto` and `/simplify` have no smoke fixtures.
+- No test runs a full session end to end (install → `/setup` → `/startup` → … → `/coa`). The CI install step proves the files land; it does not prove a command behaves.
 
 ## Adding a fixture
 
-1. Pick a command with a testable claim
-2. Create `tests/smoke/<command>_<angle>.md` with: purpose, fixture setup, success criteria, failure modes, automated verification
-3. Add a section to this README (short description + run command)
-4. Reference the fixture from the command's SKILL.md (e.g., at the end of `audit.md`, point to `tests/smoke/audit_smoke.md`)
+1. Pick a command with a testable claim.
+2. Create `tests/smoke/<command>_<angle>.md` with: purpose, fixture setup, success criteria, failure modes, automated verification where possible.
+3. Add a section to this README.
+4. Point to the fixture from the command file (for example, the end of `audit.md` points to `tests/smoke/audit_smoke.md`).
+
+If the claim can be checked by a script, write a gate instead, give it a `--self-test`, and add a mutation check that proves the self-test can fail.

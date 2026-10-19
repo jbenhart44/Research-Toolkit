@@ -9,7 +9,9 @@ description: Review changed code or documents for reuse, quality, and efficiency
 
 You are executing the `/simplify` command. Your job is to take working code or documents and make them **better** — cleaner, faster, more reusable, more maintainable — without changing their behavior or breaking anything.
 
-**The gap this fills:** Creation is well-covered by planning and design commands. But *optimization of working outputs* — reducing complexity, finding reuse opportunities, improving performance — has no dedicated workflow. This command is that workflow.
+**Version**: 1.1 (2026-10-19)
+
+**The gap this fills:** Creation is covered by planning commands such as `/pcv` and by direct implementation. But *optimization of working outputs* — reducing complexity, finding reuse opportunities, improving performance — has no dedicated workflow. This command is that workflow.
 
 ---
 
@@ -18,9 +20,10 @@ You are executing the `/simplify` command. Your job is to take working code or d
 - After completing a feature or phase and wanting to clean it up before moving on
 - When code works but feels messy, duplicated, or slow
 - When a document is complete but could be tighter
+- After `/improve` recommends tightening a slash command, reference file, or CLAUDE.md section, to do the line-level pass on that file
 - When you want to check: "Is there a simpler way to do this?"
 
-**NOT for:** Debugging broken code (fix the bug first), feature design (use a planning command), correctness verification (use a verification command).
+**NOT for:** Debugging broken code (fix the bug first), feature design (use `/pcv`, or `/coa` when several designs are defensible), correctness verification (use `/pace` for a question with one right answer, `/audit` for citations and numbers in a document).
 
 ---
 
@@ -36,6 +39,8 @@ Parse `$ARGUMENTS` to determine what to review.
 
 **Cap:** Maximum 10 files per invocation. If more are found, present the list and ask the user to prioritize.
 
+**Shared-code folders:** Lens 1 checks for duplication against the project's shared helpers. Read `shared_code_dirs` from `~/.claude/toolkit-config.md` (paths relative to the project root). If the file or the key is missing, ask the user once, in the same message as the scope announcement, where shared helpers live — suggest any folders that look like it (`shared/`, `common/`, `utils/`, `lib/`) — and offer to save the answer to `~/.claude/toolkit-config.md` as `shared_code_dirs`. If the user skips the question, use the suggested folders plus sibling files.
+
 **Announce scope:**
 > "Reviewing [N] files: [list]. Focus: [code quality / performance / reuse / all]."
 
@@ -50,6 +55,8 @@ For each file in scope:
 3. **Check git history** — `git log --oneline -5 [file]` to understand recent evolution
 4. **Identify the file's role** — production code, runner script, analysis, documentation
 
+Once per invocation, also read the project's `CLAUDE.md` (and any rule files it points to) if present. Note every rule that governs the files in scope — for example, a requirement that empirical constants cite a source, a required language or style, or files that must not be edited. These rules outrank this command's defaults.
+
 ---
 
 ## STEP 3: FIVE-LENS ANALYSIS
@@ -58,7 +65,7 @@ Review each file through five lenses. For each finding, note the file, line(s), 
 
 ### Lens 1: Redundancy & Reuse
 - **Within-file duplication**: Are there copy-pasted blocks that could be a function?
-- **Cross-file duplication**: Is this logic duplicated in another file? Check shared utility locations.
+- **Cross-file duplication**: Is this logic duplicated in another file? Check the shared-code folders from Step 1 and sibling files.
 - **Dead code**: Are there functions, variables, or branches that are never reached?
 - **Stale comments**: Do comments describe behavior that no longer matches the code?
 
@@ -70,6 +77,7 @@ Review each file through five lenses. For each finding, note the file, line(s), 
 
 ### Lens 3: Performance
 - **Allocation patterns**: Are there unnecessary copies, repeated allocations inside loops, or growing collections with unknown type?
+- **Type stability** (dynamically typed or JIT-compiled languages, e.g. Julia): Are there containers of type `Any`, or variables whose type changes, forcing dynamic dispatch in a hot path?
 - **I/O patterns**: Is data loaded more than once? Are files opened and closed repeatedly in a loop?
 - **Algorithm complexity**: Is there an O(n²) operation that could be O(n log n)?
 - **Hot paths**: Are expensive operations gated behind conditions that are almost never true?
@@ -82,7 +90,7 @@ Review each file through five lenses. For each finding, note the file, line(s), 
 ### Lens 5: Readability & Maintainability
 - **Naming**: Do variable and function names communicate intent? Would a new reader understand this code?
 - **Structure**: Does the file flow logically? (Setup → core logic → output → cleanup)
-- **Magic numbers**: Are there unexplained constants? Empirical values should cite their source in a comment.
+- **Magic numbers**: Are there unexplained constants? Empirical values should cite their source in a comment. If the project's CLAUDE.md sets a stricter citation rule, apply that rule.
 
 ---
 
@@ -161,6 +169,8 @@ When the user approves fixes:
 3. If tests exist and are runnable, run them to confirm nothing broke
 4. Report what was changed
 
+**Before a heavy test or profiling run** (long simulations, large datasets): check that the machine has memory to spare and that no other long job, such as a parameter sweep, is running that the test run could slow down or starve. Use the operating system's own tool (Activity Monitor or `vm_stat` on macOS, `/proc/meminfo` on Linux, Task Manager on Windows). If memory is tight, tell the user and ask before starting.
+
 **If a fix turns out to be wrong or breaks something:** Revert immediately and explain why. Do not compound errors.
 
 ---
@@ -168,10 +178,11 @@ When the user approves fixes:
 ## BEHAVIORAL CONSTRAINTS
 
 - **Never change behavior.** The output and results of the code must be identical before and after simplification. If a fix would change behavior (even for the better), flag it separately — that is a feature change, not simplification.
+- **Project rules come first.** Check every proposed fix against the CLAUDE.md rules noted in Step 2 before presenting it, and again before applying it. A fix that breaks a project rule is not a fix.
 - **Respect Occam's razor.** The goal is fewer moving parts, not different moving parts. Do not replace one complexity with another.
 - **Do not refactor for its own sake.** Every change must pass: "Would this save time or prevent an error?" If the answer is no, skip it.
 - **Do not add abstractions.** Three similar lines of code is fine. A premature abstraction is worse than duplication.
-- **Respect scaffolding.** In research code, do not suggest removing features that appear unused — they may be scaffolding for future work. When in doubt, ask.
+- **Respect scaffolding.** In research code, do not suggest removing features that appear unused — model components or options may be scaffolding for planned work. When in doubt, ask.
 
 ---
 
@@ -186,6 +197,10 @@ Do not manufacture findings to justify the invocation.
 Split into multiple invocations by subsystem. Suggest grouping to the user.
 
 ### If the user wants performance optimization specifically
-Focus Lens 3 exclusively. Suggest profiling with whatever tooling is available for the language in use.
+Focus Lens 3 exclusively. Suggest profiling before changing anything, with the profiler for the language in use. For example:
+
+- Python: `python3 -m cProfile -s cumtime script.py`
+- R: `Rprof("prof.out"); run_analysis(); Rprof(NULL); summaryRprof("prof.out")`
+- Julia: `using Profile; @profile run_simulation(model); Profile.print(format=:flat, sortedby=:count)`
 
 $ARGUMENTS
