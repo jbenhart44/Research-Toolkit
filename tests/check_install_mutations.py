@@ -29,9 +29,54 @@ MUTANTS = {
         "        if dst.is_file() and dst.read_bytes() != src.read_bytes():", "        if False:",
         ["an upgrade that keeps the old command files is caught"]),
     "the bootstrap installer is never checked": (
-        '    if runtime and boot.is_file() and "Research-Toolkit/scripts/" not in boot.read_text(encoding="utf-8"):',
-        "    if False:",
-        ["a bootstrap installer with no runtime-scripts step is caught"]),
+        "            if needed and anchor not in boot:", "            if False:",
+        ["a bootstrap installer with no runtime-scripts step is caught", "a bootstrap with no skills step is caught"]),
+    "skills are never looked for after a full install": (
+        '            elif "--minimal" not in flags and not present:', "            elif False:",
+        ["a skill the full install leaves out is caught"]),
+    "a skill in --minimal passes": (
+        '            if "--minimal" in flags and present:', "            if False:",
+        ["a skill installed by --minimal is caught"]),
+    "seat agents are never looked for": (
+        '            if not (claude / "agents" / f"{a}.md").is_file():', "            if False:",
+        ["a seat agent no install copies is caught"]),
+    "an add-on seat copied without its flag passes": (
+        '            elif "--addon-seats" not in flags and present:', "            elif False:",
+        ["an add-on seat copied without --addon-seats is caught"]),
+    "--addon-seats is never checked for the seats it copies": (
+        '            if "--addon-seats" in flags and not present:', "            if False:",
+        ["--addon-seats that copies nothing is caught"]),
+    "a stray add-on seat file passes": (
+        "        if p.stem not in addon:", "        if False:",
+        ["an add-on seat file in no array is caught"]),
+    "a pointer to a missing command passes": (
+        "        for t in sorted(set(targets) - installed):", "        for t in []:",
+        ["a pointer to a command no array installs is caught"]),
+    "a stray pointer file passes": (
+        "        if p.stem not in pointers:", "        if False:",
+        ["a pointer file in no array is caught"]),
+    "a backup inside skills/ passes": (
+        '        if ".bak" in d.name:', "        if False:",
+        ["a backup written inside ~/.claude/skills/ is caught"]),
+    "any file may sit in a skill folder": (
+        '            if not (rel.as_posix() == "SKILL.md" or (rel.parts[0] == "assets" and len(rel.parts) == 2)):',
+        "            if False:",
+        ["a skill folder holding more than SKILL.md and assets/ is caught"]),
+    "a skill's name: is not compared with its folder": (
+        "        if not m or m.group(1) != s:", "        if False:",
+        ["a skill whose name: is not its folder is caught"]),
+    "a skill folder outside SKILLS passes": (
+        "        if d.name not in skills:", "        if False:",
+        ["a skill folder in no array is caught"]),
+    "a seat file outside SEAT_AGENTS passes": (
+        "        if p.stem not in seats:", "        if False:",
+        ["a seat file in no array is caught"]),
+    "a skill may be missing from the catalog": (
+        '            if f"/{s}" not in text(rel):', "            if False:",
+        ["a skill /help does not name is caught"]),
+    "a seat may be missing from the catalog": (
+        "            if a not in text(rel):", "            if False:",
+        ["a seat the README does not name is caught"]),
     "--previous is accepted but never installed": (
         "    if previous is not None:", "    if False:",
         ["an upgrade that keeps the old command files is caught"]),
@@ -52,7 +97,7 @@ MUTANTS = {
         "            if TEST_FILE.search(p.name):", "            if False:",
         ["an installer that copies hook test files is caught"]),
     "--minimal is never installed": (
-        'MODES = [(), ("--minimal",), ("--hooks",)]', 'MODES = [(), ("--hooks",)]',
+        'MODES = [(), ("--minimal",), ("--hooks",), ("--addon-seats",)]', 'MODES = [(), ("--hooks",), ("--addon-seats",)]',
         ["a runtime script installed only in the full install is caught in --minimal"]),
     "the installed helper is never run": (
         '            elif name == "emit_run_report" and not helper_writes_row(script):', "            elif False:",
@@ -69,6 +114,26 @@ MUTANTS = {
     "--hooks is not checked for every runtime hook": (
         '                if not (claude / "hooks" / h).is_file():', "                if False:",
         ["--hooks leaving out a runtime hook is caught"]),
+    "a self-test's __pycache__ is read as part of the skill": (
+        '        for p in sorted(x for x in d.rglob("*") if x.is_file() and "__pycache__" not in x.parts):',
+        '        for p in sorted(x for x in d.rglob("*") if x.is_file()):',
+        ["a __pycache__ folder left by a self-test run is not a contract breach"]),
+    "a hook file in no array passes": (
+        '        if p.suffix in (".sh", ".py") and not TEST_FILE.search(p.name) and p.name not in expected:',
+        "        if False:",
+        ["a hook file in no array is caught"]),
+    "an array entry with no hook file passes": (
+        '        if not (root / "hooks" / name).is_file():', "        if False:",
+        ["an array entry with no hook file is caught"]),
+    "a hook installed without --hooks passes": (
+        '        elif any((claude / "hooks" / h).is_file() for h in hooks):', "        elif False:",
+        ["a hook installed without --hooks is caught"]),
+    "an installer that writes settings.json passes": (
+        '        if (claude / "settings.json").exists():', "        if False:",
+        ["an installer that writes settings.json is caught"]),
+    "a hook may be missing from the hooks README": (
+        "        if h not in text:", "        if False:",
+        ["a hook the hooks README does not name is caught"]),
 }
 
 base = subprocess.run([sys.executable, str(HERE / "check_install.py"), "--self-test"], capture_output=True, text=True)

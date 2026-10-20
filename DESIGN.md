@@ -96,7 +96,7 @@ The toolkit started with 15 commands built during PhD research. Assessment:
 | `/cite` or `/bib` | Gemini | BibTeX parsing, DOI resolution, PDF matching — each is a deep rabbit hole. Our citation tier system works because it's enforced by CLAUDE.md rules, not a separate tool. A half-built citation manager is worse than no citation manager. | **v3+ backlog (if ever).** |
 | **Per-persona command variants** | Gemini | Student `/coa` vs. instructor `/coa` with different defaults. Doubles the maintenance surface. Commands are generic; context comes from guides and config. | **Rejected permanently.** |
 | **NC State theme bundling** | Internal | University brand assets (SCSS, logos) don't belong in a public MIT-licensed repo. Users bring their own themes. | **BYOT (Bring Your Own Theme).** |
-| **Project-specific safety hooks** | Internal | Hooks enforcing project-specific rules (protected files, commit policies) are safety nets tied to a particular workflow. Generic users don't have the same protected files. | **Not bundled.** Generic utility hooks (token budget, folder guard) are shipped as optional opt-in via `--hooks` flag. |
+| **Project-specific safety hooks** | Internal | Hooks enforcing project-specific rules (protected files, commit policies) are safety nets tied to a particular workflow. Generic users don't have the same protected files. | **From v2.2.0: shipped as a mechanism with no list in it.** `protect_files` reads what it protects from the user's `~/.claude/toolkit-config.md`; an empty config allows everything; the installer copies it with `--hooks` and never registers it; it has a self-test and a mutation check. *(Until v2.2.0 this cell read: "Not bundled. Generic utility hooks (token budget, folder guard) are shipped as optional opt-in via `--hooks` flag.")* |
 | **ECL-lite scorecard system** | Internal | Council session scoring requires infrastructure (scorecard templates, precedent index) that most users don't need. Adds complexity for a niche use case. | **v2+ backlog.** |
 | **PRECEDENT_INDEX session tracking** | Internal | Cumulative CoA session history is valuable for longitudinal research but adds file management overhead. Most users run CoA for one-off questions, not multi-session analysis. | **v2+ backlog.** |
 | **Per-task-type cost benchmarks** | Internal | Token cost tables from our 14 PCV-Research runs are specific to our charge types and model versions. Publishing them as general guidance would be misleading. | **Removed from generalized /pace.** |
@@ -107,7 +107,7 @@ The toolkit started with 15 commands built during PhD research. Assessment:
 2. **No premature implementation.** If we have zero evidence it works, don't ship it. Test first, ship second. (Applies to: /study-breakdown, /integrity-check)
 3. **No redundant commands.** If an existing command + a teaching guide covers the use case, don't add a wrapper. (Applies to: /grading-rubric, /research-audit)
 4. **No maintenance multiplication.** Per-persona variants double the files to maintain. One command + config + guides is the right architecture. (Applies to: persona variants)
-5. **No proprietary assets in public repos.** University branding, project-specific safety nets, and internal infrastructure don't ship. (Applies to: NC State theme, safety hooks, ECL-lite)
+5. **No proprietary assets in public repos.** University branding, project-specific safety nets, and internal infrastructure don't ship. (Applies to: NC State theme, safety hooks, ECL-lite.) From v2.2.0 a safety net may ship as a mechanism with no project's list inside it: the list is the user's config, so the hook protects the user's paths and nobody else's.
 
 ---
 
@@ -166,7 +166,8 @@ External inspiration: hub-spoke vs market topology distinction echoes a recent a
 
 - **v1.x** — Bug fixes, documentation improvements, config template updates. No new commands. *D-2 ruling (2026-05-02): "command" means a `.md` file under `shared/commands/` that gets installed to `~/.claude/commands/`. Audit/helper scripts under `scripts/` (e.g., `emit_run_report.sh`, `refresh-pcv-bundle.sh`) are not "commands" and may be added or revised within v1.x without violating the no-new-commands rule.*
 - **v2.0** — Generalizes and hardens the commands v1.x already shipped. The one new command, `/setup`, exists to remove author-specific defaults, not to add a capability.
-- **After v2.0** — New commands are added one at a time, each approved individually and each passing the weekly-use test. A change to a command's name or arguments is listed in the changelog of the release that makes it.
+- **v2.0.x to v2.1** — Bug fixes and hardening; no new command. *(Until v2.2.0 this bullet read: "New commands are added one at a time, each approved individually and each passing the weekly-use test.")*
+- **From v2.2.0** — Each minor release ships **one list** of new commands and skills, approved together before the release; how often the author used each item is evidence for its place on the list, not a gate on its own. For this policy a **command** is anything a user invokes by name: a file under `shared/commands/`, a skill under `shared/skills/`, or `/pcv`. Helper scripts under `scripts/`, seat agents under `coa/agents/` and hooks under `hooks/` are not commands. A change to a command's name or arguments is listed in the changelog of the release that makes it. Removing a command, or renaming one with nothing left at the old name, is a major version. A rename that leaves a pointer at the old name for one release (a command file that only names the new one) is a minor version; the next release removes the pointer, and both changelogs say so. *(Until v2.2.0 this read: "removing or renaming one is a major version." v2.2.0 renamed `/dailysummary`, `/weeklysummary` and `/runlog` this way.)*
 - **PCV upstream** — PCV files are Dr. Kay's upstream. We distribute v3.14 as-is. Version bumps come from Dr. Kay's repo; maintainer-only via `scripts/refresh-pcv-bundle.sh --version <tag>`. Student/user-facing install never touches the network for PCV.
 
 ---
@@ -727,3 +728,107 @@ A spawn with no marker or no literal model; a marker whose model is not the tabl
 - The install surface: the role table and `references/` are not installed; the headline count is 16.
 - The PCV bundle (`pcv/`) and its own agent models, which the gate compares but never edits.
 - No role requests Haiku or Fable.
+
+---
+
+## v2.2.0 Changelog (2026-10-20) — Council, guards and workflow
+
+One release, built from three that were planned separately: the `/coa` seats as installed agents, seven skills, a
+command, four optional hooks, the account-aware model table extended to smaller plans, and a chatbot route for people
+who do not use Claude Code. The headline count goes from 16 to 24; every count on every page is derived by
+`tests/check_claims.py`.
+
+### Added
+
+| File | What it does |
+|---|---|
+| `coa/agents/coa-*.md` (5) and `coa/agents/addon/coa-*.md` (3) | The council seats. Every install copies the five general ones: `coa-skeptic`, `coa-practitioner`, `coa-economist`, `coa-advocate`, `coa-end-user`. `--addon-seats` adds `coa-historian`, `coa-editor`, `coa-paper-reviewer`. Each holds its seat's lens, required artifact and output structure, requests `sonnet` in its frontmatter and lists no `Agent` tool (gate class M8). A seat for one field is a persona file in `coa/personas/` |
+| `shared/skills/quick-ten/` | `/quick-ten`: before a substantial build, the few questions (at most ten) whose answers change what gets built, a recap, and a brief the build follows |
+| `shared/skills/guard-hook/`, `shared/skills/bulletproof/` | `/guard-hook` builds a hook guard and proves its self-test fails against a neutered copy (useful only to people who use hooks); `/bulletproof` puts tests behind new functionality and proves them by planting the defect each guard exists to prevent |
+| `shared/skills/list-maker/`, `shared/skills/step-by-step/` | `/list-maker` turns a transcript, an email thread or notes into a numbered work list whose numbers never change; `/step-by-step` walks what a session changed, or works the list, one item per turn, and refuses to call a walkthrough done early |
+| `shared/skills/automate/`, `shared/skills/meeting-breakdown/` | `/automate` turns a finished task into a skill with a tested script and a reproduction check; `/meeting-breakdown` breaks a transcript into a per-domain plan with a five-agent run (two agents on smaller plans) |
+| `shared/commands/acquire.md`, `scripts/acquire.py` | `/acquire`: download a paper or a manifest, refuse HTML and a DOI that names another paper, extract with a density gate, grep-check every claimed figure. Needs `pypdf` or `PyMuPDF` |
+| `scripts/check_transcription.py` | refuses a page transcription of a scanned PDF unless its pages and text pass six checks and, with two readers, both agree on every number, page by page. Ported from a checker first written for vision transcriptions |
+| `hooks/_toolkit_config.py`, `hooks/protect_files` | the config reader the hooks share, and a guard that blocks a write to a `protected_files` entry (reading stays allowed; `NotebookEdit` included) |
+| `scripts/register_hooks.py` | prints the `settings.json` block for the hooks you name, each unconditional; never edits a file |
+| `scripts/check_coa_evidence_paths.py`, `scripts/check_heading_collisions.py`, `scripts/check_scratchpad_leak.py` | a `/coa` brief's paths resolve (a port of a Julia original, checked against its verdicts); two sibling sections with one title; files of value that exist only in a session scratchpad |
+| `scripts/agent_stalls.py`, `scripts/headless_agent.py` | a ledger of subagent stalls; a stalled agent's prompt rerun as a restricted headless session that refuses `fable` and full model IDs |
+| `shared/chatbot.json`, `scripts/render_chatbot_prompts.py` | a label for every command and skill (works in a chat, works with limits, Claude Code only) and the generator of the landing page's chatbot prompts; `--check` fails a command with no label or a site copy that is stale |
+| `shared/pointers/` | one-release pointers at the old names `/dailysummary`, `/weeklysummary` and `/runlog` |
+
+### Renamed
+
+Command names of more than one word are hyphenated: `/daily-summary`, `/weekly-summary` and `/run-log` replace the
+published `/dailysummary`, `/weeklysummary` and `/runlog`, which stay installed for this release as pointers that name
+the new command; the next release removes them (Versioning Policy, above). The new skills ship hyphenated from the start.
+
+### Smaller plans
+
+On `pro`, `team-standard`, `unknown` or no answer: `/coa` defaults to the three-seat Quick Panel on Sonnet;
+`/meeting-breakdown` runs one Player and one Coach; and page transcription (`/readable`, `/acquire`) runs on Haiku
+with two readers whose results `check_transcription.py` must accept (`model_transcriber`, written by `/setup`). The
+Haiku transcriber meets three of the four criteria of the Haiku admission test; the fourth, a logged run, is open and
+stated in `references/model-roles.md`. A larger council or run is one request away.
+
+### Changed
+
+- **Hook policy.** The "project-specific safety hooks" rejection and Design Principle 5 are amended (above): a guard
+  may ship as a mechanism with no list in it. `protect_files` is the one that does.
+- **`token_budget_guard` and `summary_folder_guard` are now Python behind a launcher.** The token guard measured a
+  prompt with `grep -o`, which stopped at the first quote; it now counts the whole prompt, keeps its total per session
+  (by `session_id`), and keeps its state in `~/.claude/toolkit/state/`, not `/tmp/`. The folder guard matches whole
+  path components, only for `.md` files.
+- **The model gate** checks any config-keyed role's sentence, not only the Chair's, and treats `*_selftest.py` files
+  as fixtures, like mutation files, because a self-test plants a refused model on purpose.
+
+- **`/coa` v2.3.** A seat with an agent file starts on **Path A**: `subagent_type: "coa-<seat>"`, `model: "sonnet"`, and a prompt holding only the question brief and the seat's evidence. Any other seat (the Teacher, a specialist, a persona file, a seat whose file is missing) starts on **Path B**, the full template, as before. A failed Path A start falls back to Path B for that seat and says so. `session_summary.md` records each seat's path (`A`, `B`, `crossmodel:<model>`).
+- **`install.sh`** gains `SKILLS` (full install only) and `SEAT_AGENTS` (every install). **Backups of a skill, PCV included, move out of `~/.claude/skills/`** to `~/.claude/toolkit-backups/<timestamp>/skills/`, because a backup folder holding a `SKILL.md` inside `skills/` could load as a second skill. When a skill shares a name with a command already in `~/.claude/commands/`, the installer prints one line and removes nothing: the skill takes precedence ("A skill and a file in .claude/commands/ … The skill", https://code.claude.com/docs/en/skills, read 2026-10-20).
+- **`install.sh`** also gains `ADDON_SEATS` (`--addon-seats`), `OPTIONAL_HOOKS` and `HOOK_LIBS` (`--hooks`, never
+  registered), and `POINTER_COMMANDS`; `RUNTIME_SCRIPTS` adds `check_coa_evidence_paths`, `acquire` and
+  `check_transcription`.
+- **`/coa`** checks each seat's evidence paths with a script before dispatch (Step 0b), gains `Bash(python3:*)`, and
+  defaults to the Quick Panel on smaller plans.
+- **`/readable`** starts its transcriber through `model_transcriber` and checks the result before installing it.
+- **`/setup`** writes `model_transcriber`.
+- **`student/bootstrap.md`** installs skills, seat agents and the scripts the skills call, and backs up PCV outside
+  `skills/`; add-on seats only on request.
+- **Versioning policy** (above): one approved list per release, with usage as evidence; a skill counts as a command; a
+  rename keeps a pointer for one release.
+- `/help`, the README and the proactive fragment list every new command and skill; the fragment has one rule for each
+  command except `/setup`.
+- **CI** runs every self-test and mutation check under `hooks/`, `scripts/` and the skills' `assets/` by glob, and the
+  chatbot label check.
+
+### Proof it can fail
+
+- Across the seventeen new or rewritten tools: 512 self-test cases in 18 suites, every suite exits 0, and 211 mutants,
+  every one caught. Each mutation file names the case it must turn red; `/step-by-step` instead removes each of its 10
+  guards in turn and requires its case to change.
+- `tests/check_install.py` covers skills, seats, add-on seats, hooks and pointers in six modes (default, `--minimal`,
+  `--hooks`, `--addon-seats`, a re-install, `--dry-run`): 42 cases, 38 mutants.
+- `tests/check_models.py`: 0 findings over 42 blocks (20 role markers, 0 unmarked); 39 cases, 25 mutants.
+- Writing the tests found real defects before release: two dead alternatives in hook patterns; a config entry with a
+  space matching a longer folder name; four self-tests that crashed on a mutant instead of failing a case; a test
+  module that loaded a stale cached copy of an earlier mutant; and test fixtures a rename had turned into no-ops.
+- **De-identification.** Every ported file was rewritten without project names, people, private folders or dated
+  incidents, then checked by the private leak gate and the private-token scan.
+
+### Behaviour changes
+
+- `/coa` sends a Path A seat a shorter prompt; the lens comes from the agent file. On a smaller plan the default
+  council is three seats.
+- Page transcription runs on Haiku with two readers on smaller plans, and nothing is installed unless
+  `check_transcription.py` passes.
+- Re-installing over an older install leaves the PCV backup in `~/.claude/toolkit-backups/`, not inside
+  `~/.claude/skills/`.
+- `token_budget_guard`: the total resets per session, not per day.
+- `summary_folder_guard`: notes only dated `.md` files, and `Daily Summary Archive/` no longer counts as
+  `Daily Summary/`.
+- `/coa` and `/acquire` run scripts, so they may ask once for `python3` permission.
+- The install gate's mutation check takes about ten minutes, because every mutant re-runs real installs.
+
+### What did NOT change
+
+- No flag was removed. `--minimal` installs the same commands as before, plus the five seats.
+- No hook is registered by any install mode, and no hook holds a list of its own.
+- The PCV bundle is unchanged.

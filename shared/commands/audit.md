@@ -177,7 +177,7 @@ Deep mode is more expensive than the standard audit (typically 3-5× the wall-cl
 
 ## Instrumentation (v1.1 — one-line emit at end of run)
 
-After writing the audit report, emit a structured run_report for observability via `/runlog`:
+After writing the audit report, emit a structured run_report for observability via `/run-log`:
 
 ```bash
 python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \

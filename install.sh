@@ -3,7 +3,8 @@
 # Usage (counts derived at runtime — see SHARED_COMMANDS / STUDENT_ONLY arrays):
 #   bash install.sh               # Full toolkit
 #   bash install.sh --minimal     # Instructor toolkit
-#   bash install.sh --hooks       # Also install optional hooks (usage counter, token budget, folder guard)
+#   bash install.sh --hooks       # Also copy the optional hooks (see OPTIONAL_HOOKS); none is registered
+#   bash install.sh --addon-seats # Also copy the add-on /coa seats (see ADDON_SEATS)
 #   bash install.sh --dry-run     # Show what would be installed without copying
 #   bash install.sh --help        # Show this help
 
@@ -25,12 +26,20 @@ NC='\033[0m' # No Color
 # Command sets — single source of truth for both install paths AND banner counts.
 # Defined BEFORE show_help() so --help can render correct counts without running install.
 SHARED_COMMANDS=(setup coa pace improve quarto readable help review)
-STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify audit runlog)
-RUNTIME_SCRIPTS=(emit_run_report)   # scripts/<name>.py → ~/.claude/toolkit/scripts/
+STUDENT_ONLY=(startup daily-summary weekly-summary commit simplify audit run-log acquire)
+POINTER_COMMANDS=(dailysummary weeklysummary runlog)   # shared/pointers/<old>.md → ~/.claude/commands/ (full install; v2.2.0 only): each says the new name
+RUNTIME_SCRIPTS=(emit_run_report check_coa_evidence_paths acquire check_transcription)   # scripts/<name>.py → ~/.claude/toolkit/scripts/
+SKILLS=(quick-ten guard-hook bulletproof list-maker step-by-step automate meeting-breakdown)   # shared/skills/<name>/ → ~/.claude/skills/<name>/ (full install only)
+OPTIONAL_HOOKS=(usage_counter token_budget_guard summary_folder_guard protect_files)   # hooks/<name>.sh + .py → ~/.claude/hooks/ (--hooks only, never registered)
+HOOK_LIBS=(_toolkit_config)         # hooks/<name>.py → ~/.claude/hooks/ (--hooks only): read by the hooks above
+SEAT_AGENTS=(coa-advocate coa-economist coa-end-user coa-practitioner coa-skeptic)   # coa/agents/<name>.md → ~/.claude/agents/ (every install)
+ADDON_SEATS=(coa-editor coa-historian coa-paper-reviewer)   # coa/agents/addon/<name>.md → ~/.claude/agents/ (--addon-seats only)
 SHARED_COUNT=${#SHARED_COMMANDS[@]}
 STUDENT_COUNT=${#STUDENT_ONLY[@]}
-FULL_COUNT=$((SHARED_COUNT + STUDENT_COUNT + 1))   # +1 for /pcv (skill)
-MIN_COUNT=$((SHARED_COUNT + 1))                    # +1 for /pcv (skill)
+SKILL_COUNT=${#SKILLS[@]}
+FULL_COUNT=$((SHARED_COUNT + STUDENT_COUNT + SKILL_COUNT + 1))   # +1 for /pcv (skill)
+MIN_COUNT=$((SHARED_COUNT + 1))                                  # +1 for /pcv (skill)
+BACKUP_ROOT="$HOME/.claude/toolkit-backups/$(date +%Y%m%d-%H%M%S)"   # outside skills/, so a backup never loads as a skill
 
 print_header() {
     echo ""
@@ -58,18 +67,22 @@ show_help() {
     echo "Usage:"
     echo "  bash install.sh               Full toolkit (${FULL_COUNT} commands)"
     echo "  bash install.sh --minimal     Instructor toolkit (${MIN_COUNT} commands)"
+    echo "  bash install.sh --hooks       Also copy the optional hooks (never registered)"
+    echo "  bash install.sh --addon-seats Also copy the add-on /coa seats: ${ADDON_SEATS[*]}"
     echo "  bash install.sh --dry-run     Show what would be installed without copying"
     echo "  bash install.sh --help        Show this help"
     echo ""
     echo "What gets installed:"
     echo "  Commands    → ~/.claude/commands/"
     echo "  PCV skill   → ~/.claude/skills/pcv/"
+    echo "  Skills      → ~/.claude/skills/ (full install only)"
     echo "  PCV agents  → ~/.claude/agents/"
+    echo "  Seat agents → ~/.claude/agents/ (the /coa council seats)"
     echo "  Scripts     → ~/.claude/toolkit/scripts/ (run reports)"
     echo "  Config     → ~/.claude/toolkit-config.md (if not present)"
-    echo "  Hooks       → ~/.claude/hooks/ (optional, with --hooks)"
+    echo "  Hooks       → ~/.claude/hooks/ (optional, with --hooks; never registered)"
     echo ""
-    echo "Existing files are backed up before overwriting."
+    echo "Existing files are backed up before overwriting (skills to ~/.claude/toolkit-backups/)."
     exit 0
 }
 
@@ -100,11 +113,13 @@ install_file() {
 MINIMAL=false
 DRY_RUN=false
 INSTALL_HOOKS=false
+ADDON=false
 for arg in "$@"; do
     case $arg in
         --minimal) MINIMAL=true ;;
         --dry-run) DRY_RUN=true ;;
         --hooks) INSTALL_HOOKS=true ;;
+        --addon-seats) ADDON=true ;;
         --help|-h) show_help ;;
         *) echo "Unknown argument: $arg"; show_help ;;
     esac
@@ -159,6 +174,45 @@ if [ "$MINIMAL" = false ]; then
     for cmd in "${STUDENT_ONLY[@]}"; do
         install_file "$TOOLKIT_DIR/shared/commands/$cmd.md" "$COMMANDS_DIR/$cmd.md" "$cmd.md"
     done
+    # One-release pointers from a renamed command's old name to its new one (not counted as commands)
+    for cmd in "${POINTER_COMMANDS[@]}"; do
+        install_file "$TOOLKIT_DIR/shared/pointers/$cmd.md" "$COMMANDS_DIR/$cmd.md" "$cmd.md (renamed: a pointer)"
+    done
+fi
+
+# Install skills (full install only): SKILL.md and assets/, never a self-test or mutation file.
+# An existing copy is backed up outside skills/ first.
+if [ "$MINIMAL" = false ]; then
+    echo ""
+    echo "Installing skills..."
+    for s in "${SKILLS[@]}"; do
+        src="$TOOLKIT_DIR/shared/skills/$s"
+        if [ ! -f "$src/SKILL.md" ]; then
+            print_error "skills/$s/SKILL.md not found in toolkit"
+            continue
+        fi
+        if [ "$DRY_RUN" = true ]; then
+            print_success "Would install: skills/$s → $SKILLS_DIR/$s"
+        else
+            if [ -d "$SKILLS_DIR/$s" ]; then
+                mkdir -p "$BACKUP_ROOT/skills"
+                cp -r "$SKILLS_DIR/$s" "$BACKUP_ROOT/skills/$s"
+                print_warning "Backed up existing $s skill → ${BACKUP_ROOT/#$HOME/~}/skills/$s"
+            fi
+            mkdir -p "$SKILLS_DIR/$s"
+            cp "$src/SKILL.md" "$SKILLS_DIR/$s/SKILL.md"
+            for f in "$src"/assets/*; do
+                [ -f "$f" ] || continue
+                case "$f" in *_selftest.py|*_mutations.py) continue ;; esac
+                mkdir -p "$SKILLS_DIR/$s/assets"
+                cp "$f" "$SKILLS_DIR/$s/assets/"
+            done
+            print_success "skills/$s"
+        fi
+        if [ -f "$COMMANDS_DIR/$s.md" ]; then
+            print_warning "A command /$s also exists ($COMMANDS_DIR/$s.md). The skill takes precedence; nothing was removed."
+        fi
+    done
 fi
 
 # Install PCV skill files (v3.14: recursive — skill/ contains subdirs like
@@ -172,11 +226,11 @@ if [ "$DRY_RUN" = true ]; then
         print_success "Would install: pcv/$rel → $SKILLS_DIR/pcv/$rel"
     done
 else
-    # Backup existing pcv skill dir if present (single snapshot, not per-file)
+    # Backup existing pcv skill dir if present (single snapshot, not per-file), outside skills/
     if [ -d "$SKILLS_DIR/pcv" ] && [ "$(ls -A "$SKILLS_DIR/pcv" 2>/dev/null)" ]; then
-        BACKUP_DIR="$SKILLS_DIR/pcv.bak.$(date +%Y%m%d-%H%M%S)"
-        cp -r "$SKILLS_DIR/pcv" "$BACKUP_DIR"
-        print_warning "Backed up existing pcv skill → $(basename "$BACKUP_DIR")"
+        mkdir -p "$BACKUP_ROOT/skills"
+        cp -r "$SKILLS_DIR/pcv" "$BACKUP_ROOT/skills/pcv"
+        print_warning "Backed up existing pcv skill → ${BACKUP_ROOT/#$HOME/~}/skills/pcv"
     fi
     # Recursive copy preserving subdirectory structure
     mkdir -p "$SKILLS_DIR/pcv"
@@ -194,6 +248,18 @@ for f in "$TOOLKIT_DIR"/pcv/agents/*; do
     fname=$(basename "$f")
     install_file "$f" "$AGENTS_DIR/$fname" "agents/$fname"
 done
+
+# Install the /coa council seat agents (every install: /coa is in SHARED_COMMANDS)
+echo ""
+echo "Installing council seat agents..."
+for a in "${SEAT_AGENTS[@]}"; do
+    install_file "$TOOLKIT_DIR/coa/agents/$a.md" "$AGENTS_DIR/$a.md" "agents/$a.md"
+done
+if [ "$ADDON" = true ]; then
+    for a in "${ADDON_SEATS[@]}"; do
+        install_file "$TOOLKIT_DIR/coa/agents/addon/$a.md" "$AGENTS_DIR/$a.md" "agents/$a.md"
+    done
+fi
 
 # Install runtime scripts (every install: commands call them at the end of a run).
 # Runtime files only: a script's self-test and mutation check stay in the clone.
@@ -236,19 +302,23 @@ if [ "$INSTALL_HOOKS" = true ]; then
     else
         mkdir -p "$HOOKS_DIR"
     fi
-    for f in "$TOOLKIT_DIR"/hooks/*.sh "$TOOLKIT_DIR"/hooks/*.py; do
-        # Runtime hooks only: a hook's self-test and mutation check stay in the clone.
-        case "$f" in *_selftest.py|*_mutations.py) continue ;; esac
-        fname=$(basename "$f")
-        install_file "$f" "$HOOKS_DIR/$fname" "hooks/$fname"
+    # Runtime files only: a hook's self-test and mutation check stay in the clone.
+    for h in "${OPTIONAL_HOOKS[@]}"; do
+        for ext in sh py; do
+            install_file "$TOOLKIT_DIR/hooks/$h.$ext" "$HOOKS_DIR/$h.$ext" "hooks/$h.$ext"
+        done
+    done
+    for l in "${HOOK_LIBS[@]}"; do
+        install_file "$TOOLKIT_DIR/hooks/$l.py" "$HOOKS_DIR/$l.py" "hooks/$l.py"
     done
     if [ "$DRY_RUN" = false ]; then
         chmod +x "$HOOKS_DIR"/*.sh 2>/dev/null
     fi
     echo ""
-    print_warning "Hooks installed but NOT registered. To activate them,"
-    print_warning "add hook entries to your .claude/settings.json."
-    print_warning "See hooks/README.md for registration instructions."
+    print_warning "Hooks copied but NOT registered: the installer never edits settings.json."
+    print_warning "To turn one on, print its settings entry and paste it yourself:"
+    print_warning "  python3 scripts/register_hooks.py <hook> [<hook> ...]   (from this clone; --list shows them)"
+    print_warning "The guards that hold a list protect nothing until ~/.claude/toolkit-config.md names it (hooks/README.md)."
 fi
 
 # Summary
@@ -305,7 +375,7 @@ if [ "$DRY_RUN" != true ]; then
     echo "  Optional: Proactive Suggestion Fragment"
     echo "================================================"
     echo ""
-    echo "A 15-rule declarative fragment is bundled at:"
+    echo "A declarative fragment, one rule per command, is bundled at:"
     echo "  $FRAGMENT_PATH"
     echo ""
     echo "It is NOT auto-imported. Read it first to decide whether to opt in."
@@ -342,6 +412,13 @@ else
     INSTALLED_LIST="/pcv"
     for c in "${SHARED_COMMANDS[@]}"; do INSTALLED_LIST="$INSTALLED_LIST, /$c"; done
     for c in "${STUDENT_ONLY[@]}";    do INSTALLED_LIST="$INSTALLED_LIST, /$c"; done
+    for c in "${SKILLS[@]}";          do INSTALLED_LIST="$INSTALLED_LIST, /$c"; done
 fi
 echo "Commands installed: $INSTALLED_LIST"
+echo "Council seat agents: ${SEAT_AGENTS[*]}"
+if [ "$ADDON" = true ]; then
+    echo "Add-on seat agents: ${ADDON_SEATS[*]}"
+else
+    echo "Add-on seats not copied (add them with: bash install.sh --addon-seats): ${ADDON_SEATS[*]}"
+fi
 echo ""

@@ -1,9 +1,9 @@
 ---
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(ls:*), Bash(date:*), Bash(mkdir:*), Bash(curl:*), Bash(jq:*), Bash(shasum:*), Bash(sha256sum:*), Bash(git rev-parse:*), Bash(git status:*), Bash(git log:*), Agent, WebSearch, WebFetch, mcp__crossmodel__query_model, mcp__crossmodel__list_available_models
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(python3:*), Bash(ls:*), Bash(date:*), Bash(mkdir:*), Bash(curl:*), Bash(jq:*), Bash(shasum:*), Bash(sha256sum:*), Bash(git rev-parse:*), Bash(git status:*), Bash(git log:*), Agent, WebSearch, WebFetch, mcp__crossmodel__query_model, mcp__crossmodel__list_available_models
 description: Council of Agents (CoA) — spawns specialized council members with distinct professional perspectives to independently analyze a question, then synthesizes via a Chair agent into a convergence/divergence report. Suggest whenever the user faces a decision with multiple valid perspectives.
 ---
 
-# Council of Agents (CoA) v2.2 — Multi-Perspective Analysis Protocol
+# Council of Agents (CoA) v2.3 — Multi-Perspective Analysis Protocol
 
 <!-- spawn: none reason="the cost note names the agents a council starts; they are marked at Steps 1, 1b and 2" -->
 > **When to use**: You have a decision with multiple valid answers and want diverse expert perspectives before committing. Strategy, design, architecture, research direction — anywhere "it depends" is the honest answer.
@@ -31,6 +31,8 @@ You are the **Clerk** of a council. Your job is to take the user's question, sel
 Below, `{evidence_dir}` means the configured value, or `.toolkit/evidence` if none is set.
 
 **Models.** Seats and the cross-check request `sonnet`; the Chair requests `model_chair`. If `claude_account` is missing, ask once, at roster time, which Claude account Claude Code uses (the `/setup` question), and offer to save the answer with the `model_chair` value `/setup` would write. Until it is answered, the Chair requests `sonnet`. If `claude_account_set` is more than 180 days old, print one line suggesting `/setup` to re-check it. The table and its reasons are in `references/model-roles.md`.
+
+**Smaller plans get a smaller council.** When `claude_account` is `pro`, `team-standard`, `unknown` or missing, the default council is the **Quick Panel**: three seats on Sonnet plus the Chair on Sonnet (see Dynamic Seating). A larger council runs only when the user asks for it in this turn (`--full`, or by naming the seats), because every seat is a full agent run against the same allowance.
 
 **Persona files**: Council member definitions live in `coa/personas/` relative to your project root. If no persona directory exists, use the built-in personas defined in the Built-In Roster below. The Chair instructions live in `coa/chair_instructions.md` if present; otherwise use the built-in Chair protocol in STEP 2.
 
@@ -95,7 +97,7 @@ If the project's `CLAUDE.md` points to reference files by topic, load the ones t
 
 ### Built-In Roster (used when no project-specific ROSTER.md exists)
 
-Six core seats, always available. Each has a **required artifact** — a fixed output form that no other seat produces. The artifacts are what keep six members from writing six versions of the same essay.
+Six core seats, always available. Five (Skeptic, Economist, Practitioner, Advocate, End User) are installed as seat agents by every install; the Historian's agent file is an add-on (`bash install.sh --addon-seats`), and without it the Historian runs on Path B from this table. Each has a **required artifact** — a fixed output form that no other seat produces. The artifacts are what keep six members from writing six versions of the same essay.
 
 | Seat | Lens (and what it stays out of) | Required artifact |
 |------|------|------|
@@ -113,6 +115,8 @@ Specialist seats can be proposed by the Clerk based on domain. Present them as s
 - **Teacher** — for grading, feedback, rubrics or assignment design: rubric fidelity, fairness across the cohort, whether feedback teaches, defensibility on a dispute.
 - Statistician, Engineer, Domain Expert, or any persona file in `coa/personas/`.
 
+The Editor and Paper Reviewer also ship as add-on seat agents (`bash install.sh --addon-seats`); without their files they run on Path B. **A seat for your own field** is a persona file: see Custom Seats at the end of this file.
+
 For a specialist or custom persona, the required artifact comes from its persona file's `## Required artifact` section if it has one; otherwise the Clerk names one in the brief that no other seated member produces.
 
 ### Dynamic Seating — Council Size
@@ -124,7 +128,7 @@ For a specialist or custom persona, the required artifact comes from its persona
 | **Quick Panel** (3) | Skeptic + Practitioner + 1 | Reversible decisions, LOW uncertainty, focused technical |
 
 **`--quick`**: Force Quick Panel. **`--full`**: Force Full Council.
-**Default**: Clerk proposes based on VOI assessment. Human can override.
+**Default**: Clerk proposes based on VOI assessment. Human can override. **On a smaller plan** (`claude_account` `pro`, `team-standard`, `unknown` or missing) the default is the Quick Panel, and the Clerk names the larger tier it would have proposed in one line so the user can ask for it.
 **Minimum**: Skeptic and Practitioner are ALWAYS seated.
 
 ### Dangerous Drop Check
@@ -247,7 +251,13 @@ Any assertion you cannot verify: mark it **UNVERIFIED** inline in the brief so s
 
 ### Verify the evidence paths too — per seat
 
-The fact check covers what the brief *asserts*. It says nothing about the paths each brief *points at*, and briefs differ by seat (Step 1, Per-Member Context Filtering). Once per seat, check every path in that seat's "Evidence most relevant to your lens" block resolves (Glob or `ls`) from where the seat will run. Use absolute paths for anything outside the project root. If any path fails, fix that brief before dispatching it.
+The fact check covers what the brief *asserts*. It says nothing about the paths each brief *points at*, and briefs differ by seat (Step 1, Per-Member Context Filtering). Once per seat, check every path in that seat's "Evidence most relevant to your lens" block resolves from where the seat will run:
+
+```bash
+python3 "$HOME/.claude/toolkit/scripts/check_coa_evidence_paths.py" <path> [<path> ...]   # exit 1: a path does not resolve
+```
+
+Relative paths are read from the working directory (or `COA_EVIDENCE_BASE` if set); use absolute paths for anything outside the project root. If any path fails, fix that brief before dispatching it. If the script is not installed, check each path with Glob instead and say so.
 
 **Why per seat, not once per session.** If one seat's brief carries project-relative paths to files that live elsewhere, that seat searches, finds nothing, and reports the files "do not exist". Its conviction then sits far below the rest of the panel, the Chair has to discard its scale as non-comparable, and its genuine findings risk being discounted with the false one. A session-level check passes, because the other briefs are fine. **A seat cannot tell "absent" from "I was pointed at the wrong place"** — both return nothing. When something is deliberately out of a seat's reach, say so in the brief and say why.
 
@@ -384,17 +394,26 @@ For each seated member, construct the prompt:
 >
 > **Output file:** Write your complete analysis to `[absolute session directory]/member_[seat].md`. Then Read the file back and quote its first line in your reply. If the Write or the Read fails, say so; do not report the file as written. Return the full analysis in your reply as well.
 
-<!-- spawn: role=reasoner model=sonnet site=coa#members -->
-Dispatch each member with the Agent tool: `description` = a 3-5 word seat label (e.g., "Skeptic on calibration plan"), `prompt` = the filled template, and `model: "sonnet"` (the `reasoner` row of `shared/model-roles.json`; see `references/model-roles.md`). The agent needs Read, Grep, Glob and Write; Bash too for the Skeptic, Economist and Practitioner, who measure. Spawn every member in the **same message**, whatever backend each one uses.
+### Dispatch: Path A (a seat agent file) or Path B (the template above)
 
-Members MUST NOT see each other's work.
+Every install puts five seat agents in `~/.claude/agents/`: `coa-skeptic`, `coa-practitioner`, `coa-economist`, `coa-advocate` and `coa-end-user`. `bash install.sh --addon-seats` adds three: `coa-historian`, `coa-editor` and `coa-paper-reviewer`. Each file holds its seat's lens, required artifact and output structure, so the Clerk does not paste them into the prompt. Choose one path per seated member.
+
+<!-- spawn: role=reasoner model=sonnet site=coa#members -->
+**Path A — the seat has an agent file and its persona names no external model.** Start it with the Agent tool: `subagent_type: "coa-<seat>"`, `model: "sonnet"` (the `reasoner` row of `shared/model-roles.json`; see `references/model-roles.md`), `description` = a 3-5 word seat label (e.g., "Skeptic on calibration plan"), and a `prompt` holding only the Question Brief (project_name line; Question Essence; Pre-Verified Facts; UNVERIFIED marks; freeze sha or hashes), the evidence most relevant to the seat's lens, the End User Proxy directive or the Skeptic's contrarian seed where they apply, and the Output file block from the template above. Do not paste the seat's lens or output structure: the agent file holds them, and a second copy can drift from it.
+
+<!-- spawn: role=reasoner model=sonnet site=coa#members -->
+**Path B — any other seat**: the Teacher, a specialist, a persona file from `coa/personas/`, or a seat whose agent file is missing. Start it with the Agent tool, `subagent_type: "general-purpose"`, `model: "sonnet"`, `description` = a 3-5 word seat label, and the filled Council Member Prompt Template above as its `prompt`. The agent needs Read, Grep, Glob and Write; Bash too for the Skeptic, Economist and Practitioner, who measure.
+
+Spawn every member in the **same message**, whatever path each one uses. Members MUST NOT see each other's work.
+
+**If a Path A start fails** with an unknown agent type, run that seat on Path B and tell the user once: "Seat agent `coa-<seat>` is not available in this session; using the template for it." If every Path A seat fails that way, the agent files were probably installed after this session began: run the council on Path B and suggest restarting Claude Code before the next one. Record each seat's path in the `dispatch` field of `session_summary.md`.
 
 ### Check each member file the moment its seat returns
 
 Do not wait for the Step 5b audit. When a seat hands back, Glob for its `member_{seat}.md` before reading the report.
 
-- **Present and the seat quoted its first line**: record the seat's dispatch as `agent`.
-- **Absent although the seat said it wrote it**: write it from the hand-back verbatim, with a first line `<!-- Transcribed by the Clerk from the seat's reply: the seat's Write did not land. -->`, and record the dispatch as `agent (file absent — Clerk transcribed)`.
+- **Present and the seat quoted its first line**: record the seat's dispatch as `A` or `B`, the path it ran on.
+- **Absent although the seat said it wrote it**: write it from the hand-back verbatim, with a first line `<!-- Transcribed by the Clerk from the seat's reply: the seat's Write did not land. -->`, and record the dispatch as `A (file absent — Clerk transcribed)` or the same with `B`.
 
 Seats occasionally report a Write that did not land. The read-back in the prompt makes the next occurrence show either a real file or the actual error, and the dispatch record keeps the audit verdict interpretable.
 
@@ -409,7 +428,7 @@ If the MCP server IS available and a persona file's frontmatter specifies `model
 1. Build the prompt from the template above: `system_prompt` = Role + lens + background + questions + stay-out-of; `user_prompt` = Question Brief + evidence + required artifact + Instructions. Omit the Output file block — an external model cannot write files.
 2. Call `mcp__crossmodel__query_model` with `model`, `system_prompt`, and `user_prompt`.
 3. Normalize the response to the standard structure if the model did not follow it, and tag it `[Source: {model_name}]`. The Clerk writes `member_{seat}.md` from it, with a first line `<!-- Written by the Clerk from a crossmodel:{model_name} response. -->`, and records the dispatch as `crossmodel:{model_name}`.
-4. On error: fall back to a Claude Agent for that seat, note the fallback, and record the dispatch as `agent (crossmodel:{model_name} failed)`.
+4. On error: run that seat as a Claude seat on Path A or Path B, note the fallback, and record the dispatch as `A (crossmodel:{model_name} failed)` or the same with `B`.
 
 ---
 
@@ -669,7 +688,7 @@ fallback_detected: false
 schema_version: "1.0"
 run_id: "{run_id}"
 tool: "coa"
-tool_version: "v2.2"
+tool_version: "v2.3"
 date: "{YYYY-MM-DD}"
 model: "{model used for the members}"
 chair_model: "{the model the Chair requested}"
@@ -679,7 +698,7 @@ outcome: "{complete|partial|failed}"
 council_size: {N}
 agent_count: {council_size + 1 for the Chair}
 seats: ["{Persona1}", "{Persona2}", ...]
-dispatch: {"{Seat}": "agent | crossmodel:<model> | agent (file absent — Clerk transcribed)", ...}
+dispatch: {"{Seat}": "A | B | crossmodel:<model> | A (file absent — Clerk transcribed)", ...}
 convergence_rate: "{fraction agreed}"
 agree_count: {N}
 diverge_count: {N}
@@ -871,6 +890,6 @@ Four ready-to-use personas are included in the toolkit's `coa/personas/` folder,
 | `advisor.md` | Advisor | Career decisions, timeline tradeoffs, job market framing |
 | `industry_practitioner.md` | Industry Practitioner | External validity, deployment feasibility, practitioner relevance |
 
-> **What next?** Run `/dailysummary` to capture the council's rationale before it leaves context — the Chair synthesis and any DIVERGE findings are decision context that's easy to lose if not recorded.
+> **What next?** Run `/daily-summary` to capture the council's rationale before it leaves context — the Chair synthesis and any DIVERGE findings are decision context that's easy to lose if not recorded.
 
 $ARGUMENTS

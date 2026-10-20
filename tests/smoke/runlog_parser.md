@@ -1,6 +1,6 @@
-# /runlog Parser Smoke Test
+# /run-log Parser Smoke Test
 
-**Purpose**: Verify /runlog's CSV parser correctly aggregates `run_log.csv` and skips malformed/legacy rows. Guards against regression to raw `awk -F','` parsing, which was the v1.0 bug (caught in T4 verification on 2026-04-17).
+**Purpose**: Verify /run-log's CSV parser correctly aggregates `run_log.csv` and skips malformed/legacy rows. Guards against regression to raw `awk -F','` parsing, which was the v1.0 bug (caught in T4 verification on 2026-04-17).
 
 **Fixture**: a synthetic 8-row CSV written to `/tmp/test_run_log.csv` at test time. Portable — no dependency on any author's project history.
 
@@ -72,14 +72,14 @@ Exactly these numbers — the fixture is fixed, so unlike the live-CSV version t
 AssertionError: expected 5 valid rows, got 3
 ```
 Cause: raw `awk -F','` split on embedded commas in the `task_summary` cell, miscounted rows.
-Fix: restore Python `csv.DictReader`-based parser in `shared/commands/runlog.md` Step 2.
+Fix: restore Python `csv.DictReader`-based parser in `shared/commands/run-log.md` Step 2.
 
 **Failure mode 2 — legacy-row filter regressed**:
 ```
 AssertionError: expected 5 valid rows, got 8
 ```
 Cause: the `tool`-column prefix filter (`2026-`, `2025-`, `pace_`, `coa_`, `pcv_`) was removed; column-shifted legacy rows are leaking into the count.
-Fix: restore the prefix filter in `shared/commands/runlog.md` Step 2.
+Fix: restore the prefix filter in `shared/commands/run-log.md` Step 2.
 
 **Failure mode 3 — CSV corrupted mid-row**:
 ```

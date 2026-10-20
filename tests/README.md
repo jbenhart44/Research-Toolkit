@@ -40,7 +40,7 @@ python3 tests/check_models.py --release     # also fail when Anthropic's facts a
 
 **What the model gate cannot prove.** That a run used the model (`/tasks` shows that); that the account a user gave `/setup` is right; that it finds a spawn phrased with none of its patterns and carrying no marker (the table's site list catches a deleted marker, not a new site nobody listed); anything that overrides what a file requests, such as `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` or an organization's model allowlist; what an alias resolves to on a given day.
 
-`check_install.py` runs `install.sh` into temporary HOMEs (default, `--minimal`, `--hooks`, a re-install, `--dry-run`) and takes every expectation from the installer's own arrays and from what the command files call. It exists because from v1.1 to v2.0.1 seven commands called a run-report helper the installer never copied, while the CI step it replaced compared the installed command count to a typed 15.
+`check_install.py` runs `install.sh` into temporary HOMEs (default, `--minimal`, `--hooks`, a re-install, `--dry-run`) and takes every expectation from the installer's own arrays and from what the command files call. It exists because from v1.1 to v2.0.1 seven commands called a run-report helper the installer never copied, while the CI step it replaced compared the installed command count to a typed 15. From v2.2.0 it also checks the skills (`SKILLS`, full install only) and the `/coa` seat agents (`SEAT_AGENTS`, every install): each one installed where its mode ships it, each skill folder holding only `SKILL.md` and `assets/`, no backup left inside `~/.claude/skills/`, and every skill and seat named in the catalog pages and in the bootstrap installer.
 
 **Your private terms.** List the names that must never reach a public fork (project names, course codes, private folder names) in `~/.claude/toolkit-private-tokens.txt`, one regular expression per line, `#` for comments. `check_toolkit.py` reads it automatically (or from `--tokens FILE` or `$TOOLKIT_PRIVATE_TOKENS`) and refuses any match outside `pcv/`. Keep the file out of the repository: a list of private terms is itself private. With no file, the gate prints `private-token scan: SKIPPED`, so a missing list is never mistaken for a clean scan.
 
@@ -49,11 +49,11 @@ Each gate has a `--self-test`. A self-test that passes proves nothing on its own
 ```bash
 python3 tests/check_toolkit_mutations.py    # every mutant must print CAUGHT; exit 0 = proven
 python3 tests/check_claims_mutations.py     # same contract
-python3 tests/check_install_mutations.py    # same contract (about two minutes: each run installs many times)
+python3 tests/check_install_mutations.py    # same contract (about ten minutes: each mutant re-runs every real install)
 python3 tests/check_models_mutations.py     # same contract
 ```
 
-The usage counter has the same pair in `hooks/` (`usage_counter_selftest.py`, `usage_counter_mutations.py`), its report in `scripts/` (`usage_counts.py --self-test`, `usage_counts_mutations.py`), and so does the run-report helper (`scripts/emit_run_report_selftest.py`, `scripts/emit_run_report_mutations.py`).
+Outside `tests/`, every tool carries the same pair: each hook in `hooks/` (`<hook>_selftest.py`, `<hook>_mutations.py`), each helper and check in `scripts/` (a `--self-test` or a `_selftest.py`, and a `_mutations.py`), and the `/guard-hook` and `/bulletproof` runners in `shared/skills/<skill>/assets/`. CI runs them all by glob, so a new tool with tests runs the day it lands. `scripts/check_coa_evidence_paths.py --self-test` also reads `tests/golden/check_coa_evidence_paths.json`, the verdicts of the Julia original it was ported from.
 
 ## Smoke fixtures
 
@@ -75,7 +75,7 @@ Tests that `/readable` writes a typed `[MATERIAL GAP: ...]` marker for an image-
 Tests `/pace`'s source-data verification. The task brief falsely claims the CSV has 24 rows totaling $4.2M; the CSV has 12 rows totaling $2.1M. At least one player must flag the discrepancy.
 
 ### smoke/runlog_parser.md
-Tests `/runlog`'s CSV parser against a synthetic 8-row fixture (5 valid, 3 legacy or malformed). Portable: it writes its own fixture and needs no project history. Copy the block from the file and run it; expected output `PASS: 5/8 rows valid`.
+Tests `/run-log`'s CSV parser against a synthetic 8-row fixture (5 valid, 3 legacy or malformed). Portable: it writes its own fixture and needs no project history. Copy the block from the file and run it; expected output `PASS: 5/8 rows valid`.
 
 ### smoke/commit_grouping.md
 Tests `/commit`'s logical grouping. 6 files in 3 natural groups → expects 3 separate commits, not 1 (concatenation) or 6 (over-fragmentation).
@@ -95,7 +95,7 @@ A specification, not a script: four inputs (shapes A, B, C, no match) and the ou
 
 ## What is not tested
 
-- `/weeklysummary`, `/quarto` and `/simplify` have no smoke fixtures.
+- `/weekly-summary`, `/quarto` and `/simplify` have no smoke fixtures.
 - No test runs a full session end to end (install → `/setup` → `/startup` → … → `/coa`). `check_install.py` proves the files land and that the installed run-report helper writes its row; it does not prove a command behaves.
 
 ## Adding a fixture
@@ -105,4 +105,4 @@ A specification, not a script: four inputs (shapes A, B, C, no match) and the ou
 3. Add a section to this README.
 4. Point to the fixture from the command file (for example, the end of `audit.md` points to `tests/smoke/audit_smoke.md`).
 
-If the claim can be checked by a script, write a gate instead, give it a `--self-test`, and add a mutation check that proves the self-test can fail.
+If the claim can be checked by a script, write a gate instead, give it a `--self-test`, and add a mutation check that proves the self-test can fail. Before the gate gets an exit code, run it over the whole tree and triage every hit by hand: a detector reports until its first full run has been read, and its false positives are fixed before it can fail a build.

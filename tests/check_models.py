@@ -24,8 +24,9 @@ headless_agent, "claude -p" or "--model".
   M5  table_mismatch     a role or site not in the table; model= not the role's sonnet-ceiling value; a config: key
                          that is not the role's key; a role whose two ceilings differ, marked with a fixed model
   M6  pinned_id          a full model ID (claude-opus-5-5, anthropic.claude-...) in a shipped file, outside the dated
-                         appendix of references/model-roles.md, the DESIGN.md changelogs, pcv/ and mutation files
-  M7  fable              fable as a model value anywhere but references/model-roles.md
+                         appendix of references/model-roles.md, the DESIGN.md changelogs, pcv/, self-test and
+                         mutation files
+  M7  fable              fable as a model value anywhere but references/model-roles.md, self-test and mutation files
   M8  seat_frontmatter   a seat file in coa/agents/ whose name: is not its stem, whose model: is not the reasoner
                          value, or whose tools: lists Agent
   M9  frontmatter_model  model: in a command's or skill's own frontmatter without context: fork
@@ -34,7 +35,7 @@ headless_agent, "claude -p" or "--model".
                          haiku on a role that is not haiku_ok; a table site with no marker; a role with no site
   M12 upstream_drift     a pcv/agents/*.md model: that differs from the table's recorded PCV rows
   M13 block_drift        a generated block that differs from --render; a MODEL FAILURE block that is not byte-identical
-                         to the one in references/model-roles.md; a config: marker without the chair sentence
+                         to the one in references/model-roles.md; a config: marker without its role's config sentence
   M14 script_model       a Python --model default that differs from its # spawn: marker's model
   M15 external_unmarked  mcp__crossmodel__query_model or model: gemini|openai|perplexity outside an external block,
                          in a command, skill or seat file (documents that describe the route are not scanned)
@@ -74,8 +75,13 @@ FABLE = re.compile(r'(?:\bmodel\s*[:=]\s*"?|--model[ =]"?)fable\b', re.I)
 EXTERNAL = re.compile(r'mcp__crossmodel__query_model|\bmodel:\s*"?(?:gemini|openai|perplexity)\b', re.I)
 OLD_WORDING = re.compile(r"\bTask tool\b|best available model", re.I)
 PY_MODEL_DEFAULT = re.compile(r'add_argument\(\s*"--model"[^)]*default\s*=\s*"([^"]+)"')
-CHAIR_SENTENCE = ("pass `model` = the value of `model_chair` in `~/.claude/toolkit-config.md` if it is `sonnet` or "
-                  "`opus`; otherwise pass `sonnet` and print one line.")
+def config_sentence(key: str, low: str, high: str) -> str:
+    """The sentence a config: marker's block must carry, verbatim, so every reader resolves the key the same way."""
+    return (f"pass `model` = the value of `{key}` in `~/.claude/toolkit-config.md` if it is `{low}` or "
+            f"`{high}`; otherwise pass `{low}` and print one line.")
+
+
+CHAIR_SENTENCE = config_sentence("model_chair", "sonnet", "opus")
 FAILURE_BEGIN, FAILURE_END = "<!-- BEGIN MODEL FAILURE -->", "<!-- END MODEL FAILURE -->"
 APPENDIX_HEADING = "## Appendix: what each alias resolved to"
 GENERATED = {"README.md": ["role-table"], "references/model-roles.md": ["role-table", "accounts"],
@@ -306,8 +312,9 @@ def scan(root: Path, release: bool = False, today: datetime.date | None = None):
                     find(rel, start, "M5 table_mismatch", f"{model} is not {role}'s key ({r.get('config_key')})")
                 if want != r["sonnet-ceiling"]:
                     find(rel, start, "M5 table_mismatch", f"floor={want}, the table says {r['sonnet-ceiling']}")
-                if CHAIR_SENTENCE not in body.replace("\n", " ").replace("> ", ""):
-                    find(rel, start, "M13 block_drift", "config: marker without the verbatim chair sentence")
+                sentence = config_sentence(r.get("config_key", "?"), r["sonnet-ceiling"], r["opus-ceiling"])
+                if sentence not in body.replace("\n", " ").replace("> ", ""):
+                    find(rel, start, "M13 block_drift", "config: marker without the verbatim config sentence")
             else:
                 if model != r["sonnet-ceiling"]:
                     find(rel, start, "M5 table_mismatch", f"model={model}, the table says {r['sonnet-ceiling']}")
@@ -414,8 +421,8 @@ def scan(root: Path, release: bool = False, today: datetime.date | None = None):
 
 
 def is_test_fixture(rel: Path) -> bool:
-    """The gate and the mutation files plant bad values on purpose."""
-    return bool(re.search(r"_mutations\.py$", rel.name)) or str(rel) == "tests/check_models.py"
+    """The gate, the self-test files and the mutation files plant bad values on purpose (a refused model, for one)."""
+    return bool(re.search(r"_(?:selftest|mutations)\.py$", rel.name)) or str(rel) == "tests/check_models.py"
 
 
 def exempt_pinned(rel: Path, text: str, n: int, appendix: int) -> bool:
@@ -589,6 +596,18 @@ def self_test() -> int:
     check("a spawning command with no site is exit 2", code == 2)
     code, got = classes(variant([(council, CHAIR_SENTENCE, "pass the configured model.")]))
     check("M13: a config: marker without the chair sentence is caught", code == 1 and got == {"M13"})
+    scan_role = ('"roles": {"transcriber": {"sonnet-ceiling": "haiku", "opus-ceiling": "sonnet", '
+                 '"config_key": "model_transcriber", "haiku_ok": true, "reason": "r", "sites": ["council#scan"]}, ')
+    scan_block = ("<!-- spawn: role=transcriber model=config:model_transcriber floor=haiku site=council#scan -->\n"
+                  "Start the page reader as its own agent with the Agent tool. For its model, {s} "
+                  'The floor is `model: "haiku"`.\n\n' + FAILURE_BEGIN)
+
+    def sentence_findings(sentence):
+        d = variant([(str(TABLE), '"roles": {', scan_role), (council, FAILURE_BEGIN, scan_block.format(s=sentence))])
+        return [x for x in scan(d)[1] if "config sentence" in x[2]]
+    check("M13: a transcriber marker with its own config sentence passes (positive control)",
+          sentence_findings(config_sentence("model_transcriber", "haiku", "sonnet")) == [])
+    check("M13: a transcriber marker carrying the Chair's sentence is caught", len(sentence_findings(CHAIR_SENTENCE)) == 1)
     code, got = classes(variant([("README.md", "| `chair` |", "| `boss` |")]))
     check("M13: a generated README table that differs from --render is caught", code == 1 and got == {"M13"})
     code, got = classes(variant([("references/model-roles.md", "Fable is not used by any role.",
@@ -597,6 +616,11 @@ def self_test() -> int:
           code == 1 and got == {"M6"})
     code, got = classes(variant([("DESIGN.md", "## v1.0 Changelog", "## Notes")]))
     check("M6: a pinned ID outside a DESIGN.md changelog is caught", code == 1 and got == {"M6"})
+    refused = 'assert run(model="fable") == 2 and run(model="claude-opus-5-5") == 2\n'
+    code, got = classes(variant([("scripts/run_selftest.py", None, refused)]))
+    check("a refused fable and a pinned ID in a self-test file are fixtures, not findings", code == 0)
+    code, got = classes(variant([("scripts/helper.py", None, refused)]))
+    check("the same line in a shipped script is caught (M6 and M7)", code == 1 and got == {"M6", "M7"})
     code, got = classes(variant([(council, "## The Chair\n<!--", "## The Chair\n\n<!--")]))
     check("a heading on its own line merges with the block below it", code == 0)
     code, got = classes(variant([(council, '<!-- spawn: none reason="a warning" -->\n',

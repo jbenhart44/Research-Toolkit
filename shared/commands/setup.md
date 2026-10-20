@@ -31,7 +31,7 @@ Ask with the `AskUserQuestion` tool when available (plain questions otherwise). 
 |---|---|---|
 | `project_name` | What is this project called? | detected repo name |
 | `author_name` | Whose name goes on summaries and headers? | `git config user.name` |
-| `workstreams` | Which folders or threads are separate workstreams? (used by `/commit` to stop cross-workstream commits, and by `/startup` and `/weeklysummary` to organise reports) | detected top-level folders |
+| `workstreams` | Which folders or threads are separate workstreams? (used by `/commit` to stop cross-workstream commits, and by `/startup` and `/weekly-summary` to organise reports) | detected top-level folders |
 | `summary_folder` | Where should daily summaries go? | `Daily Summary` |
 | `weekly_folder` | Where should weekly summaries go? | `Weekly Summary` |
 | `evidence_dir` | Where should run evidence (run logs, per-run reports) go? | `.toolkit/evidence` |
@@ -47,7 +47,7 @@ Do not ask for anything else. These optional keys are asked by the command that 
 | `startup_exclude` | `/startup` | workstreams never reported |
 | `backlog_file` | `/startup` | backlog whose deferred items it checks (`none` disables) |
 | `scheduled_jobs` | `/startup` | `name \| cadence \| log path` entries checked for missed runs |
-| `extra_repos` | `/dailysummary` | other repositories this project's sessions commit to |
+| `extra_repos` | `/daily-summary` | other repositories this project's sessions commit to |
 | `commit_mode` | `/commit` | `ask` (default), `auto` or `review` |
 | `shared_code_dirs` | `/simplify` | folders checked for cross-file duplication |
 | `author_affiliation` | `/quarto` | affiliation under the author name, and a branded footer |
@@ -75,6 +75,8 @@ Ask: *"Which Claude account does Claude Code use here? Run `/status` if unsure."
 <!-- END GENERATED: accounts -->
 
 **`model_chair`.** For an opus-ceiling answer only, ask one more question: *"Open `/model`. Is an Opus model listed? (yes/no)"* Yes writes `model_chair: opus`; no writes `model_chair: sonnet`. A sonnet-ceiling answer writes `model_chair: sonnet` without asking. Never write a value above the class default; a user who wants more edits the key. The classes are the toolkit's cost policy, not a claim about which models an account can use (`references/model-roles.md`).
+
+**`model_transcriber`.** No question: a sonnet-ceiling answer writes `model_transcriber: haiku`, and an opus-ceiling answer writes `model_transcriber: sonnet`. On `haiku`, `/readable` and `/acquire` start two page readers and refuse the transcription unless they agree on every number (`check_transcription.py`); a user who wants Sonnet transcription on a smaller plan edits the key.
 
 **Read-only checks.** Never print the value of a variable or a setting.
 1. Run `python3 -c "import os; print([k for k in ('ANTHROPIC_API_KEY', 'CLAUDE_CODE_SUBAGENT_MODEL', 'CLAUDE_CODE_SUBAGENT_MODEL_FORCE') if os.environ.get(k)])"`. It prints the names that are set, never their values.
@@ -123,6 +125,7 @@ project_type: <research|teaching>
 claude_account: <one of the nine answers in STEP 1b>
 claude_account_set: <YYYY-MM-DD>
 model_chair: <sonnet|opus>
+model_transcriber: <haiku|sonnet>
 ```
 
 Create `summary_folder`, `weekly_folder` and `evidence_dir` inside the project if they do not exist, and say so.

@@ -9,7 +9,7 @@
     "sonnet-ceiling": ["pro", "team-standard", "unknown"],
     "opus-ceiling": ["max5x", "max20x", "team-premium", "enterprise", "api", "cloud"]
   },
-  "spawning_commands": ["coa", "pace", "review", "dailysummary", "weeklysummary", "readable"],
+  "spawning_commands": ["coa", "pace", "review", "daily-summary", "weekly-summary", "readable", "acquire"],
   "roles": {
     "reasoner": {
       "sonnet-ceiling": "sonnet",
@@ -17,7 +17,7 @@
       "haiku_ok": false,
       "reason": "Council seats, PACE players and coaches, review lenses and cross-checks. Anthropic's cost guidance says to use Sonnet for teammates.",
       "facts": ["F3.27", "F5.2"],
-      "sites": ["coa#members", "coa#cross-check", "coa#rebuttal", "pace#player-a", "pace#player-b", "pace#coach-c", "pace#coach-d", "pace#cross-reviewer", "pace#revision-reviewer", "review#lenses"]
+      "sites": ["coa#members", "coa#cross-check", "coa#rebuttal", "pace#player-a", "pace#player-b", "pace#coach-c", "pace#coach-d", "pace#cross-reviewer", "pace#revision-reviewer", "review#lenses", "quick-ten#council", "meeting-breakdown#player-a", "meeting-breakdown#player-b", "meeting-breakdown#coach-c", "meeting-breakdown#coach-d", "meeting-breakdown#cross-reviewer"]
     },
     "chair": {
       "sonnet-ceiling": "sonnet",
@@ -34,15 +34,16 @@
       "haiku_ok": false,
       "reason": "Daily and weekly summaries. Never Haiku: smaller models have been observed to produce inaccurate numerical figures in these summaries.",
       "facts": ["F5.2"],
-      "sites": ["dailysummary#writer", "weeklysummary#writer"]
+      "sites": ["daily-summary#writer", "weekly-summary#writer"]
     },
     "transcriber": {
-      "sonnet-ceiling": "sonnet",
+      "sonnet-ceiling": "haiku",
       "opus-ceiling": "sonnet",
-      "haiku_ok": false,
-      "reason": "Reads rendered pages of image-only PDFs into text. A misread digit becomes a false citation check in /audit, and no tested verifier checks a Haiku transcription yet.",
+      "config_key": "model_transcriber",
+      "haiku_ok": true,
+      "reason": "Reads rendered pages of image-only PDFs into text, extraction being one of Haiku's listed uses. On smaller plans two Haiku readers transcribe independently and scripts/check_transcription.py refuses the result unless they agree on every number, because a misread digit becomes a false citation check in /audit. Larger plans use one Sonnet reader and the same checker.",
       "facts": ["F5.2"],
-      "sites": ["readable#transcriber"]
+      "sites": ["readable#transcriber", "acquire#transcriber"]
     }
   },
   "pcv_upstream": {

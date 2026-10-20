@@ -7,7 +7,7 @@ description: Session startup — reads recent daily summaries, derives the activ
 
 > **When to use**: At the start of every work session. Reads your recent daily summaries and orients you on all active workstreams — what's done, what's next.
 >
-> **Prerequisite**: Requires daily summaries written by `/dailysummary`. If your summary folder is empty or missing, `/startup` falls back to `git log --oneline -10` and open file context — useful orientation, but not the full workstream picture. Build the habit of running `/dailysummary` at the end of each session first.
+> **Prerequisite**: Requires daily summaries written by `/daily-summary`. If your summary folder is empty or missing, `/startup` falls back to `git log --oneline -10` and open file context — useful orientation, but not the full workstream picture. Build the habit of running `/daily-summary` at the end of each session first.
 >
 > **Usage**: `/startup` reports every active workstream. `/startup <keyword>` reports one workstream in depth and the rest in one line each.
 
@@ -126,7 +126,7 @@ For each workstream, extract:
 
 A workstream with nothing open gets one line or is omitted.
 
-**Work with no summary behind it.** The newest summary is not reliably the newest work. For each active workstream, compare its newest summary date with its newest commit date: `git log -1 --date=short --format=%cd -- "<dir>"`. If the commit is newer, label the workstream **UNDOCUMENTED**, name the gap (dates and commit count), and offer to write the missing summary with `/dailysummary`. Undocumented output ranks high because the record is what makes a claim checkable later.
+**Work with no summary behind it.** The newest summary is not reliably the newest work. For each active workstream, compare its newest summary date with its newest commit date: `git log -1 --date=short --format=%cd -- "<dir>"`. If the commit is newer, label the workstream **UNDOCUMENTED**, name the gap (dates and commit count), and offer to write the missing summary with `/daily-summary`. Undocumented output ranks high because the record is what makes a claim checkable later.
 
 **No summaries at all.** Derive workstreams from `git log` commit messages and the top-level directories they touch, and head the briefing with `Derived from git history only — no daily summaries found.`
 
@@ -241,7 +241,7 @@ If any optional key was missing, or a workstream was found that is not in `works
 
 ## Step 6: Emit run_report (instrumentation)
 
-After presenting the briefing, emit a structured run_report for observability via `/runlog`:
+After presenting the briefing, emit a structured run_report for observability via `/run-log`:
 
 ```bash
 python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \
@@ -256,6 +256,6 @@ python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \
 
 One-line call via the helper. Skip silently if the helper is unavailable — the user's briefing output must NEVER be blocked by instrumentation.
 
-> **What next?** Plan to run `/dailysummary` at the end of this session — that's what makes the next `/startup` useful. Without a closing summary, today's work won't appear in tomorrow's briefing.
+> **What next?** Plan to run `/daily-summary` at the end of this session — that's what makes the next `/startup` useful. Without a closing summary, today's work won't appear in tomorrow's briefing.
 
 $ARGUMENTS

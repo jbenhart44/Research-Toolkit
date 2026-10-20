@@ -1,7 +1,8 @@
 # Which model each toolkit agent requests, and why
 
 Several toolkit commands start subagents: `/coa` seats and its Chair, `/pace` players and coaches, `/review` lenses,
-the `/dailysummary` and `/weeklysummary` writers, and the `/readable` transcriber. Each one now names the model it
+the `/daily-summary` and `/weekly-summary` writers, the `/readable` and `/acquire` transcribers, and the
+`/meeting-breakdown` agents. Each one now names the model it
 requests instead of inheriting whatever model your session runs. This page says which model each kind of agent
 requests on which kind of account, and why.
 
@@ -16,10 +17,10 @@ models, plans and limits; the toolkit re-reads these pages before each release.
 <!-- BEGIN GENERATED: role-table -->
 | Role | Where it runs | `pro`, `team-standard`, `unknown` | `max5x`, `max20x`, `team-premium`, `enterprise`, `api`, `cloud` |
 |---|---|---|---|
-| `reasoner` | /coa: members, cross-check, rebuttal · /pace: player-a, player-b, coach-c, coach-d, cross-reviewer, revision-reviewer · /review: lenses | sonnet | sonnet |
+| `reasoner` | /coa: members, cross-check, rebuttal · /pace: player-a, player-b, coach-c, coach-d, cross-reviewer, revision-reviewer · /review: lenses · /quick-ten: council · /meeting-breakdown: player-a, player-b, coach-c, coach-d, cross-reviewer | sonnet | sonnet |
 | `chair` | /coa: chair | sonnet | opus (`model_chair`) |
-| `writer` | /dailysummary: writer · /weeklysummary: writer | sonnet | sonnet |
-| `transcriber` | /readable: transcriber | sonnet | sonnet |
+| `writer` | /daily-summary: writer · /weekly-summary: writer | sonnet | sonnet |
+| `transcriber` | /readable: transcriber · /acquire: transcriber | haiku | sonnet (`model_transcriber`) |
 <!-- END GENERATED: role-table -->
 
 `/setup` asks which account Claude Code uses and stores it as `claude_account` in `~/.claude/toolkit-config.md`:
@@ -74,10 +75,19 @@ missing, the Chair requests sonnet.
 to produce inaccurate numerical figures, wrong file orderings and incorrect parameter values when summarizing technical
 sessions.
 
-**`transcriber` → sonnet.** Extraction is one of Haiku's listed uses ("For high-volume, latency-sensitive tasks such as
-classification, extraction, and routing", https://platform.claude.com/docs/en/models/overview), but a misread digit in
-a transcribed page becomes a false result in `/audit`, and no tested verifier checks a Haiku transcription yet. It
-fails the Haiku admission test below.
+**`transcriber` → haiku on sonnet-ceiling accounts, sonnet on opus-ceiling accounts (`model_transcriber`).**
+Extraction is one of Haiku's listed uses ("For high-volume, latency-sensitive tasks such as classification, extraction,
+and routing", https://platform.claude.com/docs/en/models/overview). The risk is a misread digit, which becomes a false
+result in `/audit`. So on Haiku two readers transcribe the same pages independently, and
+`scripts/check_transcription.py` refuses the transcription unless they agree on every number, page by page, along with
+six checks on the text itself (page markers, page length, refusal text, vocabulary, expected names, extracted words). On
+Sonnet one reader runs and the same six checks apply. When `model_transcriber` is missing, the transcriber requests
+haiku, the sonnet-ceiling value, like every other role.
+
+Against the admission test below, the Haiku transcriber meets 1 to 3: a script checks its output before anything is
+installed, a number reaches a document only when two readers agree on it, and it is not a summary, a review or a
+synthesis. **It does not yet meet 4**: no logged Haiku transcription run exists. Running it on smaller plans is the
+author's decision of 2026-10-20, made with that gap stated; the first logged runs are the evidence that closes it.
 
 ## The Haiku admission test
 
@@ -88,7 +98,8 @@ A role runs on Haiku only if all four hold:
 3. it is not a summary, a review or a synthesis;
 4. a logged Haiku run of that kind exists without a stall.
 
-No role in v2.1.0 passes, so no role requests Haiku. Anthropic's advice "For simple subagent tasks, specify model: haiku"
+No role in v2.1.0 passed, so no role requested Haiku. From v2.2.0 the transcriber requests Haiku on smaller plans with
+criterion 4 still open, as stated above; no other role requests it. Anthropic's advice "For simple subagent tasks, specify model: haiku"
 (https://code.claude.com/docs/en/costs) is the reason the test exists; the test is the toolkit's reading of "simple".
 Counting and extraction that a script can do are moved into Python instead.
 

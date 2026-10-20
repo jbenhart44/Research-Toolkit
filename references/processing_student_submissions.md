@@ -13,7 +13,7 @@ The need this reference serves: a feedback loop from student work to grading and
 We considered building a `/feedback` or `/grading-rubric` command for v1.1 and rejected both. Reasons documented in `DESIGN.md`:
 
 1. **No premature implementation.** No instructor has run this loop end-to-end in a classroom yet. Building it speculatively would produce a command whose prompts don't match actual classroom needs.
-2. **Existing commands already do this.** `/pace` + `/audit` + `/dailysummary` already cover citation-checking, multi-agent review, and submission-tracking. A new command would duplicate capability.
+2. **Existing commands already do this.** `/pace` + `/audit` + `/daily-summary` already cover citation-checking, multi-agent review, and submission-tracking. A new command would duplicate capability.
 3. **Course workflow ≠ student command.** What Kay needs is HIS grading workflow. That's an instructor-side recipe, not something every student runs.
 
 Instead: this JIT reference file documents the recipe. Adapt it to your course.
@@ -73,10 +73,10 @@ cd submissions/fall-2026-week-3/alice
 
 ### Step 6 — Track the loop
 
-Use `/dailysummary` to capture your grading session:
+Use `/daily-summary` to capture your grading session:
 
 ```
-/dailysummary "Graded fall-2026-week-3 batch. N submissions. Common theme: [...]. N fabricated citations flagged."
+/daily-summary "Graded fall-2026-week-3 batch. N submissions. Common theme: [...]. N fabricated citations flagged."
 ```
 
 This creates a dated file you can reference in the next week's planning.
@@ -105,7 +105,7 @@ If you run this recipe for a full semester and notice:
 
 - The same `/pace` prompt, verbatim, three weeks in a row → it's a pattern worth canonicalizing
 - A specific batching strategy works for you that the recipe doesn't capture → it's an instructor-specific hook, not a command
-- A new verification gap that none of `/pace`, `/audit`, or `/dailysummary` covers → that's a v2.0 `/feedback` command candidate
+- A new verification gap that none of `/pace`, `/audit`, or `/daily-summary` covers → that's a v2.0 `/feedback` command candidate
 
 Until one of those three happens, this stays a reference, not a command.
 
@@ -124,4 +124,4 @@ Report usage back to the toolkit maintainer. Classroom evidence is what moves th
 
 ## Verification
 
-This reference is itself reproducible: re-run the recipe in Steps 1-6 on the same submission batch, and you get the same clusters and the same flag counts. The recipe is not an opaque black box; it is transparent chain of `/audit` + `/pace` + `/dailysummary` invocations against deterministic inputs.
+This reference is itself reproducible: re-run the recipe in Steps 1-6 on the same submission batch, and you get the same clusters and the same flag counts. The recipe is not an opaque black box; it is transparent chain of `/audit` + `/pace` + `/daily-summary` invocations against deterministic inputs.

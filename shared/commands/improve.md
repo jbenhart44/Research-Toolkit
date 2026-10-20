@@ -506,7 +506,7 @@ Most recent: [date]
 
 ## TOOLS EVIDENCE MODE
 
-When invoked with `/improve --tools`. This mode looks for things to fix in the toolkit's own commands. For a plain longitudinal table of runs and recurring improvement signals, use `/runlog`.
+When invoked with `/improve --tools`. This mode looks for things to fix in the toolkit's own commands. For a plain longitudinal table of runs and recurring improvement signals, use `/run-log`.
 
 1. **Read** `$EVIDENCE_DIR/run_log.csv`. If it does not exist, report "No runs logged yet — run at least one instrumented command first" and **STOP**.
 2. **Parse it with Python's `csv` module** (`python3`), not by splitting on commas: the `task_summary` and `notes` cells are quoted and can contain commas. The current schema is `run_id,tool,tool_version,date,task_summary,outcome,model,agent_count,convergence_rate,agree_count,diverge_count,report_path,notes`; older rows may be shorter or column-shifted. Skip rows that do not parse and count them.
@@ -563,7 +563,7 @@ Improvement candidates:
 
 ## Instrumentation (v1.1 — one-line emit at end of run)
 
-After writing the improve report (or the `--tools` report, with `SCOPE_MODE=tools`), emit a structured run_report for observability via `/runlog`:
+After writing the improve report (or the `--tools` report, with `SCOPE_MODE=tools`), emit a structured run_report for observability via `/run-log`:
 
 ```bash
 python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \

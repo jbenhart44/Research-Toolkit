@@ -61,7 +61,7 @@ That's it. Your first evidence record exists. Every future PACE and CoA run adds
 ## Recommended Adoption Order
 
 1. **Start with /pace** — lowest barrier, highest immediate value (error catching)
-2. **Add /dailysummary + /startup** — session continuity (prevents "where was I?" syndrome)
+2. **Add /daily-summary + /startup** — session continuity (prevents "where was I?" syndrome)
 3. **Add /coa** for strategic decisions — when you face a choice with multiple valid perspectives
 4. **Add /pcv** for structured planning on complex multi-component projects
 

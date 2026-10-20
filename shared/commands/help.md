@@ -5,7 +5,7 @@ description: Socratic triage — ask 0-1 clarifying questions, then recommend 1-
 
 # /help — Socratic Triage for the Research Amp Toolkit
 
-> **When to use**: You're stuck and not sure which of the toolkit's 16 commands fits your situation. Describe it in one line; /help asks a clarifying question if needed and points you to the right command(s). For the paradox-of-choice problem at 11pm on a Pro plan.
+> **When to use**: You're stuck and not sure which of the toolkit's 24 commands fits your situation. Describe it in one line; /help asks a clarifying question if needed and points you to the right command(s). For the paradox-of-choice problem at 11pm on a Pro plan.
 
 A triage tool. `/help` recommends commands — it does NOT execute them. The student runs the recommended command themselves. This preserves the "you think, tools amplify" contract of the Research Amp Toolkit.
 
@@ -35,7 +35,7 @@ A triage tool. `/help` recommends commands — it does NOT execute them. The stu
 
 **Shape B**: exactly ONE question. The test: *if the answer doesn't change which command I recommend, don't ask it.* Bad: "tell me more." Good: "are you WRITING the paper, or READING it to cite from?"
 
-**Shape C**: offer a 4-option scaffold menu (Hick's Law: 4 options = log2(4) = 2 bits against log2(16) = 4 bits for the full 16-command list, so half the decision load; it also fits within the Miller-under-stress ceiling of 5 chunks).
+**Shape C**: offer a 4-option scaffold menu (Hick's Law: 4 options = log2(4) = 2 bits against log2(24) ≈ 4.6 bits for the full 24-command list, so less than half the decision load; it also fits within the Miller-under-stress ceiling of 5 chunks).
 
 ```
 What are you trying to do? Pick the closest:
@@ -105,7 +105,7 @@ Do NOT offer to run the recommended command.
 
 ## Command Inventory
 
-**Inventory sync contract**: Canonical inventory is the contents of `shared/commands/*.md` (15 files) plus `/pcv`, which installs as a skill from `pcv/skill/` and is invoked via the skills registry. Any PR adding/renaming a command must update this block AND the command file's frontmatter; `tests/check_claims.py` catches a count that drifts.
+**Inventory sync contract**: Canonical inventory is the contents of `shared/commands/*.md` (16 files), the skills in `shared/skills/`, and `/pcv`, which installs as a skill from `pcv/skill/` and is invoked via the skills registry. Any PR adding/renaming a command must update this block AND the command file's frontmatter; `tests/check_claims.py` catches a count that drifts.
 
 **Before anything else**: if `~/.claude/toolkit-config.md` does not exist, recommend `/setup` first. The other commands read their folders and workstreams from it.
 
@@ -113,19 +113,25 @@ Grouped by problem-shape:
 
 **Verification** (check if something is right):
 - `/audit` — citations and numerical values against source papers (4 smoke fixture: `audit_smoke.md`)
+- `/acquire` — get a paper on file before citing it: download, refuse the wrong document, extract, grep-check the claimed figures
 - `/pace` — two-player consensus on a decision with a single right answer (smoke: `pace_source_verification.md`)
 - `/coa` — panel of experts with different lenses on a decision with multiple valid framings
 - `/pcv` — structured plan-construct-verify for a multi-step task *(invoked via skills registry, NOT `shared/commands/pcv.md`)*
 - `/improve` — audit of my Claude Code infrastructure itself
 - `/simplify` — reduce redundancy in code or documents
+- `/bulletproof` — put tests behind new functionality and prove they can fail, by planting the defect each one exists to catch *(a skill, full install only)*
+- `/guard-hook` — build a hook that blocks or warns, with a self-test proven to fail against a neutered copy; or audit the hooks already installed *(a skill, full install only)*
 
 **Workflow** (project state / continuity):
 - `/setup` — first run: answer a few questions about your workspace; writes the config the other commands read
 - `/startup` — where did I leave off across workstreams?
-- `/dailysummary` — capture today's work
-- `/weeklysummary` — roll up the week by workstream
+- `/daily-summary` — capture today's work
+- `/weekly-summary` — roll up the week by workstream
 - `/commit` — make git history from uncommitted changes (smoke: `commit_grouping.md`)
-- `/runlog` — longitudinal view of how my toolkit has been performing (smoke: `runlog_parser.md`)
+- `/run-log` — longitudinal view of how my toolkit has been performing (smoke: `runlog_parser.md`)
+- `/meeting-breakdown` — turn a meeting transcript into a plan per domain, with the decisions and deferrals in each *(a skill, full install only)*
+- `/list-maker` — turn a transcript into a numbered work list whose numbers never change *(a skill, full install only)*
+- `/step-by-step` — walk what a session changed one item at a time, or work a `/list-maker` list one item per turn *(a skill, full install only)*
 
 **Content** (produce something):
 - `/quarto` — slide deck from notes
@@ -134,6 +140,8 @@ Grouped by problem-shape:
 
 **Triage**:
 - `/help` — this command
+- `/quick-ten` — before a substantial build: the few questions (at most ten) whose answers change what gets built, then a short brief the build follows *(a skill, full install only)*
+- `/automate` — after a task you will repeat: turn it into a skill with a tested script and a proven reproduction *(a skill, full install only)*
 
 **Not a toolkit command, but a common ask**: alt text for the images in a PowerPoint deck is the separate `captioner` tool (https://github.com/jbenhart44/captioner). Point to it; do not recommend a toolkit command for it.
 
@@ -205,8 +213,8 @@ student: 3
 Primary: /startup — shows where every workstream left off, with recommended next action.
 Run: /startup
 
-Alt: /dailysummary if you want to close out today's work instead of resume prior work.
-Run: /dailysummary
+Alt: /daily-summary if you want to close out today's work instead of resume prior work.
+Run: /daily-summary
 ```
 
 ### Example 5 — No match (2 chunks, does NOT leak project-specific paths)

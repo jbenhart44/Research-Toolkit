@@ -1,128 +1,105 @@
 # Hooks — Optional Automation Layer
 
-These hooks extend the toolkit with automated safety, hygiene and measurement. **All hooks are optional** — every command works without them.
+These hooks add measurement, warnings and one guard. **All are optional**: every command works without them, and the
+installer copies them without turning any of them on.
 
-## Available Hooks
+## Available hooks
 
-| Hook | Type | Purpose | Blocking? |
-|------|------|---------|-----------|
-| `usage_counter.sh` (+ `usage_counter.py`) | PostToolUse (Skill) and UserPromptSubmit | Records one row per command use; `python3 scripts/usage_counts.py` reports the counts | Silent (appends a CSV row; never blocks or prints) |
-| `token_budget_guard.sh` | PreToolUse | Warns when session token usage approaches a configurable limit | Soft (ask) |
-| `summary_folder_guard.sh` | PostToolUse | Warns when date-prefixed files are written outside configured summary folders | Soft (info) |
+Each hook is a `.sh` launcher (the shell only starts Python) and a `.py` that decides, parsing the payload as real
+JSON. Each has a `<hook>_selftest.py` and a `<hook>_mutations.py` beside it, and states in its docstring what it
+cannot see.
 
-`command_evidence.sh`, an empty placeholder since it was added, was removed in v2.0. What it was named for is done by the usage counter (what ran) and `scripts/emit_run_report.py` (how each run went).
+| Hook | Event (matcher) | What it does | Posture | Reads from your config |
+|---|---|---|---|---|
+| `usage_counter` | UserPromptSubmit; PostToolUse (Skill) | records one row per command use; `python3 scripts/usage_counts.py` reports the counts | silent | `evidence_dir` |
+| `token_budget_guard` | PreToolUse (Agent) | keeps an estimated token total per session and asks before an agent call once it passes your limit | asks | `~/.claude/token-budget.json`: `session_limit` |
+| `summary_folder_guard` | PostToolUse (Write) | notes a dated `.md` written outside your summary folders | notes | `summary_folder`, `weekly_folder` |
+| `protect_files` | PreToolUse (Edit\|Write\|MultiEdit\|NotebookEdit\|Bash) | blocks a write to a protected file or folder; reading stays allowed | blocks, if set | `protected_files: [...]` |
 
-The usage counter is tested: `python3 hooks/usage_counter_selftest.py` checks it, and `python3 hooks/usage_counter_mutations.py` proves the self-test catches nine ways it could miscount or break a session, two of them in the `usage_counter.sh` launcher.
+`_toolkit_config.py` is not a hook: it is the reader the hooks share for `~/.claude/toolkit-config.md`, with its own
+self-test and mutation check. It decides how a path entry matches: as whole names, ignoring case, with `~/` for your
+home folder and a trailing `/` for a folder and everything under it.
+
+**`protect_files` holds no list of its own.** With no config it allows everything. Turn it on by naming what it
+protects:
+
+```
+## Hooks (in ~/.claude/toolkit-config.md)
+protected_files: [paper/main.tex, docs/from-advisor/]
+```
 
 ## Installation
 
-### 1. Copy hooks to your Claude Code config
+### 1. Copy them
 
-`bash install.sh --hooks` copies every runtime `hooks/*.sh` and `hooks/*.py` file to `~/.claude/hooks/` and marks the scripts executable. The self-tests and mutation checks (`*_selftest.py`, `*_mutations.py`) stay in the clone. By hand:
+`bash install.sh --hooks` copies every hook in `OPTIONAL_HOOKS` (both files) and `_toolkit_config.py` to
+`~/.claude/hooks/`. Self-tests and mutation checks stay in the clone. The hooks need `python3`; with none on `PATH`
+each launcher exits 0 and prints nothing.
+
+### 2. Register the ones you want
+
+The installer **never edits a settings file**. Print the entries and paste them yourself:
 
 ```bash
-mkdir -p ~/.claude/hooks
-cp hooks/*.sh hooks/*.py ~/.claude/hooks/
-chmod +x ~/.claude/hooks/*.sh
+python3 scripts/register_hooks.py --list                       # every hook, its event and what it does
+python3 scripts/register_hooks.py protect_files usage_counter  # the "hooks" block for those
+python3 scripts/register_hooks.py --all
 ```
 
-The usage counter needs `python3`.
+Paste the block into `.claude/settings.json` (one project) or `~/.claude/settings.json` (every project), merging it
+with any `"hooks"` you already have. Every entry is **unconditional**: no `if:` condition. An `if:` pattern matches by
+prefix, so a chained command (`cd paper && cat > main.tex`) would never reach a guard behind `if: Bash(cat *)`. The
+hooks filter inside themselves.
 
-### 2. Register hooks in `.claude/settings.json`
+### 3. Test one live call
 
-Add to your project's `.claude/settings.json` (or create one). Register the usage counter on both events, so typed commands and commands Claude runs are both counted:
+A hook added in the middle of a session has been seen both to fire at once and not to fire until the next session.
+Before you rely on `protect_files`, make one write it should refuse (to a scratch file you listed) and see the
+refusal.
 
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/usage_counter.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Agent",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/token_budget_guard.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/summary_folder_guard.sh",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Skill",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/usage_counter.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ]
-  }
-}
-```
+### Where the usage log goes
 
-### 3. Where the usage log goes
-
-`<evidence_dir>/usage_events.csv`, with `evidence_dir` read from `~/.claude/toolkit-config.md` (set by `/setup`; default `.toolkit/evidence` in the project). Set `USAGE_EVENTS_CSV` to override. Counts:
+`<evidence_dir>/usage_events.csv`, with `evidence_dir` read from `~/.claude/toolkit-config.md` (set by `/setup`;
+default `.toolkit/evidence` in the project). Set `USAGE_EVENTS_CSV` to override. A typed `/x` that Claude then runs
+through the Skill tool counts once, not twice. Typed built-ins such as `/clear` are not counted.
 
 ```bash
 python3 scripts/usage_counts.py                 # per-command counts, first and last use
 python3 scripts/usage_counts.py --tools coa,pace
 ```
 
-A typed `/x` that Claude then runs through the Skill tool counts once, not twice. Typed built-ins such as `/clear` are not counted.
-
-### 4. Configure token budget (optional)
-
-Create `~/.claude/token-budget.json`:
-
-```json
-{
-  "session_limit": 500000
-}
-```
-
-Default is 500K tokens per session (~1 PACE run + 1 CoA session). Adjust based on your API plan.
-
 ---
 
-## Design Principles
+## What the hooks cannot see
 
-- **Soft warnings, not hard blocks.** Hooks inform; you decide.
-- **Fast execution (<100ms).** No `jq` dependency.
-- **Never break a session.** A hook that fails exits 0 and stays silent rather than interrupting your work.
-- **Zero config required.** Sensible defaults work out of the box. Config files are optional overrides.
+- **Anything inside a script they do not open.** `bash build.sh` is one command to them; what the script writes is
+  not.
+- **A path built at run time.** `cp x "$TARGET"` names no protected path in its text.
+- **Other tools.** `protect_files` reads the Bash tool's `command`. On Windows, Claude Code's PowerShell tool also runs
+  shell commands, and the hook is not registered for it.
+- **Prose that only quotes a command.** The guard tests command text, so a commit message or a heredoc that merely
+  quotes a write to a protected file is refused. The refusal names the way round it (the Write tool, splitting the
+  call, or `git commit -F <file>`).
+
+## Design principles
+
+- **Copied, never registered.** Which guards run in your sessions is your decision.
+- **No list ships inside a guard.** A guard that blocks reads what it protects from your config, so it protects your
+  files and nobody else's.
+- **Never break a session.** A hook that cannot parse its payload, or fails in any way, exits 0 and stays silent; a
+  guard whose audit log cannot be written still blocks.
+- **Bash launches, Python decides.** A shell parser that read the payload with `grep -o` stopped at the first quote
+  inside the JSON value, which is how real hooks have let through the very commands they existed to stop.
+- **Every guard has been made to fail.** Each `<hook>_mutations.py` plants the defects its hook could have and
+  requires the self-test to catch every one.
 
 ## Troubleshooting
 
-**Hook not firing?** Check:
-- `chmod +x` on the hook script
-- Path in `settings.json` matches actual file location
-- `timeout` is set (recommended: 5 seconds)
+**Hook not firing?** Check the launcher is executable (`chmod +x ~/.claude/hooks/*.sh`), the path in `settings.json`
+matches the file, the entry has no `if:` condition, and `timeout` is set (5 seconds is plenty).
 
-**Hook too noisy?** Increase `session_limit` in `token-budget.json`. Default 500K is conservative.
+**Token warning too early?** Raise `session_limit` in `~/.claude/token-budget.json` (default 500000). The figure is
+an estimate of agent prompts, not a measurement of usage.
 
-**Slow filesystem (WSL2, network or cloud-synced folders)?** The token and folder hooks use `/tmp/` for their state to avoid that latency.
+**State files.** `token_budget_guard` keeps a small state file in `~/.claude/toolkit/state/`. Deleting it resets the
+session total.

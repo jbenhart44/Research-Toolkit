@@ -12,7 +12,7 @@ project_name: My Research Project
 author_name: Your Name
 
 ## Workstreams
-# List the major threads of your research. /startup and /weeklysummary
+# List the major threads of your research. /startup and /weekly-summary
 # use these to organize status reports.
 workstreams: [modeling, writing, experiments]
 
@@ -22,7 +22,7 @@ summary_folder: Daily Summary
 # Where weekly summaries are stored (relative to project root)
 weekly_folder: Weekly Summary
 # Where toolkit run-evidence (run_log.csv, per-run reports) is written.
-# Used by /runlog, /audit, /pace, /coa, /pcv-research, /commit, /dailysummary,
+# Used by /run-log, /audit, /pace, /coa, /pcv-research, /commit, /daily-summary,
 # /improve, /startup, /help. Default is project-local; override to centralize
 # evidence across multiple projects.
 evidence_dir: .toolkit/evidence
@@ -40,12 +40,20 @@ claude_account_set:
 # The model the /coa Chair requests: sonnet or opus. /setup writes opus only for an
 # opus-ceiling account whose /model lists Opus. Missing or anything else: sonnet.
 model_chair: sonnet
+# The model that transcribes a scanned PDF's pages (/readable, /acquire): haiku or sonnet.
+# /setup writes haiku for pro, team-standard and unknown, sonnet for every larger account.
+# On haiku, two readers transcribe and must agree on every number. Missing or anything else: haiku.
+model_transcriber: haiku
+
+## Hooks (read only by the optional hooks you register; see hooks/README.md)
+# The guard below protects nothing until you uncomment its line and name what it protects.
+# protected_files: [paper/main.tex]       # protect_files: files, and folders/, that may not be written
 
 ## Optional (each command asks once, the first time it needs one, and offers to save it here)
 # startup_exclude: [old-project]          # /startup: workstreams never reported
 # backlog_file: plans/BACKLOG.md          # /startup: backlog whose deferred items it checks; none disables
 # scheduled_jobs: [nightly | daily | logs/nightly.log]   # /startup: job | cadence | log path, checked for missed runs
-# extra_repos: [../paper-overleaf]        # /dailysummary: other repos this project's sessions commit to
+# extra_repos: [../paper-overleaf]        # /daily-summary: other repos this project's sessions commit to
 # commit_mode: ask                        # /commit: ask (default) | auto | review
 # shared_code_dirs: [src/utils]           # /simplify: folders checked for cross-file duplication
 # author_affiliation: Your Department     # /quarto: affiliation under the author, and a branded footer
