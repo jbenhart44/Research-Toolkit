@@ -15,6 +15,9 @@ tests/
 ├── check_claims_mutations.py   proves check_claims.py can fail
 ├── check_install.py            release gate: a real install in every mode gives a user every file the commands call
 ├── check_install_mutations.py  proves check_install.py can fail
+├── check_models.py             release gate: every place a command starts an agent names the role table's model
+├── check_models_mutations.py   proves check_models.py can fail
+├── model_gate_triage.md        the model gate's Prior and the hand triage of its first run
 └── smoke/                      hand-run fixtures (below)
 ```
 
@@ -27,18 +30,27 @@ python3 tests/check_claims.py               # exit 0 = every page agrees with in
 python3 tests/check_claims.py path/to/page.html          # also check a page outside the tree
 python3 tests/check_install.py              # exit 0 = every install mode gives every file the commands call
 python3 tests/check_install.py --previous ../clone-at-previous-tag   # also upgrade from an older checkout (by hand at each release)
+python3 tests/check_models.py               # exit 0 = every agent a command starts names its model; 2 = cannot judge
+python3 tests/check_models.py --report      # every block the gate reads, its marker, and whether it names a model
+python3 tests/check_models.py --render      # the tables generated from shared/model-roles.json
+python3 tests/check_models.py --release     # also fail when Anthropic's facts are more than 60 days old
 ```
+
+`check_models.py` reads `shared/model-roles.json` and every command, skill and seat file. A place that starts an agent carries a marker on the first line of its block, such as `<!-- spawn: role=reasoner model=sonnet site=pace#coach-c -->`, and the same model as a literal on the call, `model: "sonnet"`. Its classes, M1 to M16, are listed in its docstring. Before its exit code was trusted, its first run was triaged by hand against a Prior written beforehand: `tests/model_gate_triage.md`.
+
+**What the model gate cannot prove.** That a run used the model (`/tasks` shows that); that the account a user gave `/setup` is right; that it finds a spawn phrased with none of its patterns and carrying no marker (the table's site list catches a deleted marker, not a new site nobody listed); anything that overrides what a file requests, such as `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` or an organization's model allowlist; what an alias resolves to on a given day.
 
 `check_install.py` runs `install.sh` into temporary HOMEs (default, `--minimal`, `--hooks`, a re-install, `--dry-run`) and takes every expectation from the installer's own arrays and from what the command files call. It exists because from v1.1 to v2.0.1 seven commands called a run-report helper the installer never copied, while the CI step it replaced compared the installed command count to a typed 15.
 
 **Your private terms.** List the names that must never reach a public fork (project names, course codes, private folder names) in `~/.claude/toolkit-private-tokens.txt`, one regular expression per line, `#` for comments. `check_toolkit.py` reads it automatically (or from `--tokens FILE` or `$TOOLKIT_PRIVATE_TOKENS`) and refuses any match outside `pcv/`. Keep the file out of the repository: a list of private terms is itself private. With no file, the gate prints `private-token scan: SKIPPED`, so a missing list is never mistaken for a clean scan.
 
-All three have a `--self-test`. A self-test that passes proves nothing on its own, so each gate also has a mutation check: it writes a copy of the gate with one defect planted, runs the copy's self-test, and requires the named case to go red. A mutant that still passes means a check is vacuous.
+Each gate has a `--self-test`. A self-test that passes proves nothing on its own, so each gate also has a mutation check: it writes a copy of the gate with one defect planted, runs the copy's self-test, and requires the named case to go red. A mutant that still passes means a check is vacuous.
 
 ```bash
 python3 tests/check_toolkit_mutations.py    # every mutant must print CAUGHT; exit 0 = proven
 python3 tests/check_claims_mutations.py     # same contract
 python3 tests/check_install_mutations.py    # same contract (about two minutes: each run installs many times)
+python3 tests/check_models_mutations.py     # same contract
 ```
 
 The usage counter has the same pair in `hooks/` (`usage_counter_selftest.py`, `usage_counter_mutations.py`), its report in `scripts/` (`usage_counts.py --self-test`, `usage_counts_mutations.py`), and so does the run-report helper (`scripts/emit_run_report_selftest.py`, `scripts/emit_run_report_mutations.py`).
@@ -67,6 +79,11 @@ Tests `/runlog`'s CSV parser against a synthetic 8-row fixture (5 valid, 3 legac
 
 ### smoke/commit_grouping.md
 Tests `/commit`'s logical grouping. 6 files in 3 natural groups → expects 3 separate commits, not 1 (concatenation) or 6 (over-fragmentation).
+
+### smoke/model_gate_smoke.md
+The live half of the model gate: run `/coa --quick` twice (once per `model_chair` value) and `/pace` once, and read
+`/tasks` to see which model each agent actually ran on. The gate proves what the files request; only this shows what
+ran on your account.
 
 ### smoke/help_triage.md
 A specification, not a script: four inputs (shapes A, B, C, no match) and the output shape `/help` should produce for each.

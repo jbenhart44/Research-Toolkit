@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "about": "The model each kind of toolkit agent requests, by account class. Read by tests/check_models.py, which also renders the tables in README.md, references/model-roles.md and shared/commands/setup.md from this file. The reasons and Anthropic's sources are in references/model-roles.md.",
+  "facts_retrieved": "2026-10-20",
+  "aliases": ["haiku", "sonnet", "opus"],
+  "alias_order": ["haiku", "sonnet", "opus"],
+  "accounts": ["pro", "max5x", "max20x", "team-standard", "team-premium", "enterprise", "api", "cloud", "unknown"],
+  "account_classes": {
+    "sonnet-ceiling": ["pro", "team-standard", "unknown"],
+    "opus-ceiling": ["max5x", "max20x", "team-premium", "enterprise", "api", "cloud"]
+  },
+  "spawning_commands": ["coa", "pace", "review", "dailysummary", "weeklysummary", "readable"],
+  "roles": {
+    "reasoner": {
+      "sonnet-ceiling": "sonnet",
+      "opus-ceiling": "sonnet",
+      "haiku_ok": false,
+      "reason": "Council seats, PACE players and coaches, review lenses and cross-checks. Anthropic's cost guidance says to use Sonnet for teammates.",
+      "facts": ["F3.27", "F5.2"],
+      "sites": ["coa#members", "coa#cross-check", "coa#rebuttal", "pace#player-a", "pace#player-b", "pace#coach-c", "pace#coach-d", "pace#cross-reviewer", "pace#revision-reviewer", "review#lenses"]
+    },
+    "chair": {
+      "sonnet-ceiling": "sonnet",
+      "opus-ceiling": "opus",
+      "config_key": "model_chair",
+      "haiku_ok": false,
+      "reason": "The one synthesis the user reads. Opus only where the account's allowance makes its cost reasonable and /model lists it; Opus costs several times more per turn than Sonnet.",
+      "facts": ["F4.9", "F2.14"],
+      "sites": ["coa#chair"]
+    },
+    "writer": {
+      "sonnet-ceiling": "sonnet",
+      "opus-ceiling": "sonnet",
+      "haiku_ok": false,
+      "reason": "Daily and weekly summaries. Never Haiku: smaller models have been observed to produce inaccurate numerical figures in these summaries.",
+      "facts": ["F5.2"],
+      "sites": ["dailysummary#writer", "weeklysummary#writer"]
+    },
+    "transcriber": {
+      "sonnet-ceiling": "sonnet",
+      "opus-ceiling": "sonnet",
+      "haiku_ok": false,
+      "reason": "Reads rendered pages of image-only PDFs into text. A misread digit becomes a false citation check in /audit, and no tested verifier checks a Haiku transcription yet.",
+      "facts": ["F5.2"],
+      "sites": ["readable#transcriber"]
+    }
+  },
+  "pcv_upstream": {
+    "pcv-builder": "sonnet",
+    "pcv-critic": "haiku",
+    "pcv-research": "sonnet",
+    "pcv-verifier": "sonnet"
+  }
+}

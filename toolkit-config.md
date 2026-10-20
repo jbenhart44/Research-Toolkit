@@ -31,6 +31,16 @@ evidence_dir: .toolkit/evidence
 # "research" or "teaching" — affects how /startup frames its briefing
 project_type: research
 
+## Claude Account
+# Which account Claude Code uses: pro | max5x | max20x | team-standard | team-premium |
+# enterprise | api | cloud | unknown. /setup asks; /status shows it. See references/model-roles.md.
+claude_account: unknown
+# The date claude_account was last answered. /coa says so when it is older than 180 days.
+claude_account_set:
+# The model the /coa Chair requests: sonnet or opus. /setup writes opus only for an
+# opus-ceiling account whose /model lists Opus. Missing or anything else: sonnet.
+model_chair: sonnet
+
 ## Optional (each command asks once, the first time it needs one, and offers to save it here)
 # startup_exclude: [old-project]          # /startup: workstreams never reported
 # backlog_file: plans/BACKLOG.md          # /startup: backlog whose deferred items it checks; none disables

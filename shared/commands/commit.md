@@ -213,6 +213,7 @@ Use conventional commit format: `type(scope): description`
 - **CRITICAL**: Do NOT add Claude as a co-author — use plain commit messages without any AI attribution footer. This applies even if the session's default instructions say to add one.
 - Scope is optional but helpful for multi-project repositories (e.g., `feat(modeling): ...`, `docs(experiments): ...`)
 
+<!-- spawn: none reason="an example commit message" -->
 **Examples**:
 ```
 feat(modeling): add heterogeneous initialization to agent spawning

@@ -110,11 +110,20 @@ If `$ARGUMENTS` explicitly overrides (`--full`, `--quick`, `--append-pointer`), 
 
 ---
 
-**IMPORTANT**: This summary should be written by a **Sonnet** model subagent when available. Spawn a single Agent with `model: "sonnet"` and pass it the gathered information (git log, file changes, context) along with the formatting instructions below. The Sonnet agent writes the summary; the main agent saves it.
+<!-- spawn: role=writer model=sonnet site=dailysummary#writer -->
+**IMPORTANT**: This summary is written by a **Sonnet** model subagent. Spawn a single Agent with `model: "sonnet"` (the `writer` row of `references/model-roles.md`) and pass it the gathered information (git log, file changes, context) along with the formatting instructions below. The Sonnet agent writes the summary; the main agent saves it.
 
-The reason for preferring Sonnet: smaller models have been observed to produce inaccurate numerical figures, wrong file orderings, and incorrect parameter values when summarizing technical sessions. Sonnet's accuracy on project-specific details justifies the cost.
+The reason for Sonnet, and never Haiku: smaller models have been observed to produce inaccurate numerical figures, wrong file orderings, and incorrect parameter values when summarizing technical sessions. Sonnet's accuracy on project-specific details justifies the cost.
 
-**If Sonnet is unavailable** (e.g., user's plan does not include it), use the best available model but add an extra verification step: after the summary is drafted, re-read the source files for any numerical values mentioned and confirm they match. Flag any values that could not be verified with `(unverified)` next to the number.
+<!-- BEGIN MODEL FAILURE -->
+**MODEL FAILURE — when an agent cannot run on the model it requested.**
+1. **A session or weekly limit** ("You've hit your session limit"). These limits are shared across all models, so another model does not help. Stop starting agents, quote the error and its reset time, and offer two choices: wait, or stop. Do not retry.
+2. **An Opus limit, or a model the account cannot use, on the Chair's `opus` request** ("You've hit your Opus limit"; "There's an issue with the selected model"). Retry the Chair once on `sonnet`. Write `fallback_from: opus` and the error text into the run report, and name the model that ran in the printed model line.
+3. **Any other error, or any other role.** Stop that role, quote the error, and offer the choices: retry as written, run that role on the session's model, or stop. Never change a role's model on your own; rule 2 is the only exception.
+4. Do not rely on a fallback-model setting for this: Claude Code never switches models on an authentication, billing or rate-limit error.
+<!-- END MODEL FAILURE -->
+
+**If the user chooses to have the summary written on the session's model** (rule 3), add an extra verification step: after the summary is drafted, re-read the source files for any numerical values mentioned and confirm they match. Flag any values that could not be verified with `(unverified)` next to the number.
 
 A capable writer still invents identifiers, rebuilds paths from bare filenames, drops facts it was given, and misreports its own edits. Step 5 lists what the writer must be handed; Step 7 lists what the main agent checks after it returns.
 

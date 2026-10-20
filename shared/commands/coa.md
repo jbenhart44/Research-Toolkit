@@ -5,6 +5,7 @@ description: Council of Agents (CoA) — spawns specialized council members with
 
 # Council of Agents (CoA) v2.2 — Multi-Perspective Analysis Protocol
 
+<!-- spawn: none reason="the cost note names the agents a council starts; they are marked at Steps 1, 1b and 2" -->
 > **When to use**: You have a decision with multiple valid answers and want diverse expert perspectives before committing. Strategy, design, architecture, research direction — anywhere "it depends" is the honest answer.
 >
 > **Cost note**: Spawns 3-6 council members, a Chair, and usually one cross-check agent. Quick Panel (~3 members, ~60K-100K tokens) is the lightweight option; Full Council (~6 members, ~150K-250K tokens) for high-stakes decisions.
@@ -24,8 +25,12 @@ You are the **Clerk** of a council. Your job is to take the user's question, sel
 | `summary_folder` | Project history the Historian searches before citing outside precedent | `Daily Summary` |
 | `evidence_dir` | `run_log.csv`, `crossmodel_attempts.csv`, `agent_stalls.csv` | `.toolkit/evidence` |
 | `project_type` | `teaching` means reviewed material may name students (see the File Manifest) | `research` |
+| `claude_account` | which Claude account Claude Code uses (written by `/setup`); asked once here if missing | `unknown` |
+| `model_chair` | the model the Chair requests, `sonnet` or `opus` (written by `/setup`; see `references/model-roles.md`) | `sonnet` |
 
 Below, `{evidence_dir}` means the configured value, or `.toolkit/evidence` if none is set.
+
+**Models.** Seats and the cross-check request `sonnet`; the Chair requests `model_chair`. If `claude_account` is missing, ask once, at roster time, which Claude account Claude Code uses (the `/setup` question), and offer to save the answer with the `model_chair` value `/setup` would write. Until it is answered, the Chair requests `sonnet`. If `claude_account_set` is more than 180 days old, print one line suggesting `/setup` to re-check it. The table and its reasons are in `references/model-roles.md`.
 
 **Persona files**: Council member definitions live in `coa/personas/` relative to your project root. If no persona directory exists, use the built-in personas defined in the Built-In Roster below. The Chair instructions live in `coa/chair_instructions.md` if present; otherwise use the built-in Chair protocol in STEP 2.
 
@@ -314,6 +319,7 @@ Check for activation:
 
 **Default**: Spawn all members in parallel (no DiMo).
 
+<!-- spawn: none reason="the no-simulation warning; the member dispatch is marked below" -->
 **CRITICAL — NO SIMULATION ALLOWED.** Each council member MUST be an actual Agent tool call — one tool call per seated member, launched in the same message so they run concurrently. Do NOT "role-play" council members by writing inline prose labeled "The Skeptic would say..." or "The Economist's view is...". Each member needs an independent context to produce genuinely independent analysis. If the Agent tool is not available in this session, STOP and tell the user: "Agent tool unavailable — CoA cannot run. Restart the session or direct-answer the question without the council protocol." Single-context role-play looks like a council output but is indistinguishable from a single agent's internal brainstorming.
 
 ### Per-Member Context Filtering
@@ -378,7 +384,8 @@ For each seated member, construct the prompt:
 >
 > **Output file:** Write your complete analysis to `[absolute session directory]/member_[seat].md`. Then Read the file back and quote its first line in your reply. If the Write or the Read fails, say so; do not report the file as written. Return the full analysis in your reply as well.
 
-Dispatch each member with the Agent tool: `description` = a 3-5 word seat label (e.g., "Skeptic on calibration plan"), `prompt` = the filled template. The agent needs Read, Grep, Glob and Write; Bash too for the Skeptic, Economist and Practitioner, who measure. Spawn every member in the **same message**, whatever backend each one uses.
+<!-- spawn: role=reasoner model=sonnet site=coa#members -->
+Dispatch each member with the Agent tool: `description` = a 3-5 word seat label (e.g., "Skeptic on calibration plan"), `prompt` = the filled template, and `model: "sonnet"` (the `reasoner` row of `shared/model-roles.json`; see `references/model-roles.md`). The agent needs Read, Grep, Glob and Write; Bash too for the Skeptic, Economist and Practitioner, who measure. Spawn every member in the **same message**, whatever backend each one uses.
 
 Members MUST NOT see each other's work.
 
@@ -397,6 +404,7 @@ This feature routes certain council members to external AI models (Gemini, OpenA
 
 **Pre-flight**: before convening, call `mcp__crossmodel__list_available_models`. If a seated member targets a model that is not configured, warn the user at roster time and run that seat as a Claude agent.
 
+<!-- spawn: external route=crossmodel reason="a persona routed to a non-Claude model through the crossmodel MCP" -->
 If the MCP server IS available and a persona file's frontmatter specifies `model: gemini` (or `openai`, `perplexity`):
 1. Build the prompt from the template above: `system_prompt` = Role + lens + background + questions + stay-out-of; `user_prompt` = Question Brief + evidence + required artifact + Instructions. Omit the Output file block — an external model cannot write files.
 2. Call `mcp__crossmodel__query_model` with `model`, `system_prompt`, and `user_prompt`.
@@ -409,6 +417,7 @@ If the MCP server IS available and a persona file's frontmatter specifies `model
 
 Launch this at the SAME TIME as the council members (same message, zero added latency). Its distinctive value is challenging the **framing** the whole council inherited from the Clerk, not just the conclusion.
 
+<!-- spawn: external route=crossmodel reason="checks whether the crossmodel MCP is connected; starts nothing" -->
 **Pre-flight 0 — MCP availability (once per session).** The crossmodel tools may be deferred MCP tools that must be loaded before they can be called. Search for `mcp__crossmodel__query_model` (ToolSearch) once per session. If it is not found, the MCP is not connected: skip Pre-flight 1 and 2, use the local Sonnet framing check below, declare that at roster time, and reuse this finding for every later `/coa` in the session instead of retrying per run.
 
 **Run the Sonnet check even without the MCP**, unless the user said 'no cross-check'. A same-family check is weaker, but it can still question the framing: in one logged session it was the only voice to ask whether the artifact under review was even the right unit of evaluation, a blind spot all six seats shared. Brief it to disagree with the framing, not only the conclusion.
@@ -436,13 +445,18 @@ A model marked `SKIP_<name>_PER_HISTORY` is treated as if its key were missing.
 
 **Tier selection** — use the first that is configured and not skipped, in this order, and tag the response with the source actually used:
 
+<!-- spawn: role=reasoner model=sonnet site=coa#cross-check -->
 1. Gemini → `[CROSS-MODEL CHECK: Gemini]`
 2. OpenAI → `[CROSS-MODEL CHECK: OpenAI (Gemini <missing key | skipped per truncation history: N/5>)]`
 3. Perplexity → `[CROSS-MODEL CHECK: Perplexity (Gemini+OpenAI <reason>)]`
 4. Local Sonnet: spawn an Agent with `model: "sonnet"` passed explicitly so it does not default to the orchestrator's model → `[CROSS-MODEL CHECK: local_fallback — Sonnet, <reason>]`
 5. None → tell the user: "All cross-model checks failed: [errors]. Same-model caveat is MAXIMUM for this session."
 
-**How to execute**: call `mcp__crossmodel__query_model` (or spawn the Sonnet agent) with:
+<!-- spawn: external route=crossmodel reason="tiers 1-3 send the cross-check to an external model" -->
+**How to execute.** For an external model (tiers 1-3), call `mcp__crossmodel__query_model` with the two prompts below.
+
+<!-- spawn: role=reasoner model=sonnet site=coa#cross-check -->
+For the local fallback (tier 4), spawn the Sonnet agent with `model: "sonnet"` and the same two prompts:
 - `system_prompt`: "You are an independent reviewer from a DIFFERENT AI model. Your training data, reasoning patterns, and biases differ from the Claude agents on this council. Your role is to provide a genuinely independent high-level assessment. Focus on: (1) what assumptions seem baked into the question framing, (2) what perspectives or evidence the question implicitly excludes, (3) your honest position on the core question. Be direct and opinionated — your value is in disagreeing with Claude, not echoing it." For the Sonnet fallback, replace the first two sentences with: "You are an independent reviewer outside this council. You share the council's model family, so your value is in challenging the framing: is this the right question, and the right thing to evaluate?"
 - `user_prompt`: the full Question Essence (question, context, constraints, decision type, stakes, Pre-Verified Facts).
 
@@ -516,7 +530,8 @@ A Chair is expected to verify claims against the artifacts. Handed extractions a
 
 ### Spawn Chair
 
-Spawn the Chair as a separate Agent tool call with the Question Essence + anonymized extractions + quality flags + evidence paths + cross-check. **Do NOT synthesize the Chair's output yourself** — if the orchestrator role-plays the Chair, the synthesis loses its independence from the member outputs and becomes indistinguishable from an internal summary. The Chair writes `chair_synthesis.md` to the session directory, reads it back and quotes its first line (same rule and same transcription fallback as the members). It produces a 7-section synthesis:
+<!-- spawn: role=chair model=config:model_chair floor=sonnet site=coa#chair -->
+Spawn the Chair as a separate Agent tool call with the Question Essence + anonymized extractions + quality flags + evidence paths + cross-check. For its model, pass `model` = the value of `model_chair` in `~/.claude/toolkit-config.md` if it is `sonnet` or `opus`; otherwise pass `sonnet` and print one line. That line is `Chair: requesting sonnet (model_chair is not set; /setup can set it)`, and the floor is `model: "sonnet"`. If the Chair cannot run on what it requested, follow MODEL FAILURE (Edge Cases). **Do NOT synthesize the Chair's output yourself** — if the orchestrator role-plays the Chair, the synthesis loses its independence from the member outputs and becomes indistinguishable from an internal summary. The Chair writes `chair_synthesis.md` to the session directory, reads it back and quotes its first line (same rule and same transcription fallback as the members). It produces a 7-section synthesis:
 1. Convergence (what all or most members agree on)
 2. Divergence map (specific points of disagreement + root cause)
 3. Surprises (unexpected positions or agreements)
@@ -552,8 +567,12 @@ Question: [1-sentence version]
 Stakes: [low / medium / high]
 Council Size: [N] members + Chair
 Cross-model check: [Gemini / OpenAI / Perplexity / local Sonnet fallback / none]
+requested: seats sonnet | chair [sonnet | opus][ | fallback_from: opus]
+second reader: [the session's model, if you know it; otherwise unknown]
 ================================================================
 ```
+
+When the seats and the Chair requested the same model, add one line under the header: *"Chair and seats requested the same model on this account."* `/tasks` shows what each agent actually ran on.
 
 ### Position Map (Quick View)
 
@@ -616,6 +635,7 @@ If the project provides its own session auditor, run it on the session directory
 
 ### 5b.2: Interpret the verdict
 
+<!-- spawn: none reason="the verdict table names the Agent tool in its fallback advice; it starts nothing" -->
 | Verdict | Action |
 |---------|--------|
 | `verified_real` | Proceed to Step 6 (save + deliver). |
@@ -652,6 +672,8 @@ tool: "coa"
 tool_version: "v2.2"
 date: "{YYYY-MM-DD}"
 model: "{model used for the members}"
+chair_model: "{the model the Chair requested}"
+# fallback_from: "opus"            # only if MODEL FAILURE rule 2 fired; put the error text in Issues & Limitations
 task_summary: "{1-line question}"
 outcome: "{complete|partial|failed}"
 council_size: {N}
@@ -709,7 +731,8 @@ After saving, present:
 
 ## OPTIONAL: REBUTTAL ROUND
 
-Spawn 1-2 selected members with the Chair's synthesis and human's preliminary decision.
+<!-- spawn: role=reasoner model=sonnet site=coa#rebuttal -->
+Spawn 1-2 selected members, each as its own Agent tool call with `model: "sonnet"`, with the Chair's synthesis and human's preliminary decision.
 
 > **Instructions:**
 > 1. Does the synthesis accurately represent your position?
@@ -727,6 +750,7 @@ Each rebuttal is written to `rebuttal_{seat}.md` in the session directory, and `
 ## EDGE CASES
 
 ### Subagent spawning unavailable
+<!-- spawn: none reason="edge case: no agent can be started" -->
 Provide the Question Brief + all persona prompts for manual copy-paste sessions.
 
 ### Question too small
@@ -734,7 +758,15 @@ Provide the Question Brief + all persona prompts for manual copy-paste sessions.
 
 ### Member failures
 
-**Record a stall when it happens.** When a seat, the Chair or the cross-check fails with a stall, timeout, watchdog or overload error, first check whether its file exists — it may have finished writing. If it is missing, append a row to `{evidence_dir}/agent_stalls.csv` (create it with a header if absent): `timestamp,tool,run_dir,agents,reason,files_written`, and note the failure under Issues & Limitations in `session_summary.md`. The Step 1 stall probe reads this file.
+<!-- BEGIN MODEL FAILURE -->
+**MODEL FAILURE — when an agent cannot run on the model it requested.**
+1. **A session or weekly limit** ("You've hit your session limit"). These limits are shared across all models, so another model does not help. Stop starting agents, quote the error and its reset time, and offer two choices: wait, or stop. Do not retry.
+2. **An Opus limit, or a model the account cannot use, on the Chair's `opus` request** ("You've hit your Opus limit"; "There's an issue with the selected model"). Retry the Chair once on `sonnet`. Write `fallback_from: opus` and the error text into the run report, and name the model that ran in the printed model line.
+3. **Any other error, or any other role.** Stop that role, quote the error, and offer the choices: retry as written, run that role on the session's model, or stop. Never change a role's model on your own; rule 2 is the only exception.
+4. Do not rely on a fallback-model setting for this: Claude Code never switches models on an authentication, billing or rate-limit error.
+<!-- END MODEL FAILURE -->
+
+**Record a stall when it happens.** When a seat, the Chair or the cross-check fails with a stall, timeout, watchdog or overload error, first check whether its file exists — it may have finished writing. If it is missing, append a row to `{evidence_dir}/agent_stalls.csv` (create it with a header if absent): `timestamp,tool,run_dir,agents,reason,files_written,model`, where `model` is the model the failed agent requested, and note the failure under Issues & Limitations in `session_summary.md`. The Step 1 stall probe reads this file.
 
 - **4-5 completed**: Proceed, note missing perspectives
 - **2-3 completed**: Offer partial/retry/abort
@@ -812,6 +844,7 @@ convergent   <!-- data/metrics/tradeoffs focus -->
 <!-- divergent -->   <!-- strategy/stories/precedent focus -->
 ```
 
+<!-- spawn: external route=crossmodel reason="how a persona file names a non-Claude model" -->
 To route a persona to an external model, give the file YAML frontmatter with `model: gemini` (or `openai`, `perplexity`); see Cross-Model Routing.
 
 **3. Optionally add seating rules** in `coa/ROSTER.md`:

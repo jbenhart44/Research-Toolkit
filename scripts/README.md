@@ -43,7 +43,7 @@ python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \
   --fields "k1=v1 k2=v2 ..."
 ```
 
-Schema: the canonical 13-column `run_log.csv` schema (documented in `DESIGN.md` § "v1.1 Canonical run_log.csv Schema"). The model column is `$CLAUDE_MODEL` when set, else `unknown` (the shell helper wrote `claude-opus-4-7`).
+Schema: the canonical 13-column `run_log.csv` schema (documented in `DESIGN.md` § "v1.1 Canonical run_log.csv Schema"). The model column is `$CLAUDE_MODEL` when set, else `unknown` (the shell helper wrote one fixed, older model ID).
 
 Concurrency: an exclusive `fcntl` lock with a 2-second wait. `/pace`'s 4-agent parallelism and `/coa`'s 3-6 seat parallelism can call this simultaneously without corrupting the CSV. If the lock is not had in time, no row is written and the helper says so. The shell helper used the `flock` command and appended with no lock where it was missing, which includes macOS (none on a macOS 26.7 test machine).
 

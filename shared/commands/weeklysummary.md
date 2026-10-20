@@ -7,7 +7,7 @@ description: Generate an ISO calendar week summary from daily summaries — grou
 
 > **When to use**: At the end of a work week (Friday/Saturday) or start of the next (Monday). Consolidates daily summaries into a single weekly view grouped by workstream.
 >
-> **Prerequisites**: Prefers a Sonnet subagent for the writing step. On plans without Sonnet it uses the best available model plus a verification pass (see below). Re-running overwrites the existing weekly summary for the same ISO week (it is a live document until the week closes).
+> **Prerequisites**: A Sonnet subagent writes the summary. If it cannot run on Sonnet, the command stops and offers choices, one of which is the session's model plus a verification pass (see below). Re-running overwrites the existing weekly summary for the same ISO week (it is a live document until the week closes).
 
 ## Timing Recommendation
 
@@ -17,11 +17,20 @@ If a weekly summary already exists for the current ISO week, this command OVERWR
 
 ---
 
-**IMPORTANT**: This summary should be written by a **Sonnet** model subagent when available. Spawn a single Agent with `model: "sonnet"` and pass it the gathered information along with the formatting instructions below. The Sonnet agent writes the summary; the main agent saves it.
+<!-- spawn: role=writer model=sonnet site=weeklysummary#writer -->
+**IMPORTANT**: This summary is written by a **Sonnet** model subagent. Spawn a single Agent with `model: "sonnet"` (the `writer` row of `references/model-roles.md`) and pass it the gathered information along with the formatting instructions below. The Sonnet agent writes the summary; the main agent saves it.
 
-The reason for preferring Sonnet: smaller models have been observed to produce inaccurate numerical figures and wrong orderings when summarizing technical sessions. Sonnet's accuracy on project-specific details justifies the cost.
+The reason for Sonnet, and never Haiku: smaller models have been observed to produce inaccurate numerical figures and wrong orderings when summarizing technical sessions. Sonnet's accuracy on project-specific details justifies the cost.
 
-**If Sonnet is unavailable**, use the best available model but add a verification step: after the summary is drafted, cross-check all numerical values (metrics, counts, dates) against the source daily summaries. Flag any unverifiable values with `(unverified)`.
+<!-- BEGIN MODEL FAILURE -->
+**MODEL FAILURE — when an agent cannot run on the model it requested.**
+1. **A session or weekly limit** ("You've hit your session limit"). These limits are shared across all models, so another model does not help. Stop starting agents, quote the error and its reset time, and offer two choices: wait, or stop. Do not retry.
+2. **An Opus limit, or a model the account cannot use, on the Chair's `opus` request** ("You've hit your Opus limit"; "There's an issue with the selected model"). Retry the Chair once on `sonnet`. Write `fallback_from: opus` and the error text into the run report, and name the model that ran in the printed model line.
+3. **Any other error, or any other role.** Stop that role, quote the error, and offer the choices: retry as written, run that role on the session's model, or stop. Never change a role's model on your own; rule 2 is the only exception.
+4. Do not rely on a fallback-model setting for this: Claude Code never switches models on an authentication, billing or rate-limit error.
+<!-- END MODEL FAILURE -->
+
+**If the user chooses to have the summary written on the session's model** (rule 3), add a verification step: after the summary is drafted, cross-check all numerical values (metrics, counts, dates) against the source daily summaries. Flag any unverifiable values with `(unverified)`.
 
 ---
 
@@ -103,6 +112,7 @@ Glob `{weekly_folder}/` for the most recent prior weekly summary, meaning the la
 
 ## Step 5: Generate Weekly Summary
 
+<!-- spawn: role=writer model=sonnet site=weeklysummary#writer -->
 Spawn a **Sonnet** subagent (`model: "sonnet"`) with all extracted data. The subagent writes the summary using this template:
 
 ```markdown
@@ -285,7 +295,7 @@ If the file already exists for this week, overwrite it (it is a live document un
 
 ## BEHAVIORAL CONSTRAINTS
 
-- **Sonnet subagent for the writing step** when available; otherwise the best available model plus the numerical verification pass
+- **Sonnet subagent for the writing step**; if it cannot run on Sonnet, MODEL FAILURE applies, and the session's model plus the numerical verification pass is one of the user's choices
 - **Never modify daily summaries** — this command reads them, never writes to them
 - **Never modify MEMORY.md** — `[MEMORY?]` tags are suggestions only
 - **Never modify run_log.csv** — the run-log table is copied from it by the parser, never written by the subagent

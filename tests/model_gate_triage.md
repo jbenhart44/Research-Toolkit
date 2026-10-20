@@ -83,4 +83,70 @@ sentences are `dailysummary.md:117`, `pace.md:205`, `weeklysummary.md:10`, `:24`
 
 ## Part 2 — Run and reconciliation
 
-[GAP: written after the first report-only run of `tests/check_models.py`; nothing here before that run.]
+**First run**: `python3 tests/check_models.py --report` on 2026-10-20, on the v2.0.2 commands before any edit (commit
+`71f6c32`), after the gate's self-test passed 30/30. Output: 32 hit blocks, 0 Python hits.
+
+| Prior said | The run found | Verdict |
+|---|---|---|
+| 28 hit blocks | 32 | Prior wrong by 4: four blocks the reading missed, listed below |
+| 12 role-site blocks | 12, the same twelve | accept |
+| literal model: 7 yes, 5 no; the five named | 7 yes, 5 no; the same five | accept |
+| rebuttal and revision reviewer unseen | neither appears | accept (and the plan's C8 list was wrong about the rebuttal) |
+| 16 blocks that are not spawns | 20 | the 16 predicted, plus 4 |
+| no Python hits | none | accept |
+
+**The four blocks the Prior missed.** All four are not spawns; each gets `spawn: none`.
+
+| Block | Why it matches |
+|---|---|
+| `coa.md:617` | the verdict table's `fallback` row: "a session where the Agent tool is available" |
+| `pace.md:580` | the verdict list: "written by the orchestrator rather than by two spawned agents" |
+| `pace.md:586` | the verdict table's `fallback` row: "the Agent tool is available" |
+| `pace.md:743` | the run-report template: `agent_count: {total agents spawned}` |
+
+**Line numbers.** Ten blocks start one or more lines above where the Prior placed them (`coa.md:6`, `:517`, `:727`;
+`pace.md:131`, `:178`, `:604`; `commit.md:216`; `improve.md:232`; `readable.md:43`; `weeklysummary.md:104`), because a
+heading merges with the block under it. Same blocks; the Prior quoted the content line.
+
+**Two design gaps found by the run, fixed before any marker was written.**
+
+1. `coa.md:445-447` starts the local Sonnet cross-check **and** calls `mcp__crossmodel__query_model`. One block takes one
+   marker, so the block is split: the external call gets a `spawn: external` block, the Sonnet fallback a role block.
+2. M15 scanned every Markdown file, so README, DESIGN and `coa/CROSSMODEL_SETUP.md`, which describe the crossmodel
+   route, would all be findings. M15 is now scoped to the files that instruct an agent: commands, skills and seat files.
+
+**Rewordings so the patterns see a spawn** (no change to what the command does):
+
+- `coa.md:712`, the rebuttal: "Spawn 1-2 selected members, each as its own Agent tool call".
+- `pace.md:614`, the revision reviewer: "spawn ONE reviewer subagent".
+
+**Two hits could not take a marker**, because they sit inside a fenced template the command prints: a marker there
+would appear in the user's output. Their wording changed instead, "spawn" to "start": `review.md`'s comment in the
+Chair-synthesis template, and `pace.md`'s `agent_count: {total agents started}` in the run-report template. So 20
+non-spawn blocks became 18 `none` markers.
+
+### After the edits
+
+`python3 tests/check_models.py --report`, same day:
+
+```
+balance: 36 blocks | by pattern 32 | role 14 | none 18 | external 4 | unmarked 0
+```
+
+| Count | Prior | After | Verdict |
+|---|---|---|---|
+| role-sites (distinct `site=` values) | 14 | 14, and each equals a table site (M11 passes both ways) | accept |
+| marked role blocks | 14 to 18, point 14 | 14 | accept: inside the bracket, on the point |
+| role blocks with a literal `model: "<alias>"` | all | 14 of 14 | accept |
+| `none` blocks | 16 | 18: the 16, plus the 4 the Prior missed, minus the 2 reworded | accept, reconciled |
+| `external` blocks | 1 (the crossmodel route) | 4: the route, the Pre-flight check, the split half of the cross-check, and the persona-routing sentence | the Prior counted the route as one place; M15 marks each block that names it |
+| unmarked pattern blocks | 0 | 0 | accept |
+
+Balance: 32 pattern blocks = 14 role + 18 `none`; the 4 external blocks match no spawn pattern (they are found by
+M15's crossmodel pattern instead); 32 + 4 = 36.
+
+**Corpus controls (C13)**, now in the gate's `--self-test` so they re-run: deleting the literal at the `/pace` Player
+spawn exits 1 naming that block (M4); a `reasoner` marker changed to `opus` is M5; a spawn sentence reworded with its
+marker deleted is M1; a spawn reworded past every pattern with its marker deleted is still caught, by the table's site
+list (M11). That last case is the gate's honest limit: it catches a deleted marker at a listed site, not a new site
+that nobody added to the table.
