@@ -71,13 +71,16 @@ Bundle provenance is tracked in `pcv/.upstream-version`, `pcv/.upstream-sha`, an
 
 ## Evidence Architecture
 
-Every PACE and CoA run automatically produces a structured run report with YAML frontmatter. Reports accumulate in tool-specific directories and are indexed in a central CSV for cross-tool aggregation.
+Instrumented commands produce a structured run report with YAML frontmatter at the end of each run. Reports accumulate in tool-specific directories and are indexed in a central CSV for cross-tool aggregation.
 
-1. You run `/pace` or `/coa` on a real task.
-2. The tool does its work (verification or council analysis).
-3. As its final step, it writes a run report with structured metadata.
-4. The report is saved under your `evidence_dir` (set by `/setup`; default `.toolkit/evidence`) and a row is appended to `run_log.csv`.
-5. Run `/improve --tools` or `/runlog` to see aggregate statistics across runs.
+1. You run a command on a real task.
+2. The command does its work.
+3. As its final step, it writes a run report with structured metadata and appends one row to `run_log.csv`:
+   - `/pace` and `/coa` write both themselves, into your `evidence_dir` (set by `/setup`; default `.toolkit/evidence`).
+   - `/audit`, `/commit`, `/dailysummary`, `/help`, `/improve`, `/runlog` and `/startup` call the run-report helper that `install.sh` puts in `~/.claude/toolkit/scripts/`. `/dailysummary` and `/startup` pass your `evidence_dir`; the other five write to `<project>/.toolkit/evidence`, so a changed `evidence_dir` does not reach their rows yet.
+4. Run `/improve --tools` or `/runlog` to see aggregate statistics across runs.
+
+**Before v2.0.2** the installer did not copy the helper, and those seven commands called it at a path that exists only in a clone of this repository. On a user's machine they wrote no report and no row. Re-run `install.sh` to receive the fix; `tests/check_install.py` now fails if a command calls a script the installer does not copy.
 
 You don't need to understand the schema to use the tools; collection is automatic. After 5+ runs, aggregate statistics start to mean something. See [QUICKSTART.md](QUICKSTART.md) for calibration tasks.
 

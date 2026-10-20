@@ -12,7 +12,7 @@
 
 **Author:** Jake Benhart (NC State University — Operations Research) · `/pcv` (Plan-Construct-Verify) is the work of Dr. Michael G. Kay, bundled unmodified · Contact: jebenhar@ncsu.edu · [jbenhart44.github.io](https://jbenhart44.github.io)
 
-**Links:** [Landing page](https://jbenhart44.github.io/toolkit/) · [Download v2.0.1](https://github.com/jbenhart44/Research-Toolkit/releases/tag/v2.0.1) · [Report an issue](https://github.com/jbenhart44/Research-Toolkit/issues) · [Discussions](https://github.com/jbenhart44/Research-Toolkit/discussions) · [Contribute](CONTRIBUTING.md)
+**Links:** [Landing page](https://jbenhart44.github.io/toolkit/) · [Download v2.0.2](https://github.com/jbenhart44/Research-Toolkit/releases/tag/v2.0.2) · [Report an issue](https://github.com/jbenhart44/Research-Toolkit/issues) · [Discussions](https://github.com/jbenhart44/Research-Toolkit/discussions) · [Contribute](CONTRIBUTING.md)
 
 Design rationale: [DESIGN.md](DESIGN.md). Who this is for and not for: [POSITIONING.md](POSITIONING.md). Error classes the toolkit is built to prevent: [references/preventable_errors.md](references/preventable_errors.md). Consolidated rule index: [references/iron_rules.md](references/iron_rules.md).
 
@@ -66,9 +66,11 @@ Reusable Claude Code commands that turn vague "help me with my research" prompts
 ```bash
 git clone https://github.com/jbenhart44/Research-Toolkit.git
 cd Research-Toolkit
-git checkout v2.0.1
+git checkout v2.0.2
 bash install.sh            # add --hooks for the optional hooks, including the usage counter
 ```
+
+Upgrading from an earlier version? Re-run `install.sh` from the new checkout. Before v2.0.2 the installer did not copy the run-report helper, so commands wrote no run reports; a re-install fixes that.
 
 Then in Claude Code:
 
@@ -153,7 +155,7 @@ A declarative CLAUDE.md fragment is bundled at `shared/proactive_fragment.md`, w
 | Path | What it holds |
 |---|---|
 | `shared/commands/` | 15 slash command definitions (one per command); `/pcv` is the 16th, installed as a skill from `pcv/` |
-| `scripts/` | Helpers called by commands (e.g. `emit_run_report.sh` for run instrumentation, `usage_counts.py`) — see `scripts/README.md` |
+| `scripts/` | Helpers called by commands (e.g. `emit_run_report.py` for run instrumentation, `usage_counts.py`) — see `scripts/README.md` |
 | `tests/` | The release gates and their mutation checks; `tests/smoke/` holds fixtures for each command — see `tests/README.md` |
 | `references/` | JIT recipe files — workflows that are documents, not commands (e.g., `processing_student_submissions.md`) |
 | `instructor/guides/` | Teaching guides for instructors using the toolkit in a classroom |
@@ -179,7 +181,7 @@ If you use or build on this toolkit, please cite:
   author  = {Benhart, Jake},
   title   = {Research Amp Toolkit: Verification-First Commands for AI-Assisted Research with Claude Code},
   year    = {2026},
-  version = {2.0.1},
+  version = {2.0.2},
   url     = {https://github.com/jbenhart44/Research-Toolkit},
   note    = {Bundles PCV (Plan-Construct-Verify) by Michael G. Kay}
 }

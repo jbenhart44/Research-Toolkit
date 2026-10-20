@@ -1,5 +1,5 @@
 ---
-allowed-tools: Read, Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(ls:*), Bash(date:*), Bash(sort:*), Bash(awk:*), Glob
+allowed-tools: Read, Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(ls:*), Bash(date:*), Bash(sort:*), Bash(awk:*), Bash(python3:*), Glob
 description: Render a cross-command longitudinal table of recent toolkit runs (convergence, tokens, outcomes) from existing CSVs. Read-only aggregation; re-running gives the same table.
 ---
 
@@ -177,7 +177,7 @@ If `--drill-down <run-id>` was passed:
 `/runlog` itself emits a run_report — otherwise we have an "observer with no logs" anti-pattern.
 
 ```bash
-bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
+python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \
   --command runlog \
   --run-dir "$EVIDENCE_DIR/runlog_reports/.run_reports/$(date +%Y-%m-%d_%H%M%S)" \
   --outcome complete \

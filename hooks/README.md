@@ -10,7 +10,7 @@ These hooks extend the toolkit with automated safety, hygiene and measurement. *
 | `token_budget_guard.sh` | PreToolUse | Warns when session token usage approaches a configurable limit | Soft (ask) |
 | `summary_folder_guard.sh` | PostToolUse | Warns when date-prefixed files are written outside configured summary folders | Soft (info) |
 
-`command_evidence.sh`, an empty placeholder since it was added, was removed in v2.0. What it was named for is done by the usage counter (what ran) and `scripts/emit_run_report.sh` (how each run went).
+`command_evidence.sh`, an empty placeholder since it was added, was removed in v2.0. What it was named for is done by the usage counter (what ran) and `scripts/emit_run_report.py` (how each run went).
 
 The usage counter is tested: `python3 hooks/usage_counter_selftest.py` checks it, and `python3 hooks/usage_counter_mutations.py` proves the self-test catches nine ways it could miscount or break a session, two of them in the `usage_counter.sh` launcher.
 
