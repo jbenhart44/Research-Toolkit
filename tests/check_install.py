@@ -19,6 +19,8 @@ check derives every expectation from install.sh's own arrays and from what the c
   dry_run_wrote       --dry-run writes any file
   config_overwritten  a re-install changes a toolkit-config.md the user already filled in
   upgrade_stale       with --previous DIR: after installing DIR and then ROOT, an installed command is not ROOT's
+  bootstrap_gap       RUNTIME_SCRIPTS is not empty and student/bootstrap.md (the in-session installer) has no step
+                      that copies from scripts/ (a static check: the bootstrap is prose and cannot be run here)
 
 Exit codes: 0 clean, 1 findings, 2 usage.
 Usage:  python3 tests/check_install.py [ROOT] [--previous DIR]      python3 tests/check_install.py --self-test
@@ -123,6 +125,9 @@ def run(root: Path, previous: Path | None = None) -> tuple[int, list[tuple[str, 
     installer = (root / "install.sh").read_text(encoding="utf-8")
     shared, student, runtime = (array(installer, n) for n in ("SHARED_COMMANDS", "STUDENT_ONLY", "RUNTIME_SCRIPTS"))
     out = static_findings(root, runtime, set(shared) | set(student))
+    boot = root / "student" / "bootstrap.md"
+    if runtime and boot.is_file() and "Research-Toolkit/scripts/" not in boot.read_text(encoding="utf-8"):
+        out.append(("bootstrap_gap", "student/bootstrap.md has no step that copies the runtime scripts"))
     called = sorted({n for c in (root / "shared" / "commands").glob("*.md")
                      for n in CALL.findall(c.read_text(encoding="utf-8"))})
     hooks = sorted(p.name for p in (root / "hooks").glob("*") if p.suffix in (".sh", ".py") and not TEST_FILE.search(p.name)) \
@@ -242,6 +247,9 @@ def self_test() -> int:
     check("an upgrade that keeps the old command files is caught",
           bool(never_overwrites and older)
           and "upgrade_stale" in {k for k, _ in run(never_overwrites, older)[1]})
+    check("a bootstrap installer with no runtime-scripts step is caught",
+          "bootstrap_gap" in kinds(defect("student/bootstrap.md", "Copy each one from `Research-Toolkit/scripts/` to",
+                                          "Copy each one to")))
     check("a broken installed helper is caught",
           "script_broken" in kinds(defect("scripts/emit_run_report.py", "            csv.writer(f).writerow(row)",
                                           "            pass")))

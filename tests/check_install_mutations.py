@@ -28,6 +28,10 @@ MUTANTS = {
     "an upgrade that keeps old command files passes": (
         "        if dst.is_file() and dst.read_bytes() != src.read_bytes():", "        if False:",
         ["an upgrade that keeps the old command files is caught"]),
+    "the bootstrap installer is never checked": (
+        '    if runtime and boot.is_file() and "Research-Toolkit/scripts/" not in boot.read_text(encoding="utf-8"):',
+        "    if False:",
+        ["a bootstrap installer with no runtime-scripts step is caught"]),
     "--previous is accepted but never installed": (
         "    if previous is not None:", "    if False:",
         ["an upgrade that keeps the old command files is caught"]),
