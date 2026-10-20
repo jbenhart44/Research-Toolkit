@@ -1,5 +1,5 @@
 ---
-allowed-tools: Read, Glob, Grep, Bash(git:*), Bash(ls:*), Bash(date:*), Bash(ps:*), Bash(free:*), Bash(vm_stat:*)
+allowed-tools: Read, Glob, Grep, Bash(git:*), Bash(ls:*), Bash(date:*), Bash(ps:*), Bash(free:*), Bash(vm_stat:*), Bash(python3:*)
 description: Session startup — reads recent daily summaries, derives the active workstreams from them, shows where each left off, what is blocking, and the next action
 ---
 
@@ -244,7 +244,7 @@ If any optional key was missing, or a workstream was found that is not in `works
 After presenting the briefing, emit a structured run_report for observability via `/runlog`:
 
 ```bash
-bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
+python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \
   --command startup \
   --tool-version v2.0 \
   --evidence-dir "$evidence_dir" \

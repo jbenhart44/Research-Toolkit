@@ -1,5 +1,5 @@
 ---
-allowed-tools: Read, Edit, Bash(git:*), Bash(echo:*), Bash(wc:*)
+allowed-tools: Read, Edit, Bash(git:*), Bash(echo:*), Bash(wc:*), Bash(python3:*)
 description: Analyze staged and unstaged changes, group them logically, and create well-formed commits
 ---
 
@@ -243,7 +243,7 @@ Start immediately. Do not ask questions beyond the Step 1 prompt and the Safety 
 After all commits are made, emit a structured run_report for observability via `/runlog`:
 
 ```bash
-bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
+python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \
   --command commit \
   --run-dir ".claude/.run_reports/commit/$(date +%Y-%m-%d_%H%M%S)" \
   --outcome complete \

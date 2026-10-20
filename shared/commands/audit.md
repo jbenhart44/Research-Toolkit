@@ -1,5 +1,5 @@
 ---
-allowed-tools: Read, Glob, Grep, Bash(ls:*), Bash(wc:*), Bash(date:*), Write, Agent
+allowed-tools: Read, Glob, Grep, Bash(ls:*), Bash(wc:*), Bash(date:*), Bash(python3:*), Write, Agent
 description: Citation and numerical accuracy audit — verifies every cited metric and source in a document against actual paper PDFs/TXT files on disk. Prevents fabricated citations AND misquoted numbers.
 ---
 
@@ -180,7 +180,7 @@ Deep mode is more expensive than the standard audit (typically 3-5× the wall-cl
 After writing the audit report, emit a structured run_report for observability via `/runlog`:
 
 ```bash
-bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
+python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \
   --command audit \
   --run-dir "$audit_reports_dir/.run_reports/$(date +%Y-%m-%d_%H%M%S)" \
   --outcome complete \

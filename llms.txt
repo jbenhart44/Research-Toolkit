@@ -6,7 +6,7 @@ Author: Jake Benhart (NC State University, Operations Research). Contact: jebenh
 
 License: MIT.
 
-Status: v2.0.1 (2026-10-19). Every push runs the test suite in CI on Linux and macOS.
+Status: v2.0.2 (2026-10-20). Every push runs the test suite in CI on Linux and macOS.
 
 ## Who this is for
 

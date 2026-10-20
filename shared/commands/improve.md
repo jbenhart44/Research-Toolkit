@@ -565,7 +565,7 @@ Improvement candidates:
 After writing the improve report (or the `--tools` report, with `SCOPE_MODE=tools`), emit a structured run_report for observability via `/runlog`:
 
 ```bash
-bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
+python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \
   --command improve \
   --run-dir "$improve_reports_dir/.run_reports/$(date +%Y-%m-%d_%H%M%S)" \
   --outcome complete \

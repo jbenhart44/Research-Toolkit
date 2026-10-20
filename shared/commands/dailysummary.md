@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(git:*), Bash(date:*), Bash(ls:*), Bash(stat:*), Read, Write, Edit, Grep, Glob, Agent
+allowed-tools: Bash(git:*), Bash(date:*), Bash(ls:*), Bash(stat:*), Bash(python3:*), Read, Write, Edit, Grep, Glob, Agent
 description: Create a dated summary of today's work in the daily summaries folder
 ---
 
@@ -409,7 +409,7 @@ Any user re-running the command at the same time with the same git state should 
 After writing the summary, emit a structured run_report for observability via `/runlog`. Substitute literal values — variables from earlier Bash calls are gone:
 
 ```bash
-bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh" \
+python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \
   --command dailysummary \
   --run-dir "Daily Summary/.run_reports/$(date +%Y-%m-%d_%H%M%S)" \
   --evidence-dir ".toolkit/evidence" \

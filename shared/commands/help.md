@@ -1,5 +1,5 @@
 ---
-allowed-tools: Read, Glob, Grep, Bash(ls:*), Bash(date:*), Bash(wc:*)
+allowed-tools: Read, Glob, Grep, Bash(ls:*), Bash(date:*), Bash(wc:*), Bash(python3:*)
 description: Socratic triage — ask 0-1 clarifying questions, then recommend 1-3 toolkit commands. Traffic cop, not driver. EXPERIMENTAL (v0.2, shipped 2026-04-19 without premise pilot — success pending end-of-fall evaluation).
 ---
 
@@ -80,10 +80,10 @@ For the single most-likely-mis-selected neighbor, name it in one sentence:
 
 ### STEP 5 — Emit run report
 
-Append one row to `.toolkit/evidence/run_log.csv` via `emit_run_report.sh`:
+Append one row to `.toolkit/evidence/run_log.csv` via `emit_run_report.py`:
 
 ```bash
-bash scripts/emit_run_report.sh \
+python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \
   --command help \
   --run-dir ".toolkit/evidence/help_runs/$(date +%Y-%m-%d_%H%M%S)" \
   --outcome complete \

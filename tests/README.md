@@ -13,6 +13,8 @@ tests/
 ├── check_toolkit_mutations.py  proves check_toolkit.py can fail
 ├── check_claims.py             release gate: every count and version matches install.sh and VERSION
 ├── check_claims_mutations.py   proves check_claims.py can fail
+├── check_install.py            release gate: a real install in every mode gives a user every file the commands call
+├── check_install_mutations.py  proves check_install.py can fail
 └── smoke/                      hand-run fixtures (below)
 ```
 
@@ -23,18 +25,23 @@ python3 tests/check_toolkit.py              # exit 0 = clean, 1 = findings (each
 python3 tests/check_toolkit.py --tokens my-private-terms.txt   # also refuse your own private terms
 python3 tests/check_claims.py               # exit 0 = every page agrees with install.sh and VERSION
 python3 tests/check_claims.py path/to/page.html          # also check a page outside the tree
+python3 tests/check_install.py              # exit 0 = every install mode gives every file the commands call
+python3 tests/check_install.py --previous ../clone-at-previous-tag   # also upgrade from an older checkout (by hand at each release)
 ```
+
+`check_install.py` runs `install.sh` into temporary HOMEs (default, `--minimal`, `--hooks`, a re-install, `--dry-run`) and takes every expectation from the installer's own arrays and from what the command files call. It exists because from v1.1 to v2.0.1 seven commands called a run-report helper the installer never copied, while the CI step it replaced compared the installed command count to a typed 15.
 
 **Your private terms.** List the names that must never reach a public fork (project names, course codes, private folder names) in `~/.claude/toolkit-private-tokens.txt`, one regular expression per line, `#` for comments. `check_toolkit.py` reads it automatically (or from `--tokens FILE` or `$TOOLKIT_PRIVATE_TOKENS`) and refuses any match outside `pcv/`. Keep the file out of the repository: a list of private terms is itself private. With no file, the gate prints `private-token scan: SKIPPED`, so a missing list is never mistaken for a clean scan.
 
-Both have a `--self-test`. A self-test that passes proves nothing on its own, so each gate also has a mutation check: it writes a copy of the gate with one defect planted, runs the copy's self-test, and requires the named case to go red. A mutant that still passes means a check is vacuous.
+All three have a `--self-test`. A self-test that passes proves nothing on its own, so each gate also has a mutation check: it writes a copy of the gate with one defect planted, runs the copy's self-test, and requires the named case to go red. A mutant that still passes means a check is vacuous.
 
 ```bash
 python3 tests/check_toolkit_mutations.py    # every mutant must print CAUGHT; exit 0 = proven
 python3 tests/check_claims_mutations.py     # same contract
+python3 tests/check_install_mutations.py    # same contract (about two minutes: each run installs many times)
 ```
 
-The usage counter has the same pair in `hooks/` (`usage_counter_selftest.py`, `usage_counter_mutations.py`), and its report in `scripts/` (`usage_counts.py --self-test`, `usage_counts_mutations.py`).
+The usage counter has the same pair in `hooks/` (`usage_counter_selftest.py`, `usage_counter_mutations.py`), its report in `scripts/` (`usage_counts.py --self-test`, `usage_counts_mutations.py`), and so does the run-report helper (`scripts/emit_run_report_selftest.py`, `scripts/emit_run_report_mutations.py`).
 
 ## Smoke fixtures
 
@@ -72,7 +79,7 @@ A specification, not a script: four inputs (shapes A, B, C, no match) and the ou
 ## What is not tested
 
 - `/weeklysummary`, `/quarto` and `/simplify` have no smoke fixtures.
-- No test runs a full session end to end (install → `/setup` → `/startup` → … → `/coa`). The CI install step proves the files land; it does not prove a command behaves.
+- No test runs a full session end to end (install → `/setup` → `/startup` → … → `/coa`). `check_install.py` proves the files land and that the installed run-report helper writes its row; it does not prove a command behaves.
 
 ## Adding a fixture
 

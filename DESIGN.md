@@ -231,13 +231,15 @@ Research-Toolkit/                        (v2.0.0; pcv/ is the upstream bundle)
 │   ├── quarto.md                        Slide generation
 │   └── readable.md                      Document extraction
 ├── scripts/                             Shared helper scripts
-│   ├── emit_run_report.sh               Run instrumentation helper (atomic flock append)
+│   ├── emit_run_report.py               Run instrumentation helper, installed to ~/.claude/toolkit/scripts/ (+ _selftest, _mutations)
+│   ├── emit_run_report.sh               Launcher for the .py, kept for callers in a clone
 │   ├── usage_counts.py                  Per-command usage report (+ usage_counts_mutations.py)
 │   └── refresh-pcv-bundle.sh, check-pcv-upstream.sh, ...   Maintainer-only PCV upstream sync
 ├── tests/
 │   ├── README.md                        Gate and fixture index
 │   ├── check_toolkit.py                 Release gate: command contract, home paths, credentials, emails, private tokens
 │   ├── check_claims.py                  Release gate: every count and version matches the tree
+│   ├── check_install.py                 Release gate: real installs give every file the commands call (v2.0.2)
 │   ├── check_*_mutations.py             Proof that each gate can fail
 │   └── smoke/                           Hand-run fixtures
 │       ├── audit_smoke.md, paper.md, sources/   /audit fixture
@@ -271,7 +273,7 @@ run_id,tool,tool_version,date,task_summary,outcome,model,agent_count,convergence
 - **Parsing**: downstream consumers (e.g., /runlog) MUST use Python's `csv` module (or equivalent CSV-aware parser), **not** raw `awk -F','`. The `task_summary` and `notes` cells contain embedded commas which break naive splitting.
 
 **Historical compatibility**:
-- Legacy rows (pre-2026-04-10) may have older 9-column schema or column-shifted tool-name-in-position-1 errors. The `scripts/emit_run_report.sh` helper auto-creates the canonical 13-column header if the file doesn't exist; it appends to existing files regardless of header shape.
+- Legacy rows (pre-2026-04-10) may have older 9-column schema or column-shifted tool-name-in-position-1 errors. The run-report helper (`scripts/emit_run_report.py` since v2.0.2; `emit_run_report.sh` before) auto-creates the canonical 13-column header if the file doesn't exist; it appends to existing files regardless of header shape.
 - `/runlog`'s parser heuristically detects legacy/malformed rows (tool column starting with `2026-`, `2025-`, `pace_`, `coa_`, `pcv_` is treated as a column-shifted legacy row) and skips them with a count in the evidence footer.
 
 **Why this was decided**: Pre-v1.1 /pace, /coa, and /pcv-research each wrote their own ad-hoc instrumentation. During v1.1 planning (2026-04-17), `emit_run_report.sh` was built with a 9-column schema that collided with the 13-column historical schema. Reconciled in-session to the 13-column canonical. Recorded here so v1.2+ contributors don't reproduce the mismatch.
@@ -635,3 +637,47 @@ Bug fixes only; no command, argument or behaviour of a command changed. Each fix
 | `install.sh --hooks` installs runtime hooks only | the counter's self-test and mutation scripts were copied into `~/.claude/hooks/` | CI's real-install step asserts they are absent; the same assertion fails on a v2.0.0 install |
 | `scripts/usage_counts.py` reads the log the hook writes | a relative `evidence_dir` resolved against the working directory, so a report run from the toolkit clone read another project's log | `--project`, then `$CLAUDE_PROJECT_DIR`, then the working directory; 3 self-test cases, 2 mutants (10/10) |
 | `tests/check_claims.py` reads two more kinds of version claim | a BibTeX `version = {X.Y.Z}` and a three-part `Status: vX.Y.Z` were not checked; it missed three stale 2.0.0 pins when VERSION moved to 2.0.1 | 3 self-test cases (one proves a two-part `Status: v2.0` is left alone), 3 mutants (17/17) |
+
+---
+
+## v2.0.2 Changelog (2026-10-20) — Run reports reach users
+
+One defect, present since v1.1. Seven commands (`/audit`, `/commit`, `/dailysummary`, `/help`, `/improve`, `/runlog`, `/startup`) end by calling the run-report helper, six at `$TOOLKIT_ROOT/scripts/emit_run_report.sh` and one at `scripts/emit_run_report.sh`. Nothing defines `TOOLKIT_ROOT` for a user, and `install.sh` never copied the helper, so on a user's machine those calls found nothing: no `run_report.md`, no `run_log.csv` row, and `/runlog` had nothing from them to report. The CI install step did not notice, because it compared the number of installed commands to a typed 15.
+
+**Re-run `install.sh` to receive this fix.**
+
+### Added
+
+| File | What it does |
+|---|---|
+| `scripts/emit_run_report.py` | The helper, ported to Python (standard library): the same arguments, the same 13-column row and `run_report.md` frontmatter. `install.sh` copies it to `~/.claude/toolkit/scripts/` in every mode (default, `--minimal`, `--hooks`) through a new `RUNTIME_SCRIPTS` array |
+| `scripts/emit_run_report_selftest.py`, `scripts/emit_run_report_mutations.py` | 19 cases; 15 mutants, each turning its case red. Two cases and two mutants cover the `.sh` launcher: it finds the `.py` from any working folder, and with no `python3` on PATH it exits 0 and prints nothing |
+| `tests/check_install.py`, `tests/check_install_mutations.py` | Real installs into temporary HOMEs in five modes, plus `--previous DIR` for an upgrade from an older checkout. Every expectation comes from `install.sh`'s arrays and from what the command files call. 20 cases; 17 mutants. Replaces the typed `-eq 15` step in `tests.yml` |
+| `student/bootstrap.md`, Step 4b | The in-session installer (Claude copies the files with Read and Write) now installs the runtime scripts too, found from what the commands call. `check_install.py` fails if it loses that step |
+
+### What it refuses
+
+`check_install.py` exits 1 when: a command calls `$HOME/.claude/toolkit/scripts/<name>.py` and `<name>` is not in `RUNTIME_SCRIPTS`; a called script is absent after any install mode or after a re-install; the installed helper writes no row; a command calls `$TOOLKIT_ROOT` or a `scripts/` or `hooks/` path; a command runs `python3` without `Bash(python3:*)`; a command file is in neither command array; the installed commands differ from the arrays; a self-test or mutation file lands under `~/.claude`; `--hooks` leaves out a runtime hook; the PCV skill is missing; `--dry-run` writes a file; a re-install changes a `toolkit-config.md` the user filled in; after `--previous DIR`, an installed command is not the new version; or the installer exits non-zero.
+
+### Proof it can fail
+
+- Run against the released v2.0.1 tree, `check_install.py` reports all seven clone-path calls and exits 1. Against this tree it exits 0.
+- `check_install.py --previous <clone at v2.0.1>` installs v2.0.1, fills in the config, then installs this tree: the helper is present, every command is the new version, and the config is byte-identical (exit 0).
+- `check_helper_parity` (a one-off maintainer check, not shipped) ran the v2.0.1 shell helper and the Python helper on the same three argument sets, including a task summary with a comma and a double quote. The rows and frontmatter were identical except the model default, the timestamp and the run-dependent report path. With `model` removed from the allowed differences, the same check reported all six model differences and exited 1.
+
+### Behaviour changes
+
+- The seven commands call `python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py"`. `scripts/emit_run_report.sh` stays as a launcher for the Python file, for anyone who calls it from a clone; no file was removed.
+- The model column defaults to `unknown` instead of `claude-opus-4-7`. The helper cannot see which model ran; `$CLAUDE_MODEL` still sets it.
+- Six commands (`audit`, `commit`, `dailysummary`, `help`, `runlog`, `startup`) gain `Bash(python3:*)` in `allowed-tools`; `improve` already had it. For `/runlog` this also covers its own CSV parser (`runlog.md:117` runs `python3`), which in v2.0.1 needed a permission prompt.
+- The CSV append takes an `fcntl` lock with a 2-second wait. The shell helper used the `flock` command and appended with no lock where it was missing, which includes macOS. On a lock timeout the helper now writes no row, says so, and exits 0.
+
+### Known gap, not fixed here
+
+`/runlog` reads `evidence_dir` from `~/.claude/toolkit-config.md`, but only `/dailysummary` and `/startup` pass it to the helper. The other five write to `<project>/.toolkit/evidence`, so a user who changes `evidence_dir` will not see their rows in `/runlog`. The helper stays stateless (`scripts/README.md`, rule 2); the fix is for those five commands to pass `--evidence-dir`.
+
+### What did NOT change
+
+- The `run_log.csv` schema (13 columns) and the `run_report.md` frontmatter keys.
+- No command was renamed and no argument was removed. In each command file only the helper call line and the `allowed-tools` line changed, plus, in `help.md`, the sentence that names the helper.
+- The PCV bundle (`pcv/`) and the headline count (16 commands, `/pcv` included).

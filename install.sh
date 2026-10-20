@@ -13,6 +13,7 @@ TOOLKIT_DIR="$(cd "$(dirname "$0")" && pwd)"
 COMMANDS_DIR="$HOME/.claude/commands"
 SKILLS_DIR="$HOME/.claude/skills"
 AGENTS_DIR="$HOME/.claude/agents"
+RUNTIME_DIR="$HOME/.claude/toolkit/scripts"
 CONFIG_FILE="$HOME/.claude/toolkit-config.md"
 
 # Colors (if terminal supports them)
@@ -25,6 +26,7 @@ NC='\033[0m' # No Color
 # Defined BEFORE show_help() so --help can render correct counts without running install.
 SHARED_COMMANDS=(setup coa pace improve quarto readable help review)
 STUDENT_ONLY=(startup dailysummary weeklysummary commit simplify audit runlog)
+RUNTIME_SCRIPTS=(emit_run_report)   # scripts/<name>.py → ~/.claude/toolkit/scripts/
 SHARED_COUNT=${#SHARED_COMMANDS[@]}
 STUDENT_COUNT=${#STUDENT_ONLY[@]}
 FULL_COUNT=$((SHARED_COUNT + STUDENT_COUNT + 1))   # +1 for /pcv (skill)
@@ -63,7 +65,8 @@ show_help() {
     echo "  Commands    → ~/.claude/commands/"
     echo "  PCV skill   → ~/.claude/skills/pcv/"
     echo "  PCV agents  → ~/.claude/agents/"
-    echo "  Config      → ~/.claude/toolkit-config.md (if not present)"
+    echo "  Scripts     → ~/.claude/toolkit/scripts/ (run reports)"
+    echo "  Config     → ~/.claude/toolkit-config.md (if not present)"
     echo "  Hooks       → ~/.claude/hooks/ (optional, with --hooks)"
     echo ""
     echo "Existing files are backed up before overwriting."
@@ -190,6 +193,21 @@ echo "Installing PCV agents..."
 for f in "$TOOLKIT_DIR"/pcv/agents/*; do
     fname=$(basename "$f")
     install_file "$f" "$AGENTS_DIR/$fname" "agents/$fname"
+done
+
+# Install runtime scripts (every install: commands call them at the end of a run).
+# Runtime files only: a script's self-test and mutation check stay in the clone.
+echo ""
+echo "Installing runtime scripts..."
+if [ "$DRY_RUN" = true ]; then
+    if [ ! -d "$RUNTIME_DIR" ]; then
+        print_success "Would create: $RUNTIME_DIR"
+    fi
+else
+    mkdir -p "$RUNTIME_DIR"
+fi
+for s in "${RUNTIME_SCRIPTS[@]}"; do
+    install_file "$TOOLKIT_DIR/scripts/$s.py" "$RUNTIME_DIR/$s.py" "toolkit/scripts/$s.py"
 done
 
 # Install config template (only if not present)

@@ -12,23 +12,26 @@
 
 **Author:** Jake Benhart (NC State University — Operations Research) · `/pcv` (Plan-Construct-Verify) is the work of Dr. Michael G. Kay, bundled unmodified · Contact: jebenhar@ncsu.edu · [jbenhart44.github.io](https://jbenhart44.github.io)
 
-**Links:** [Landing page](https://jbenhart44.github.io/toolkit/) · [Download v2.0.1](https://github.com/jbenhart44/Research-Toolkit/releases/tag/v2.0.1) · [Report an issue](https://github.com/jbenhart44/Research-Toolkit/issues) · [Discussions](https://github.com/jbenhart44/Research-Toolkit/discussions) · [Contribute](CONTRIBUTING.md)
+**Links:** [Landing page](https://jbenhart44.github.io/toolkit/) · [Download v2.0.2](https://github.com/jbenhart44/Research-Toolkit/releases/tag/v2.0.2) · [Report an issue](https://github.com/jbenhart44/Research-Toolkit/issues) · [Discussions](https://github.com/jbenhart44/Research-Toolkit/discussions) · [Contribute](CONTRIBUTING.md)
 
 Design rationale: [DESIGN.md](DESIGN.md). Who this is for and not for: [POSITIONING.md](POSITIONING.md). Error classes the toolkit is built to prevent: [references/preventable_errors.md](references/preventable_errors.md). Consolidated rule index: [references/iron_rules.md](references/iron_rules.md).
 
 ## How the toolkit checks itself
 
-The toolkit holds its own release to the standard it asks of your work. Three gates run in CI on every push, and each is proven by a mutation check: a copy of the gate with a defect planted in it must turn its own self-test red.
+The toolkit holds its own release to the standard it asks of your work. The gates below run in CI on every push, and each is proven by a mutation check: a copy of the gate with a defect planted in it must turn its own self-test red.
 
 | Gate | What it refuses | Proof |
 |---|---|---|
 | `tests/check_toolkit.py` | a command without its contract (frontmatter, "When to use"), an absolute home path, a credential, an email outside the allowlist, and any term in your own private-token file (`~/.claude/toolkit-private-tokens.txt`: project names, course codes, folders that must never ship) | `tests/check_toolkit_mutations.py` |
 | `tests/check_claims.py` | a count or version on any page that disagrees with `install.sh` and `VERSION` | `tests/check_claims_mutations.py` |
+| `tests/check_install.py` | an install, in any mode, that leaves out a file a command calls; a command that calls a path existing only in a clone; a re-install that changes your config | `tests/check_install_mutations.py` |
 | `hooks/usage_counter.py` | (a hook, not a gate) a usage counter that drops a call or breaks a session | `hooks/usage_counter_mutations.py` |
+| `scripts/emit_run_report.py` | (a helper, not a gate) a run report or `run_log.csv` row that is malformed or never written | `scripts/emit_run_report_mutations.py` |
 
 ```bash
-python3 tests/check_toolkit.py && python3 tests/check_claims.py          # the gates
-python3 tests/check_toolkit_mutations.py && python3 tests/check_claims_mutations.py && python3 hooks/usage_counter_mutations.py
+python3 tests/check_toolkit.py && python3 tests/check_claims.py && python3 tests/check_install.py    # the gates
+python3 tests/check_toolkit_mutations.py && python3 tests/check_claims_mutations.py && python3 tests/check_install_mutations.py
+python3 hooks/usage_counter_mutations.py && python3 scripts/emit_run_report_mutations.py
 ```
 
 ## Spec-Driven Development
@@ -66,9 +69,11 @@ Reusable Claude Code commands that turn vague "help me with my research" prompts
 ```bash
 git clone https://github.com/jbenhart44/Research-Toolkit.git
 cd Research-Toolkit
-git checkout v2.0.1
+git checkout v2.0.2
 bash install.sh            # add --hooks for the optional hooks, including the usage counter
 ```
+
+Upgrading from an earlier version? Re-run `install.sh` from the new checkout. Before v2.0.2 the installer did not copy the run-report helper, so commands wrote no run reports; a re-install fixes that.
 
 Then in Claude Code:
 
@@ -153,7 +158,7 @@ A declarative CLAUDE.md fragment is bundled at `shared/proactive_fragment.md`, w
 | Path | What it holds |
 |---|---|
 | `shared/commands/` | 15 slash command definitions (one per command); `/pcv` is the 16th, installed as a skill from `pcv/` |
-| `scripts/` | Helpers called by commands (e.g. `emit_run_report.sh` for run instrumentation, `usage_counts.py`) — see `scripts/README.md` |
+| `scripts/` | Helpers called by commands (e.g. `emit_run_report.py` for run instrumentation, `usage_counts.py`) — see `scripts/README.md` |
 | `tests/` | The release gates and their mutation checks; `tests/smoke/` holds fixtures for each command — see `tests/README.md` |
 | `references/` | JIT recipe files — workflows that are documents, not commands (e.g., `processing_student_submissions.md`) |
 | `instructor/guides/` | Teaching guides for instructors using the toolkit in a classroom |
@@ -179,7 +184,7 @@ If you use or build on this toolkit, please cite:
   author  = {Benhart, Jake},
   title   = {Research Amp Toolkit: Verification-First Commands for AI-Assisted Research with Claude Code},
   year    = {2026},
-  version = {2.0.1},
+  version = {2.0.2},
   url     = {https://github.com/jbenhart44/Research-Toolkit},
   note    = {Bundles PCV (Plan-Construct-Verify) by Michael G. Kay}
 }
