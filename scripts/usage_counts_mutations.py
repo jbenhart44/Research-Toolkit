@@ -35,6 +35,12 @@ MUTANTS = {
         '        if e["name"] not in known:\n            dropped[e["name"]] += 1\n            continue',
         '        if False:\n            continue',
         ["an unknown typed name is dropped and reported"]),
+    "the report ignores $CLAUDE_PROJECT_DIR and reads the wrong project's log": (
+        '    if env.get("CLAUDE_PROJECT_DIR"):', "    if False:",
+        ["the project root is $CLAUDE_PROJECT_DIR, as in the hook"]),
+    "--project is ignored": (
+        "    if arg:\n        return Path(arg).expanduser()", "    if False:\n        return Path(arg).expanduser()",
+        ["--project wins over $CLAUDE_PROJECT_DIR"]),
     "the --tools filter is ignored": (
         "        rows = {k: v for k, v in rows.items() if k in tools}", "        rows = rows",
         ["--tools limits the rows"]),

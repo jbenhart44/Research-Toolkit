@@ -46,20 +46,33 @@ MUTANTS = {
         ["with no config the log goes to .toolkit/evidence in the project"]),
 }
 
+LAUNCHER_SRC = (HERE / "usage_counter.sh").read_text(encoding="utf-8")
+LAUNCHER_MUTANTS = {
+    "the launcher has no python3 guard": (
+        "command -v python3 >/dev/null 2>&1 || exit 0\n", "",
+        ["with no python3 on PATH the launcher exits 0 and prints nothing"]),
+    "the launcher breaks when started by bare name": (
+        "    *) here=. ;;", '    *) here="${0%/*}" ;;',
+        ["the launcher works when started from its own folder by bare name"]),
+}
+
 base = subprocess.run([sys.executable, str(SELFTEST)], capture_output=True, text=True)
 if base.returncode != 0:
     print("SETUP ERROR: the unmutated self-test is red:\n" + base.stdout)
     sys.exit(2)
 holes = []
-for name, (old, new, must) in MUTANTS.items():
-    if SRC.count(old) != 1:
-        print(f"SETUP ERROR (stale anchor, the code moved): '{name}' anchor found {SRC.count(old)} times")
+ALL = [(n, m, "py") for n, m in MUTANTS.items()] + [(n, m, "sh") for n, m in LAUNCHER_MUTANTS.items()]
+for name, (old, new, must), kind in ALL:
+    src = SRC if kind == "py" else LAUNCHER_SRC
+    if src.count(old) != 1:
+        print(f"SETUP ERROR (stale anchor, the code moved): '{name}' anchor found {src.count(old)} times")
         sys.exit(2)
-    mut = HERE / "_mutant_usage_counter.py"
-    mut.write_text(SRC.replace(old, new), encoding="utf-8")
+    mut = HERE / ("_mutant_usage_counter.py" if kind == "py" else "_mutant_usage_counter.sh")
+    mut.write_text(src.replace(old, new), encoding="utf-8")
+    var = "USAGE_COUNTER_HOOK" if kind == "py" else "USAGE_COUNTER_LAUNCHER"
     try:
         p = subprocess.run([sys.executable, str(SELFTEST)], capture_output=True, text=True,
-                           env=dict(os.environ, USAGE_COUNTER_HOOK=str(mut)))
+                           env=dict(os.environ, **{var: str(mut)}))
     finally:
         mut.unlink()
     red = [ln.strip()[5:] for ln in p.stdout.splitlines() if ln.strip().startswith("FAIL ")]
@@ -68,5 +81,5 @@ for name, (old, new, must) in MUTANTS.items():
     print(f"{'CAUGHT' if caught else 'MISSED'}  {name}: {len(red)} red" + (f"; expected red but green: {missing}" if missing else ""))
     if not caught:
         holes.append(name)
-print(f"\n{len(MUTANTS) - len(holes)}/{len(MUTANTS)} mutants caught" + (f"; HOLES: {holes}" if holes else " (PROVEN)"))
+print(f"\n{len(ALL) - len(holes)}/{len(ALL)} mutants caught" + (f"; HOLES: {holes}" if holes else " (PROVEN)"))
 sys.exit(1 if holes else 0)

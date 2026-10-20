@@ -51,4 +51,7 @@ jobs:
           test "$(ls "$HOME/.claude/commands" | wc -l | tr -d ' ')" -eq 15
           test -f "$HOME/.claude/skills/pcv/SKILL.md"
           test -f "$HOME/.claude/hooks/usage_counter.py"
+          test -f "$HOME/.claude/hooks/usage_counter.sh"
+          test ! -e "$HOME/.claude/hooks/usage_counter_selftest.py"
+          test ! -e "$HOME/.claude/hooks/usage_counter_mutations.py"
           bash install.sh --dry-run >/dev/null

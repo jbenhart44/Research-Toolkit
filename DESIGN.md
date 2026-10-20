@@ -622,3 +622,16 @@ The toolkit is by Jake Benhart. `/pcv` is Dr. Michael G. Kay's work, bundled unm
 
 - The PCV bundle (`pcv/`) is unchanged in this release.
 - No command was renamed and no argument was removed. Checked by comparing every `--flag` and every usage line in each changed command file against the previous release, and by reading the argument handling of the commands that take free text.
+
+---
+
+## v2.0.1 Changelog (2026-10-19) — Fixes from the v2.0 review
+
+Bug fixes only; no command, argument or behaviour of a command changed. Each fix was written test-first: the new case was run against the v2.0.0 code and failed before the fix.
+
+| Fix | Before | Proof |
+|---|---|---|
+| `hooks/usage_counter.sh` stays silent when `python3` is missing | it exited 127 and printed an error into the session; it also needed `dirname`, which a bare `PATH` lacks | 3 launcher cases in `usage_counter_selftest.py`; 2 launcher mutants in `usage_counter_mutations.py` (9/9) |
+| `install.sh --hooks` installs runtime hooks only | the counter's self-test and mutation scripts were copied into `~/.claude/hooks/` | CI's real-install step asserts they are absent; the same assertion fails on a v2.0.0 install |
+| `scripts/usage_counts.py` reads the log the hook writes | a relative `evidence_dir` resolved against the working directory, so a report run from the toolkit clone read another project's log | `--project`, then `$CLAUDE_PROJECT_DIR`, then the working directory; 3 self-test cases, 2 mutants (10/10) |
+| `tests/check_claims.py` reads two more kinds of version claim | a BibTeX `version = {X.Y.Z}` and a three-part `Status: vX.Y.Z` were not checked; it missed three stale 2.0.0 pins when VERSION moved to 2.0.1 | 3 self-test cases (one proves a two-part `Status: v2.0` is left alone), 3 mutants (17/17) |

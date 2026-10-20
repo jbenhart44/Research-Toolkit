@@ -16,7 +16,8 @@ the landing page in the site repository):
   inventory count   "<N> [up to 3 words] commands" or "<N>-command" with N >= 8, in digits or
                     words. Smaller numbers ("recommends 1-3 commands") are not inventory claims.
   version pin       "git checkout vX", "releases/download/vX", "releases/tag/vX", "Download vX",
-                    and a `version:` line in CITATION.cff
+                    a `version:` line in CITATION.cff, a BibTeX `version = {X.Y.Z}`, and a three-part
+                    "Status: vX.Y.Z" (a two-part "Status: v2.0" names a series and is not checked)
   banned claim      phrases with no evidence behind them (BANNED)
 
 Not claim surfaces: HISTORICAL files (DESIGN.md, CHANGELOG.md), which record what was true then;
@@ -46,6 +47,8 @@ COUNT = re.compile(r"\b(\d+|" + "|".join(sorted(WORDS, key=len, reverse=True)) +
                    r"(?:((?:\s+[A-Za-z-]+){0,3}?)\s+commands\b|-commands?\b)", re.I)
 PIN = re.compile(r"(?:git checkout\s+|releases/download/|releases/tag/|Download\s+)v(\d+(?:\.\d+){1,2})", re.I)
 CFF_VERSION = re.compile(r"^version:\s*['\"]?(\d+(?:\.\d+){1,2})", re.M)
+BIB_VERSION = re.compile(r"\bversion\s*=\s*[{\"](\d+\.\d+\.\d+)[}\"]")
+STATUS = re.compile(r"\bStatus:\**\s*v(\d+\.\d+\.\d+)")
 BANNED = ["hundreds of production sessions"]
 
 
@@ -85,8 +88,9 @@ def claims_in(text: str) -> list[tuple[int, str, str]]:
             value = int(tok) if tok.isdigit() else WORDS[tok]
             if value >= 8:
                 out.append((n, "count", str(value)))
-        for m in PIN.finditer(line):
-            out.append((n, "pin", m.group(1)))
+        for rx in (PIN, BIB_VERSION, STATUS):
+            for m in rx.finditer(line):
+                out.append((n, "pin", m.group(1)))
         low = line.lower()
         for phrase in BANNED:
             if phrase in low:
@@ -179,6 +183,12 @@ def self_test() -> int:
     check("a stale install pin is caught", code == 1 and any("pins 0.1.0" in p for p in probs))
     code, probs, _ = run(tree("curl -L https://x/releases/download/v1.6/x.zip\n", shared=big_shared, student=big_student), [])
     check("a stale download URL is caught", code == 1 and any("pins 1.6" in p for p in probs))
+    code, probs, _ = run(tree("@software{x,\n  version = {1.9.0},\n}\n", shared=big_shared, student=big_student), [])
+    check("a stale BibTeX version is caught", code == 1 and any("pins 1.9.0" in p for p in probs))
+    code, probs, _ = run(tree("Status: v1.9.0 (2026-01-01).\n", shared=big_shared, student=big_student), [])
+    check("a stale three-part Status line is caught", code == 1 and any("pins 1.9.0" in p for p in probs))
+    code, probs, _ = run(tree("> **Status: v2.0.** One author.\n", shared=big_shared, student=big_student), [])
+    check("a two-part 'Status: v2.0' is a series, not a pin", code == 0)
     code, probs, _ = run(tree("Validated across hundreds of production sessions.\n", shared=big_shared, student=big_student), [])
     check("the banned unbacked claim is caught", code == 1 and any("banned" in p for p in probs))
 

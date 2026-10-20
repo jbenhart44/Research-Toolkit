@@ -20,7 +20,7 @@ The Research Amp Toolkit was built by Jake Benhart: the workflow and verificatio
   author  = {Benhart, Jake},
   title   = {Research Amp Toolkit: Verification-First Commands for AI-Assisted Research with Claude Code},
   year    = {2026},
-  version = {2.0.0},
+  version = {2.0.1},
   url     = {https://github.com/jbenhart44/Research-Toolkit},
   note    = {Bundles PCV (Plan-Construct-Verify) by Michael G. Kay}
 }
