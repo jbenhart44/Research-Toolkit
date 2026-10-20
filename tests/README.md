@@ -26,6 +26,7 @@ python3 tests/check_toolkit.py --tokens my-private-terms.txt   # also refuse you
 python3 tests/check_claims.py               # exit 0 = every page agrees with install.sh and VERSION
 python3 tests/check_claims.py path/to/page.html          # also check a page outside the tree
 python3 tests/check_install.py              # exit 0 = every install mode gives every file the commands call
+python3 tests/check_install.py --previous ../clone-at-previous-tag   # also upgrade from an older checkout (by hand at each release)
 ```
 
 `check_install.py` runs `install.sh` into temporary HOMEs (default, `--minimal`, `--hooks`, a re-install, `--dry-run`) and takes every expectation from the installer's own arrays and from what the command files call. It exists because from v1.1 to v2.0.1 seven commands called a run-report helper the installer never copied, while the CI step it replaced compared the installed command count to a typed 15.

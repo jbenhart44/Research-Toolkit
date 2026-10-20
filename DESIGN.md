@@ -652,15 +652,16 @@ One defect, present since v1.1. Seven commands (`/audit`, `/commit`, `/dailysumm
 |---|---|
 | `scripts/emit_run_report.py` | The helper, ported to Python (standard library): the same arguments, the same 13-column row and `run_report.md` frontmatter. `install.sh` copies it to `~/.claude/toolkit/scripts/` in every mode (default, `--minimal`, `--hooks`) through a new `RUNTIME_SCRIPTS` array |
 | `scripts/emit_run_report_selftest.py`, `scripts/emit_run_report_mutations.py` | 19 cases; 15 mutants, each turning its case red. Two cases and two mutants cover the `.sh` launcher: it finds the `.py` from any working folder, and with no `python3` on PATH it exits 0 and prints nothing |
-| `tests/check_install.py`, `tests/check_install_mutations.py` | Real installs into temporary HOMEs in five modes. Every expectation comes from `install.sh`'s arrays and from what the command files call. 16 cases; 13 mutants. Replaces the typed `-eq 15` step in `tests.yml` |
+| `tests/check_install.py`, `tests/check_install_mutations.py` | Real installs into temporary HOMEs in five modes, plus `--previous DIR` for an upgrade from an older checkout. Every expectation comes from `install.sh`'s arrays and from what the command files call. 19 cases; 16 mutants. Replaces the typed `-eq 15` step in `tests.yml` |
 
 ### What it refuses
 
-`check_install.py` exits 1 when: a command calls `$HOME/.claude/toolkit/scripts/<name>.py` and `<name>` is not in `RUNTIME_SCRIPTS`; a called script is absent after any install mode or after a re-install; the installed helper writes no row; a command calls `$TOOLKIT_ROOT` or a `scripts/` or `hooks/` path; a command runs `python3` without `Bash(python3:*)`; a command file is in neither command array; the installed commands differ from the arrays; a self-test or mutation file lands under `~/.claude`; `--hooks` leaves out a runtime hook; the PCV skill is missing; `--dry-run` writes a file; or the installer exits non-zero.
+`check_install.py` exits 1 when: a command calls `$HOME/.claude/toolkit/scripts/<name>.py` and `<name>` is not in `RUNTIME_SCRIPTS`; a called script is absent after any install mode or after a re-install; the installed helper writes no row; a command calls `$TOOLKIT_ROOT` or a `scripts/` or `hooks/` path; a command runs `python3` without `Bash(python3:*)`; a command file is in neither command array; the installed commands differ from the arrays; a self-test or mutation file lands under `~/.claude`; `--hooks` leaves out a runtime hook; the PCV skill is missing; `--dry-run` writes a file; a re-install changes a `toolkit-config.md` the user filled in; after `--previous DIR`, an installed command is not the new version; or the installer exits non-zero.
 
 ### Proof it can fail
 
 - Run against the released v2.0.1 tree, `check_install.py` reports all seven clone-path calls and exits 1. Against this tree it exits 0.
+- `check_install.py --previous <clone at v2.0.1>` installs v2.0.1, fills in the config, then installs this tree: the helper is present, every command is the new version, and the config is byte-identical (exit 0).
 - `check_helper_parity` (a one-off maintainer check, not shipped) ran the v2.0.1 shell helper and the Python helper on the same three argument sets, including a task summary with a comma and a double quote. The rows and frontmatter were identical except the model default, the timestamp and the run-dependent report path. With `model` removed from the allowed differences, the same check reported all six model differences and exited 1.
 
 ### Behaviour changes

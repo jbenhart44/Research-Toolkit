@@ -17,9 +17,12 @@ check derives every expectation from install.sh's own arrays and from what the c
   hook_missing        --hooks leaves out a runtime hook from hooks/
   pcv_missing         the PCV skill's SKILL.md is not installed
   dry_run_wrote       --dry-run writes any file
+  config_overwritten  a re-install changes a toolkit-config.md the user already filled in
+  upgrade_stale       with --previous DIR: after installing DIR and then ROOT, an installed command is not ROOT's
 
 Exit codes: 0 clean, 1 findings, 2 usage.
-Usage:  python3 tests/check_install.py [ROOT]      python3 tests/check_install.py --self-test
+Usage:  python3 tests/check_install.py [ROOT] [--previous DIR]      python3 tests/check_install.py --self-test
+        --previous DIR installs an older checkout first (e.g. a clone at the previous tag), then ROOT over it.
 Mutation proof: tests/check_install_mutations.py
 """
 from __future__ import annotations
@@ -38,6 +41,7 @@ CALL = re.compile(r'\$HOME/\.claude/toolkit/scripts/([A-Za-z0-9_]+)\.py')
 CLONE_CALL = re.compile(r'\$TOOLKIT_ROOT|\b(?:bash|python3)\s+"?(?:\./)?(?:scripts|hooks)/')
 TEST_FILE = re.compile(r'_(?:selftest|mutations)\.py$')
 MODES = [(), ("--minimal",), ("--hooks",)]
+USER_CONFIG = "# filled in by the user\n## Folder Paths\nevidence_dir: notes/evidence\n"
 
 
 def array(installer: str, name: str) -> list[str]:
@@ -92,7 +96,28 @@ def static_findings(root: Path, runtime: list[str], shipped: set[str]) -> list[t
     return out
 
 
-def run(root: Path) -> tuple[int, list[tuple[str, str]]]:
+def upgrade(first: Path, root: Path, home: Path, called: list[str], label: str) -> list[tuple[str, str]]:
+    """Install `first`, fill in the config as a user would, install `root` over it, and check what is left."""
+    if install(first, home):
+        return [("install_failed", f"{label}: the first install")]
+    cfg = home / ".claude" / "toolkit-config.md"
+    cfg.write_text(USER_CONFIG, encoding="utf-8")
+    if install(root, home):
+        return [("install_failed", f"{label}: the second install")]
+    out = []
+    for n in called:
+        if not (home / ".claude" / "toolkit" / "scripts" / f"{n}.py").is_file():
+            out.append(("script_missing", f"{label}: {n}.py is absent after the second install"))
+    if cfg.read_text(encoding="utf-8") != USER_CONFIG:
+        out.append(("config_overwritten", f"{label}: toolkit-config.md changed"))
+    for src in sorted((root / "shared" / "commands").glob("*.md")):
+        dst = home / ".claude" / "commands" / src.name
+        if dst.is_file() and dst.read_bytes() != src.read_bytes():
+            out.append(("upgrade_stale", f"{label}: {src.name} is not the new version"))
+    return out
+
+
+def run(root: Path, previous: Path | None = None) -> tuple[int, list[tuple[str, str]]]:
     if not (root / "install.sh").is_file() or not (root / "shared" / "commands").is_dir():
         return 2, []
     installer = (root / "install.sh").read_text(encoding="utf-8")
@@ -132,11 +157,9 @@ def run(root: Path) -> tuple[int, list[tuple[str, str]]]:
                 if not (claude / "hooks" / h).is_file():
                     out.append(("hook_missing", h))
 
-    home = base / "upgrade"
-    if install(root, home) or install(root, home):
-        out.append(("install_failed", "re-install over an existing install"))
-    elif any(not (home / ".claude" / "toolkit" / "scripts" / f"{n}.py").is_file() for n in called):
-        out.append(("script_missing", "re-install: a called script is gone after the second install"))
+    out += upgrade(root, root, base / "upgrade", called, "re-install")
+    if previous is not None:
+        out += upgrade(previous, root, base / "from_previous", called, f"upgrade from {previous.name}")
 
     home = base / "dry"
     if install(root, home, "--dry-run"):
@@ -208,6 +231,17 @@ def self_test() -> int:
           "script_missing" in kinds(defect("install.sh", loop,
                                            '    [ -f "$RUNTIME_DIR/$s.py" ] && mv "$RUNTIME_DIR/$s.py" "$RUNTIME_DIR/$s.py.bak" || '
                                            + loop.strip())))
+    check("a re-install that overwrites the user's config is caught",
+          "config_overwritten" in kinds(defect("install.sh", 'if [ ! -f "$CONFIG_FILE" ]; then', "if true; then")))
+    older = defect("shared/commands/audit.md", 'python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py"',
+                   'bash "$TOOLKIT_ROOT/scripts/emit_run_report.sh"')
+    code, f = run(copy(), older) if older else (None, [])
+    check("an upgrade from an older checkout leaves the new commands and the user's config (positive control)",
+          code == 0 and not f)
+    never_overwrites = defect("install.sh", '        cp "$src" "$dst"\n', '        [ -e "$dst" ] || cp "$src" "$dst"\n')
+    check("an upgrade that keeps the old command files is caught",
+          bool(never_overwrites and older)
+          and "upgrade_stale" in {k for k, _ in run(never_overwrites, older)[1]})
     check("a broken installed helper is caught",
           "script_broken" in kinds(defect("scripts/emit_run_report.py", "            csv.writer(f).writerow(row)",
                                           "            pass")))
@@ -232,15 +266,25 @@ def self_test() -> int:
 def main() -> int:
     if "--self-test" in sys.argv:
         return self_test()
-    root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT
-    code, findings = run(root)
+    args = sys.argv[1:]
+    previous = None
+    if "--previous" in args:
+        i = args.index("--previous")
+        if i + 1 >= len(args) or not (Path(args[i + 1]) / "install.sh").is_file():
+            print("usage: --previous needs a checkout that has install.sh")
+            return 2
+        previous = Path(args[i + 1]).resolve()
+        args = args[:i] + args[i + 2:]
+    root = Path(args[0]).resolve() if args else ROOT
+    code, findings = run(root, previous)
     if code == 2:
         print(f"usage: {root} has no install.sh or shared/commands/")
         return 2
     for kind, detail in findings:
         print(f"{kind:<20} {detail}")
     installer = (root / "install.sh").read_text(encoding="utf-8")
-    print(f"\n{len(findings)} finding(s); modes: default, --minimal, --hooks, re-install, --dry-run; "
+    print(f"\n{len(findings)} finding(s); modes: default, --minimal, --hooks, re-install, --dry-run"
+          + (f", upgrade from {previous}" if previous else "") + "; "
           f"runtime scripts: {array(installer, 'RUNTIME_SCRIPTS')}" + (" — clean" if code == 0 else ""))
     return code
 

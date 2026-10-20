@@ -20,9 +20,17 @@ MUTANTS = {
         "            if not script.is_file():", "            if False:",
         ["a runtime script installed only in the full install is caught in --minimal"]),
     "a re-install is not checked for the scripts it should leave": (
-        '    elif any(not (home / ".claude" / "toolkit" / "scripts" / f"{n}.py").is_file() for n in called):',
-        "    elif False:",
+        '        if not (home / ".claude" / "toolkit" / "scripts" / f"{n}.py").is_file():', "        if False:",
         ["a re-install that backs up the script and never copies the new one is caught"]),
+    "a re-install may overwrite the user's config": (
+        '    if cfg.read_text(encoding="utf-8") != USER_CONFIG:', "    if False:",
+        ["a re-install that overwrites the user's config is caught"]),
+    "an upgrade that keeps old command files passes": (
+        "        if dst.is_file() and dst.read_bytes() != src.read_bytes():", "        if False:",
+        ["an upgrade that keeps the old command files is caught"]),
+    "--previous is accepted but never installed": (
+        "    if previous is not None:", "    if False:",
+        ["an upgrade that keeps the old command files is caught"]),
     "a call to an uninstalled script is allowed": (
         "            if name not in runtime:", "            if False:",
         ["a command calling a script missing from RUNTIME_SCRIPTS is caught"]),
