@@ -18,17 +18,20 @@ Design rationale: [DESIGN.md](DESIGN.md). Who this is for and not for: [POSITION
 
 ## How the toolkit checks itself
 
-The toolkit holds its own release to the standard it asks of your work. Three gates run in CI on every push, and each is proven by a mutation check: a copy of the gate with a defect planted in it must turn its own self-test red.
+The toolkit holds its own release to the standard it asks of your work. The gates below run in CI on every push, and each is proven by a mutation check: a copy of the gate with a defect planted in it must turn its own self-test red.
 
 | Gate | What it refuses | Proof |
 |---|---|---|
 | `tests/check_toolkit.py` | a command without its contract (frontmatter, "When to use"), an absolute home path, a credential, an email outside the allowlist, and any term in your own private-token file (`~/.claude/toolkit-private-tokens.txt`: project names, course codes, folders that must never ship) | `tests/check_toolkit_mutations.py` |
 | `tests/check_claims.py` | a count or version on any page that disagrees with `install.sh` and `VERSION` | `tests/check_claims_mutations.py` |
+| `tests/check_install.py` | an install, in any mode, that leaves out a file a command calls; a command that calls a path existing only in a clone; a re-install that changes your config | `tests/check_install_mutations.py` |
 | `hooks/usage_counter.py` | (a hook, not a gate) a usage counter that drops a call or breaks a session | `hooks/usage_counter_mutations.py` |
+| `scripts/emit_run_report.py` | (a helper, not a gate) a run report or `run_log.csv` row that is malformed or never written | `scripts/emit_run_report_mutations.py` |
 
 ```bash
-python3 tests/check_toolkit.py && python3 tests/check_claims.py          # the gates
-python3 tests/check_toolkit_mutations.py && python3 tests/check_claims_mutations.py && python3 hooks/usage_counter_mutations.py
+python3 tests/check_toolkit.py && python3 tests/check_claims.py && python3 tests/check_install.py    # the gates
+python3 tests/check_toolkit_mutations.py && python3 tests/check_claims_mutations.py && python3 tests/check_install_mutations.py
+python3 hooks/usage_counter_mutations.py && python3 scripts/emit_run_report_mutations.py
 ```
 
 ## Spec-Driven Development
