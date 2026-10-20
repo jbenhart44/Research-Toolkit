@@ -652,7 +652,8 @@ One defect, present since v1.1. Seven commands (`/audit`, `/commit`, `/dailysumm
 |---|---|
 | `scripts/emit_run_report.py` | The helper, ported to Python (standard library): the same arguments, the same 13-column row and `run_report.md` frontmatter. `install.sh` copies it to `~/.claude/toolkit/scripts/` in every mode (default, `--minimal`, `--hooks`) through a new `RUNTIME_SCRIPTS` array |
 | `scripts/emit_run_report_selftest.py`, `scripts/emit_run_report_mutations.py` | 19 cases; 15 mutants, each turning its case red. Two cases and two mutants cover the `.sh` launcher: it finds the `.py` from any working folder, and with no `python3` on PATH it exits 0 and prints nothing |
-| `tests/check_install.py`, `tests/check_install_mutations.py` | Real installs into temporary HOMEs in five modes, plus `--previous DIR` for an upgrade from an older checkout. Every expectation comes from `install.sh`'s arrays and from what the command files call. 19 cases; 16 mutants. Replaces the typed `-eq 15` step in `tests.yml` |
+| `tests/check_install.py`, `tests/check_install_mutations.py` | Real installs into temporary HOMEs in five modes, plus `--previous DIR` for an upgrade from an older checkout. Every expectation comes from `install.sh`'s arrays and from what the command files call. 20 cases; 17 mutants. Replaces the typed `-eq 15` step in `tests.yml` |
+| `student/bootstrap.md`, Step 4b | The in-session installer (Claude copies the files with Read and Write) now installs the runtime scripts too, found from what the commands call. `check_install.py` fails if it loses that step |
 
 ### What it refuses
 

@@ -17,7 +17,7 @@ Run these yourself; CI runs them on Linux and macOS on every push (`.github/work
 | Every place a command starts an agent names the model the role table gives it; the role table, its generated copies and the failure block agree | `python3 tests/check_models.py` (triage of its first run: `tests/model_gate_triage.md`) | `python3 tests/check_models_mutations.py` — 23 planted defects |
 | The usage counter records every use and never breaks a session | `python3 hooks/usage_counter_selftest.py` | `python3 hooks/usage_counter_mutations.py` — 9 planted defects |
 | The usage report merges and counts correctly | `python3 scripts/usage_counts.py --self-test` | `python3 scripts/usage_counts_mutations.py` — 10 planted defects |
-| The installer gives a user every file the commands call, in every install mode, and a re-install keeps the user's config | `python3 tests/check_install.py` (real installs into temporary `HOME`s; every expectation derived from `install.sh` and the command files) | `python3 tests/check_install_mutations.py` — 16 planted defects |
+| The installer gives a user every file the commands call, in every install mode, and a re-install keeps the user's config | `python3 tests/check_install.py` (real installs into temporary `HOME`s; every expectation derived from `install.sh` and the command files) | `python3 tests/check_install_mutations.py` — 17 planted defects |
 | The run-report helper writes a well-formed report and one `run_log.csv` row, and never breaks the calling command | `python3 scripts/emit_run_report_selftest.py` | `python3 scripts/emit_run_report_mutations.py` — 15 planted defects |
 
 A mutation check is the evidence that a green test means something: each planted defect leaves a working

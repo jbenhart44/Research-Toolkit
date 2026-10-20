@@ -63,6 +63,15 @@ If `~/.claude/skills/pcv/` already has files, copy the whole folder to
 Glob `Research-Toolkit/pcv/agents/*.md` and copy every file to
 `~/.claude/agents/`.
 
+### Step 4b: Install the runtime scripts
+
+Some commands end by calling a helper script at
+`$HOME/.claude/toolkit/scripts/<name>.py` (the run-report helper, for one).
+Search the command files from Step 2 for `.claude/toolkit/scripts/` and note
+each `<name>.py` they call. Copy each one from `Research-Toolkit/scripts/` to
+`~/.claude/toolkit/scripts/`, creating the folder if needed. Copy only the
+files the commands call: never a `_selftest.py` or `_mutations.py` file.
+
 ### Step 5: Install the config template
 
 If `~/.claude/toolkit-config.md` does not exist, copy
@@ -75,9 +84,10 @@ If it already exists, do not overwrite it; `/setup` will update it.
 - `~/.claude/skills/pcv/` holds as many files as the Step 3 glob returned,
   and `~/.claude/skills/pcv/VERSION` exists.
 - Every file from the Step 4 glob is present in `~/.claude/agents/`.
+- Every script noted in Step 4b is present in `~/.claude/toolkit/scripts/`.
 
 If anything is missing, copy it again and re-check. Do not report success
-until all three hold.
+until all four hold.
 
 ### Step 7: Report
 
@@ -88,6 +98,7 @@ Fill in the numbers from the globs; do not type them from this file.
 > **{C + 1} commands**: {C} command files plus the `/pcv` skill
 > **PCV v{contents of VERSION}**: {S} files in `~/.claude/skills/pcv/`
 > **{A} PCV agents** in `~/.claude/agents/`
+> **{R} runtime scripts** in `~/.claude/toolkit/scripts/`
 >
 > **Next steps:**
 > 1. Restart Claude Code so it picks up the newly installed commands.
