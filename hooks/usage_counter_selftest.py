@@ -21,6 +21,7 @@ import tempfile
 from pathlib import Path
 
 HOOK = Path(os.environ.get("USAGE_COUNTER_HOOK", Path(__file__).resolve().parent / "usage_counter.py"))
+LAUNCHER = Path(os.environ.get("USAGE_COUNTER_LAUNCHER", Path(__file__).resolve().parent / "usage_counter.sh"))
 FAILS = []
 
 
@@ -134,6 +135,26 @@ def main():
     fire_default(post_skill("audit"), home2, proj2)
     got = rows(proj2 / ".toolkit" / "evidence" / "usage_events.csv")
     check("with no config the log goes to .toolkit/evidence in the project", len(got) == 1 and got[0]["name"] == "audit")
+
+    # The launcher Claude Code actually runs (usage_counter.sh), not only the Python it starts
+    def fire_launcher(payload, csv_path, path_env=None, cwd=None, argv0=None):
+        env = dict(os.environ, USAGE_EVENTS_CSV=str(csv_path))
+        if path_env is not None:
+            env["PATH"] = path_env
+        cmd = ["/bin/bash", argv0 or str(LAUNCHER)]
+        return subprocess.run(cmd, input=json.dumps(payload), capture_output=True, text=True, env=env, cwd=cwd, timeout=20)
+
+    p = fresh()
+    r = fire_launcher(post_skill("pace"), p)
+    check("the launcher records a call (positive control)", r.returncode == 0 and len(rows(p)) == 1)
+    p = fresh()
+    r = fire_launcher(post_skill("pace"), p, cwd=str(LAUNCHER.parent), argv0=LAUNCHER.name)
+    check("the launcher works when started from its own folder by bare name", r.returncode == 0 and len(rows(p)) == 1)
+    p = fresh()
+    no_tools = tempfile.mkdtemp(prefix="usagecounter_nopath_")
+    r = fire_launcher(post_skill("pace"), p, path_env=no_tools)
+    check("with no python3 on PATH the launcher exits 0 and prints nothing",
+          r.returncode == 0 and r.stdout == "" and r.stderr == "")
 
     print(f"usage_counter self-test: {len(FAILS)} failed" if FAILS else "usage_counter self-test: all passed")
     return 1 if FAILS else 0

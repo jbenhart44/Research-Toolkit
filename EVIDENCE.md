@@ -13,9 +13,9 @@ Run these yourself; CI runs them on Linux and macOS on every push (`.github/work
 | What is checked | Command | Proof it can fail |
 |---|---|---|
 | Every command carries its contract; no absolute home path, credential, private email, or term from your private-token file anywhere in the tree | `python3 tests/check_toolkit.py` | `python3 tests/check_toolkit_mutations.py` — 14 planted defects, each must turn a named self-test case red |
-| Every count and version on every page matches `install.sh` and `VERSION` | `python3 tests/check_claims.py` | `python3 tests/check_claims_mutations.py` — 14 planted defects |
-| The usage counter records every use and never breaks a session | `python3 hooks/usage_counter_selftest.py` | `python3 hooks/usage_counter_mutations.py` — 7 planted defects |
-| The usage report merges and counts correctly | `python3 scripts/usage_counts.py --self-test` | `python3 scripts/usage_counts_mutations.py` — 8 planted defects |
+| Every count and version on every page matches `install.sh` and `VERSION` | `python3 tests/check_claims.py` | `python3 tests/check_claims_mutations.py` — 17 planted defects |
+| The usage counter records every use and never breaks a session | `python3 hooks/usage_counter_selftest.py` | `python3 hooks/usage_counter_mutations.py` — 9 planted defects |
+| The usage report merges and counts correctly | `python3 scripts/usage_counts.py --self-test` | `python3 scripts/usage_counts_mutations.py` — 10 planted defects |
 | The installer installs what it says | `bash install.sh --hooks` into a temporary `HOME` | CI asserts 15 command files, the `/pcv` skill and the hooks land |
 
 A mutation check is the evidence that a green test means something: each planted defect leaves a working

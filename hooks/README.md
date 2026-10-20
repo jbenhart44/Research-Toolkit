@@ -12,13 +12,13 @@ These hooks extend the toolkit with automated safety, hygiene and measurement. *
 
 `command_evidence.sh`, an empty placeholder since it was added, was removed in v2.0. What it was named for is done by the usage counter (what ran) and `scripts/emit_run_report.sh` (how each run went).
 
-The usage counter is tested: `python3 hooks/usage_counter_selftest.py` checks it, and `python3 hooks/usage_counter_mutations.py` proves the self-test catches seven ways it could miscount or break a session.
+The usage counter is tested: `python3 hooks/usage_counter_selftest.py` checks it, and `python3 hooks/usage_counter_mutations.py` proves the self-test catches nine ways it could miscount or break a session, two of them in the `usage_counter.sh` launcher.
 
 ## Installation
 
 ### 1. Copy hooks to your Claude Code config
 
-`bash install.sh --hooks` copies every `hooks/*.sh` and `hooks/*.py` file to `~/.claude/hooks/` and marks the scripts executable. By hand:
+`bash install.sh --hooks` copies every runtime `hooks/*.sh` and `hooks/*.py` file to `~/.claude/hooks/` and marks the scripts executable. The self-tests and mutation checks (`*_selftest.py`, `*_mutations.py`) stay in the clone. By hand:
 
 ```bash
 mkdir -p ~/.claude/hooks

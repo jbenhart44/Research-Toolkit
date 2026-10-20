@@ -12,7 +12,7 @@
 
 **Author:** Jake Benhart (NC State University — Operations Research) · `/pcv` (Plan-Construct-Verify) is the work of Dr. Michael G. Kay, bundled unmodified · Contact: jebenhar@ncsu.edu · [jbenhart44.github.io](https://jbenhart44.github.io)
 
-**Links:** [Landing page](https://jbenhart44.github.io/toolkit/) · [Download v2.0.0](https://github.com/jbenhart44/Research-Toolkit/releases/tag/v2.0.0) · [Report an issue](https://github.com/jbenhart44/Research-Toolkit/issues) · [Discussions](https://github.com/jbenhart44/Research-Toolkit/discussions) · [Contribute](CONTRIBUTING.md)
+**Links:** [Landing page](https://jbenhart44.github.io/toolkit/) · [Download v2.0.1](https://github.com/jbenhart44/Research-Toolkit/releases/tag/v2.0.1) · [Report an issue](https://github.com/jbenhart44/Research-Toolkit/issues) · [Discussions](https://github.com/jbenhart44/Research-Toolkit/discussions) · [Contribute](CONTRIBUTING.md)
 
 Design rationale: [DESIGN.md](DESIGN.md). Who this is for and not for: [POSITIONING.md](POSITIONING.md). Error classes the toolkit is built to prevent: [references/preventable_errors.md](references/preventable_errors.md). Consolidated rule index: [references/iron_rules.md](references/iron_rules.md).
 
@@ -66,7 +66,7 @@ Reusable Claude Code commands that turn vague "help me with my research" prompts
 ```bash
 git clone https://github.com/jbenhart44/Research-Toolkit.git
 cd Research-Toolkit
-git checkout v2.0.0
+git checkout v2.0.1
 bash install.sh            # add --hooks for the optional hooks, including the usage counter
 ```
 
@@ -179,7 +179,7 @@ If you use or build on this toolkit, please cite:
   author  = {Benhart, Jake},
   title   = {Research Amp Toolkit: Verification-First Commands for AI-Assisted Research with Claude Code},
   year    = {2026},
-  version = {2.0.0},
+  version = {2.0.1},
   url     = {https://github.com/jbenhart44/Research-Toolkit},
   note    = {Bundles PCV (Plan-Construct-Verify) by Michael G. Kay}
 }

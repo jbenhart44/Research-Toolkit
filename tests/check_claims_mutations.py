@@ -36,6 +36,15 @@ MUTANTS = {
         r'''CFF_VERSION = re.compile(r"^version:\s*['\"]?(\d+(?:\.\d+){1,2})", re.M)''',
         r'''CFF_VERSION = re.compile(r"version:\s*['\"]?(\d+(?:\.\d+){1,2})", re.M)''',
         ["CITATION.cff version must match VERSION"]),
+    "BibTeX versions are not checked": (
+        "        for rx in (PIN, BIB_VERSION, STATUS):", "        for rx in (PIN, STATUS):",
+        ["a stale BibTeX version is caught"]),
+    "Status lines are not checked": (
+        "        for rx in (PIN, BIB_VERSION, STATUS):", "        for rx in (PIN, BIB_VERSION):",
+        ["a stale three-part Status line is caught"]),
+    "a two-part Status series is read as a pin": (
+        r'STATUS = re.compile(r"\bStatus:\**\s*v(\d+\.\d+\.\d+)")', r'STATUS = re.compile(r"\bStatus:\**\s*v(\d+\.\d+(?:\.\d+)?)")',
+        ["a two-part 'Status: v2.0' is a series, not a pin"]),
     "banned claims are not checked": (
         '        for phrase in BANNED:', '        for phrase in []:',
         ["the banned unbacked claim is caught"]),

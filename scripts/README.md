@@ -12,6 +12,7 @@ python3 scripts/usage_counts.py --tools coa,pace,audit   # only these
 python3 scripts/usage_counts.py --events path.csv        # a different counter file
 python3 scripts/usage_counts.py --backfill log.md        # also count '## /name — YYYY-MM-DD' headings from an older log
 python3 scripts/usage_counts.py --json counts.json       # also write the counts as JSON
+python3 scripts/usage_counts.py --project ~/my-project   # read the log of a project other than the current folder
 python3 scripts/usage_counts.py --self-test              # and: python3 scripts/usage_counts_mutations.py
 ```
 

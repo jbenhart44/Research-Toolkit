@@ -20,7 +20,7 @@ COUNTING RULES
 Balance check printed on every run: live + backfilled = total, per row and overall.
 
 Usage:
-    python3 scripts/usage_counts.py [--events FILE] [--backfill FILE] [--tools a,b] [--json OUT]
+    python3 scripts/usage_counts.py [--events FILE] [--backfill FILE] [--tools a,b] [--json OUT] [--project DIR]
     python3 scripts/usage_counts.py --self-test
 Mutation proof: scripts/usage_counts_mutations.py
 """
@@ -29,6 +29,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import re
 import sys
 import tempfile
@@ -39,6 +40,16 @@ from pathlib import Path
 MERGE_SECONDS = 600
 HEADING = re.compile(r"^## /([A-Za-z][A-Za-z0-9_.:-]*)\s+[—-]+\s+(\d{4}-\d{2}-\d{2})", re.M)
 EVIDENCE_KEY = re.compile(r"^\s*evidence_dir:\s*(.+?)\s*$", re.M)
+
+
+def project_root(arg: str | None, env: dict, cwd: Path) -> Path:
+    """The root a relative evidence_dir resolves against: --project, else $CLAUDE_PROJECT_DIR (the root the
+    hook uses), else the working directory. Without this, a report run from another folder reads the wrong log."""
+    if arg:
+        return Path(arg).expanduser()
+    if env.get("CLAUDE_PROJECT_DIR"):
+        return Path(env["CLAUDE_PROJECT_DIR"])
+    return cwd
 
 
 def default_events(project: Path) -> Path:
@@ -195,6 +206,11 @@ def self_test() -> int:
     check("balance: live + backfilled = total", r["total"] == r["live"] + r["backfilled"] == 2)
     check("first and last dates span backfill and live", r["first"] == "2026-10-01" and r["last"] == "2026-10-19")
 
+    here, proj, other = Path("/work/here"), "/work/project", "/work/other"
+    check("the project root is $CLAUDE_PROJECT_DIR, as in the hook", project_root(None, {"CLAUDE_PROJECT_DIR": proj}, here) == Path(proj))
+    check("--project wins over $CLAUDE_PROJECT_DIR", project_root(other, {"CLAUDE_PROJECT_DIR": proj}, here) == Path(other))
+    check("with neither, the project root is the working directory", project_root(None, {}, here) == here)
+
     print(f"usage_counts self-test: {ok} passed, {bad} failed")
     return 1 if bad else 0
 
@@ -207,9 +223,10 @@ def main() -> int:
     ap.add_argument("--backfill", help="an older command log with '## /name — YYYY-MM-DD' headings")
     ap.add_argument("--tools", help="comma-separated names to report")
     ap.add_argument("--json", dest="json_out")
+    ap.add_argument("--project", help="project root for a relative evidence_dir (default: $CLAUDE_PROJECT_DIR, else the working directory)")
     a = ap.parse_args()
     tools = set(a.tools.split(",")) if a.tools else None
-    project = Path.cwd()
+    project = project_root(a.project, dict(os.environ), Path.cwd())
     events = Path(a.events) if a.events else default_events(project)
     backfill_log = Path(a.backfill) if a.backfill else Path("/nonexistent-backfill")
     res = count(events, backfill_log, known_names(project), tools)

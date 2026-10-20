@@ -219,6 +219,8 @@ if [ "$INSTALL_HOOKS" = true ]; then
         mkdir -p "$HOOKS_DIR"
     fi
     for f in "$TOOLKIT_DIR"/hooks/*.sh "$TOOLKIT_DIR"/hooks/*.py; do
+        # Runtime hooks only: a hook's self-test and mutation check stay in the clone.
+        case "$f" in *_selftest.py|*_mutations.py) continue ;; esac
         fname=$(basename "$f")
         install_file "$f" "$HOOKS_DIR/$fname" "hooks/$fname"
     done
