@@ -12,7 +12,7 @@
 
 **Author:** Jake Benhart (NC State University — Operations Research) · `/pcv` (Plan-Construct-Verify) is the work of Dr. Michael G. Kay, bundled unmodified · Contact: jebenhar@ncsu.edu · [jbenhart44.github.io](https://jbenhart44.github.io)
 
-**Links:** [Landing page](https://jbenhart44.github.io/toolkit/) · [Download v2.0.2](https://github.com/jbenhart44/Research-Toolkit/releases/tag/v2.0.2) · [Report an issue](https://github.com/jbenhart44/Research-Toolkit/issues) · [Discussions](https://github.com/jbenhart44/Research-Toolkit/discussions) · [Contribute](CONTRIBUTING.md)
+**Links:** [Landing page](https://jbenhart44.github.io/toolkit/) · [Download v2.1.0](https://github.com/jbenhart44/Research-Toolkit/releases/tag/v2.1.0) · [Report an issue](https://github.com/jbenhart44/Research-Toolkit/issues) · [Discussions](https://github.com/jbenhart44/Research-Toolkit/discussions) · [Contribute](CONTRIBUTING.md)
 
 Design rationale: [DESIGN.md](DESIGN.md). Who this is for and not for: [POSITIONING.md](POSITIONING.md). Error classes the toolkit is built to prevent: [references/preventable_errors.md](references/preventable_errors.md). Consolidated rule index: [references/iron_rules.md](references/iron_rules.md).
 
@@ -25,12 +25,13 @@ The toolkit holds its own release to the standard it asks of your work. The gate
 | `tests/check_toolkit.py` | a command without its contract (frontmatter, "When to use"), an absolute home path, a credential, an email outside the allowlist, and any term in your own private-token file (`~/.claude/toolkit-private-tokens.txt`: project names, course codes, folders that must never ship) | `tests/check_toolkit_mutations.py` |
 | `tests/check_claims.py` | a count or version on any page that disagrees with `install.sh` and `VERSION` | `tests/check_claims_mutations.py` |
 | `tests/check_install.py` | an install, in any mode, that leaves out a file a command calls; a command that calls a path existing only in a clone; a re-install that changes your config | `tests/check_install_mutations.py` |
+| `tests/check_models.py` | a command that starts an agent without naming its model, or names one the role table does not give that role; a pinned model ID; a role table, generated table or failure block out of step with `shared/model-roles.json` | `tests/check_models_mutations.py` |
 | `hooks/usage_counter.py` | (a hook, not a gate) a usage counter that drops a call or breaks a session | `hooks/usage_counter_mutations.py` |
 | `scripts/emit_run_report.py` | (a helper, not a gate) a run report or `run_log.csv` row that is malformed or never written | `scripts/emit_run_report_mutations.py` |
 
 ```bash
-python3 tests/check_toolkit.py && python3 tests/check_claims.py && python3 tests/check_install.py    # the gates
-python3 tests/check_toolkit_mutations.py && python3 tests/check_claims_mutations.py && python3 tests/check_install_mutations.py
+python3 tests/check_toolkit.py && python3 tests/check_claims.py && python3 tests/check_install.py && python3 tests/check_models.py    # the gates
+python3 tests/check_toolkit_mutations.py && python3 tests/check_claims_mutations.py && python3 tests/check_install_mutations.py && python3 tests/check_models_mutations.py
 python3 hooks/usage_counter_mutations.py && python3 scripts/emit_run_report_mutations.py
 ```
 
@@ -69,15 +70,15 @@ Reusable Claude Code commands that turn vague "help me with my research" prompts
 ```bash
 git clone https://github.com/jbenhart44/Research-Toolkit.git
 cd Research-Toolkit
-git checkout v2.0.2
+git checkout v2.1.0
 bash install.sh            # add --hooks for the optional hooks, including the usage counter
 ```
 
-Upgrading from an earlier version? Re-run `install.sh` from the new checkout. Before v2.0.2 the installer did not copy the run-report helper, so commands wrote no run reports; a re-install fixes that.
+Upgrading from an earlier version? Re-run `install.sh` from the new checkout. Before v2.0.2 the installer did not copy the run-report helper, so commands wrote no run reports; a re-install fixes that. From v2.1.0, also run `/setup` once: the installer never overwrites your config, so the account question is new to you, and until you answer it the `/coa` Chair requests Sonnet.
 
 Then in Claude Code:
 
-1. **`/setup`** — a two-minute interview that writes `~/.claude/toolkit-config.md`: your project name, workstreams and folders. Every command reads that file instead of hard-coded paths; a command that needs a value you have not given asks once and offers to save it.
+1. **`/setup`** — a two-minute interview that writes `~/.claude/toolkit-config.md`: your project name, workstreams, folders, and which Claude account you use (see [Which model runs each agent](#which-model-runs-each-agent)). Every command reads that file instead of hard-coded paths; a command that needs a value you have not given asks once and offers to save it.
 2. **`/startup`** — orients you on where each workstream left off.
 
 **Verify your install** (30 seconds):
@@ -130,6 +131,23 @@ If the expected output matches, your install is working. See `tests/README.md` f
 | Command | What it does |
 |---------|-------------|
 | **/help** | Socratic triage — describe your situation in one line, get 1-3 command recommendations. Traffic cop, not driver. **EXPERIMENTAL** — see the smoke fixture at `tests/smoke/help_triage.md`. |
+
+### Which model runs each agent
+
+Six commands start subagents. Each one names the model it requests on the call itself, instead of inheriting your session's model, and `tests/check_models.py` fails the build if one does not. The table is `shared/model-roles.json`; this copy is generated from it.
+
+<!-- BEGIN GENERATED: role-table -->
+| Role | Where it runs | `pro`, `team-standard`, `unknown` | `max5x`, `max20x`, `team-premium`, `enterprise`, `api`, `cloud` |
+|---|---|---|---|
+| `reasoner` | /coa: members, cross-check, rebuttal · /pace: player-a, player-b, coach-c, coach-d, cross-reviewer, revision-reviewer · /review: lenses | sonnet | sonnet |
+| `chair` | /coa: chair | sonnet | opus (`model_chair`) |
+| `writer` | /dailysummary: writer · /weeklysummary: writer | sonnet | sonnet |
+| `transcriber` | /readable: transcriber | sonnet | sonnet |
+<!-- END GENERATED: role-table -->
+
+The columns are the account `/setup` records. They are the toolkit's cost policy, not a claim about which models an account can use: the only role that changes is the `/coa` Chair, which requests Opus where the account's allowance makes the cost reasonable and `/model` lists it. No role requests Haiku yet; a role has to pass the admission test in [references/model-roles.md](references/model-roles.md) first. That page gives each reason with Anthropic's sources and the date they were read.
+
+> **What the files cannot guarantee.** They name the model each agent *requests*. `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`, an organization's model allowlist, an `ANTHROPIC_API_KEY` in your environment, or an alias that Anthropic moves can each change what actually runs. Run `/tasks` to see the model each agent ran on, and `/model` to see what your account offers.
 
 ### Companion tool: captioner
 
@@ -184,7 +202,7 @@ If you use or build on this toolkit, please cite:
   author  = {Benhart, Jake},
   title   = {Research Amp Toolkit: Verification-First Commands for AI-Assisted Research with Claude Code},
   year    = {2026},
-  version = {2.0.2},
+  version = {2.1.0},
   url     = {https://github.com/jbenhart44/Research-Toolkit},
   note    = {Bundles PCV (Plan-Construct-Verify) by Michael G. Kay}
 }

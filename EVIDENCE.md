@@ -13,7 +13,8 @@ Run these yourself; CI runs them on Linux and macOS on every push (`.github/work
 | What is checked | Command | Proof it can fail |
 |---|---|---|
 | Every command carries its contract; no absolute home path, credential, private email, or term from your private-token file anywhere in the tree | `python3 tests/check_toolkit.py` | `python3 tests/check_toolkit_mutations.py` — 14 planted defects, each must turn a named self-test case red |
-| Every count and version on every page matches `install.sh` and `VERSION` | `python3 tests/check_claims.py` | `python3 tests/check_claims_mutations.py` — 17 planted defects |
+| Every count and version on every page matches `install.sh` and `VERSION`, and every "N planted defects" matches its mutation file | `python3 tests/check_claims.py` | `python3 tests/check_claims_mutations.py` — 24 planted defects |
+| Every place a command starts an agent names the model the role table gives it; the role table, its generated copies and the failure block agree | `python3 tests/check_models.py` (triage of its first run: `tests/model_gate_triage.md`) | `python3 tests/check_models_mutations.py` — 23 planted defects |
 | The usage counter records every use and never breaks a session | `python3 hooks/usage_counter_selftest.py` | `python3 hooks/usage_counter_mutations.py` — 9 planted defects |
 | The usage report merges and counts correctly | `python3 scripts/usage_counts.py --self-test` | `python3 scripts/usage_counts_mutations.py` — 10 planted defects |
 | The installer gives a user every file the commands call, in every install mode, and a re-install keeps the user's config | `python3 tests/check_install.py` (real installs into temporary `HOME`s; every expectation derived from `install.sh` and the command files) | `python3 tests/check_install_mutations.py` — 17 planted defects |

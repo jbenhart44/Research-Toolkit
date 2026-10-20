@@ -230,6 +230,7 @@ This is where the conversation-first philosophy lives. For each command, skill, 
 - Were the same types of errors fixed multiple times in git (pattern = needs a JIT file)?
 
 #### Category C: Slash Command and Skill Improvements
+<!-- spawn: none reason="a checklist question that mentions the Agent tool" -->
 - Do any commands or skills have outdated version numbers or missing frontmatter fields?
 - Are there inconsistent patterns across commands (e.g., one uses the Agent tool, another doesn't, for similar tasks)?
 - Did any commands or skills fail or produce suboptimal results recently (visible from git fixes or summary mentions)?

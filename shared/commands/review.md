@@ -9,6 +9,7 @@ description: Read a document through 3 expert lenses in parallel (Skeptic + Prac
 
 A triage-and-absorb tool. `/review` does NOT execute recommended actions — it surfaces them. You decide what to do with the implications.
 
+<!-- spawn: none reason="the cost note names the three lens agents; they are marked at Step 1" -->
 **Cost note**: Spawns 3 subagents in parallel (~80K–120K tokens). Lighter than /coa Quick Panel because the synthesis is integrative rather than adversarial.
 
 ## Usage
@@ -62,7 +63,18 @@ Output a one-line scope statement before launching subagents:
 
 ## STEP 1 — Spawn three lens agents in parallel
 
-All three subagents run in parallel (single message, three `Agent` tool calls). Use `subagent_type: "general-purpose"` for all three.
+<!-- spawn: role=reasoner model=sonnet site=review#lenses -->
+All three subagents run in parallel (single message, three `Agent` tool calls). Use `subagent_type: "general-purpose"` and `model: "sonnet"` for all three (the `reasoner` row of `references/model-roles.md`).
+
+<!-- BEGIN MODEL FAILURE -->
+**MODEL FAILURE — when an agent cannot run on the model it requested.**
+1. **A session or weekly limit** ("You've hit your session limit"). These limits are shared across all models, so another model does not help. Stop starting agents, quote the error and its reset time, and offer two choices: wait, or stop. Do not retry.
+2. **An Opus limit, or a model the account cannot use, on the Chair's `opus` request** ("You've hit your Opus limit"; "There's an issue with the selected model"). Retry the Chair once on `sonnet`. Write `fallback_from: opus` and the error text into the run report, and name the model that ran in the printed model line.
+3. **Any other error, or any other role.** Stop that role, quote the error, and offer the choices: retry as written, run that role on the session's model, or stop. Never change a role's model on your own; rule 2 is the only exception.
+4. Do not rely on a fallback-model setting for this: Claude Code never switches models on an authentication, billing or rate-limit error.
+<!-- END MODEL FAILURE -->
+
+`/review` starts no Chair agent (the Clerk is the Chair), so rule 2 never applies here.
 
 ### Skeptic briefing
 
@@ -202,6 +214,7 @@ Return ONLY the report. No preamble, no meta-commentary.
 
 ## STEP 2 — Synthesize (Chair role)
 
+<!-- spawn: none reason="says not to start a fourth agent" -->
 You (the Clerk) now act as Chair. You have three reports. Do NOT spawn a 4th agent — the Chair work is synthesis, and the user needs to see all three raw reports plus your consolidation.
 
 Output in this exact order:
@@ -240,7 +253,7 @@ Output in this exact order:
 
 ### Single-Panelist Unique Findings
 
-<!-- regime-shift v0.1: surfaces buried-best-findings hidden under aggregate Chair synthesis. Clerk acting as Chair extracts these inline — DO NOT spawn a 4th agent. -->
+<!-- regime-shift v0.1: surfaces buried-best-findings hidden under aggregate Chair synthesis. Clerk acting as Chair extracts these inline — DO NOT start a 4th agent. -->
 
 Findings raised by exactly ONE lens (Skeptic, Practitioner, or Editor) that no other lens mentioned. These are NOT convergence (multiple agreement) and NOT divergence (active disagreement) — they are lens-exclusive observations.
 

@@ -681,3 +681,49 @@ One defect, present since v1.1. Seven commands (`/audit`, `/commit`, `/dailysumm
 - The `run_log.csv` schema (13 columns) and the `run_report.md` frontmatter keys.
 - No command was renamed and no argument was removed. In each command file only the helper call line and the `allowed-tools` line changed, plus, in `help.md`, the sentence that names the helper.
 - The PCV bundle (`pcv/`) and the headline count (16 commands, `/pcv` included).
+
+---
+
+## v2.1.0 Changelog (2026-10-20) — Models by account
+
+Before this release, six commands started subagents and only some named a model. `/pace`'s agents and the summary writers already requested Sonnet; `/coa`'s seats, Chair and rebuttal, `/review`'s lenses and `/readable`'s transcriber requested nothing and ran on the session's model, which defaults to Opus 5.5 on Pro, Max, Team, Enterprise and the Anthropic API (https://code.claude.com/docs/en/model-config, read 2026-10-20). Now every place a command starts an agent names its model, from one table keyed on the account the user gives `/setup`, and a gate fails the build if one does not.
+
+### Added
+
+| File | What it does |
+|---|---|
+| `shared/model-roles.json` | The role table: four roles (`reasoner`, `chair`, `writer`, `transcriber`), the model each requests on each account class, the sites each runs at, the account answers and their classes, and the recorded PCV agent models. Not installed: tools read it, the model does not |
+| `references/model-roles.md` | The reasons, each with Anthropic's URL and the date it was read; the account classes as a cost policy; the Haiku admission test; the canonical MODEL FAILURE block; what the files cannot guarantee; where Anthropic's pages disagree; a dated appendix of what each alias resolved to. Every quotation on it was checked against the saved page text (33 quotes, 0 missing) |
+| `tests/check_models.py`, `tests/check_models_mutations.py` | The model gate, classes M1 to M16 (docstring). 35 self-test cases, including four corpus controls on a copy of the real commands; 23 mutants |
+| `tests/model_gate_triage.md` | The gate's Prior, committed before the gate existed, and the hand triage of its first run |
+| `tests/smoke/model_gate_smoke.md` | The live check: `/tasks` after `/coa --quick` and `/pace` shows what each agent actually ran on |
+
+`tests/check_claims.py` also derives "N command files" and "N slash command definitions", checks every "N planted defects" against the mutation file it names, bans "guarantees the model" and "always runs on", and is proven by 24 mutants (was 17).
+
+### What it refuses
+
+A spawn with no marker or no literal model; a marker whose model is not the table's for that role; `model=inherit`; a pinned full model ID outside the dated appendix and the changelogs; `fable` as a model value; `model:` in a command's own frontmatter; "best available model" and "Task tool"; a table with a missing cell, a writer on Haiku, Haiku on a role that has not passed the admission test, or a site with no marker; drift in the PCV agent models; a generated table or MODEL FAILURE copy that differs from its source; a crossmodel call outside an external block. A spawning command with no site at all is exit 2, never a pass.
+
+### Proof it can fail
+
+- **Prior before the run.** `tests/model_gate_triage.md` part 1 predicted 28 hit blocks, 12 role-site blocks with 7 naming a model, and the two role-sites the patterns could not see (the `/coa` rebuttal and the `/pace` revision reviewer). The first run found 32 blocks; the 12, the 7 and the two unseen sites matched exactly, and the 4 extra blocks are listed there.
+- **Corpus controls.** On a copy of the real commands: deleting the literal at the `/pace` Player spawn exits 1 at that block; a `reasoner` marker changed to `opus` is refused; a spawn reworded past every pattern with its marker deleted is caught by the table's site list.
+- **Mutation.** 23 mutants of the gate, one per class plus four the plan named (exit code ignored, the `pcv/` exemption widened, a spawning command with no site passing, matching line by line instead of by block); each turns its case red.
+
+### Behaviour changes
+
+- (a) `/coa` members, cross-check and rebuttal, `/review` lenses and the `/readable` transcriber stop inheriting the session model and request `sonnet`. On a default session that is a step down from Opus 5.5: Anthropic says Opus "costs several times more per turn than Sonnet" (https://support.claude.com/en/articles/14552983-models-usage-and-limits-in-claude-code, read 2026-10-20); the effect on what a council finds has not been measured.
+- (b) The `/coa` Chair requests `model_chair` from `~/.claude/toolkit-config.md`: `opus` only for an opus-ceiling account whose `/model` lists Opus, otherwise `sonnet`.
+- (c) **Existing installs keep their config** (the installer never overwrites it), so the Chair requests `sonnet` until the account question is answered. `/coa` asks it once at roster time; `/setup` asks it too.
+- (d) New printed lines: `/coa`'s session report shows `requested: seats sonnet | chair <model>` and `second reader: …`; `/pace`'s declaration reads `requested 5 agents on sonnet`.
+- (e) `/audit` and `/quarto` lose an `Agent` permission neither used.
+- (f) The `/coa` stall row (`agent_stalls.csv`) gains a `model` column.
+- (g) The five "use the best available model" fallbacks in `/pace`, `/dailysummary` and `/weeklysummary` are replaced by the MODEL FAILURE block: a command now stops and offers choices instead of switching a model on its own. The summaries keep their numeric re-check as one of the choices.
+- (h) `/setup` asks one more question (the account), with a `/model` follow-up for opus-ceiling accounts, and reports, by name only, environment variables and settings that override the table. It gains `Bash(python3:*)` and `Bash(claude --version)`.
+
+### What did NOT change
+
+- No command was renamed and no flag was removed: every `--flag` and `argument-hint` line in the 11 changed command files was compared with v2.0.2 (0 dropped).
+- The install surface: the role table and `references/` are not installed; the headline count is 16.
+- The PCV bundle (`pcv/`) and its own agent models, which the gate compares but never edits.
+- No role requests Haiku or Fable.

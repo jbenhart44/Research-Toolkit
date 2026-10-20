@@ -1,5 +1,5 @@
 ---
-allowed-tools: Read, Glob, Grep, Bash(ls:*), Bash(wc:*), Bash(date:*), Bash(python3:*), Write, Agent
+allowed-tools: Read, Glob, Grep, Bash(ls:*), Bash(wc:*), Bash(date:*), Bash(python3:*), Write
 description: Citation and numerical accuracy audit — verifies every cited metric and source in a document against actual paper PDFs/TXT files on disk. Prevents fabricated citations AND misquoted numbers.
 ---
 

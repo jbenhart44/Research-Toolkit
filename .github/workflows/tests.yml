@@ -22,12 +22,16 @@ jobs:
         run: python3 tests/check_toolkit.py
       - name: Claims gate (every count and version matches install.sh and VERSION)
         run: python3 tests/check_claims.py
+      - name: Model gate (every agent a command starts names the role table's model)
+        run: python3 tests/check_models.py
       - name: Gates are proven to fail (mutation checks)
         run: |
           python3 tests/check_toolkit.py --self-test
           python3 tests/check_toolkit_mutations.py
           python3 tests/check_claims.py --self-test
           python3 tests/check_claims_mutations.py
+          python3 tests/check_models.py --self-test
+          python3 tests/check_models_mutations.py
 
       - name: Usage counter and report (self-tests and mutation checks)
         run: |

@@ -74,6 +74,31 @@ MUTANTS = {
         '        return 2, [f"cannot derive the truth: count={count} version={version}"], (count, version)',
         '        return 0, [], (count, version)',
         ["no VERSION file is exit 2"]),
+    "a missing installer array still gives a count": (
+        '        if len(arrays) == 2:\n            count = len(arrays["SHARED_COMMANDS"]) + len(arrays["STUDENT_ONLY"]) + 1',
+        '        if arrays:\n            count = len(arrays.get("SHARED_COMMANDS", [])) + len(arrays.get("STUDENT_ONLY", [])) + 1',
+        ["an installer with an array missing is exit 2"]),
+    "command-file counts are not checked": (
+        "        for m in FILES.finditer(line):", "        for m in []:",
+        ["a wrong command-file count is caught"]),
+    "command-file counts are held to the count that includes /pcv": (
+        '            elif kind == "files" and int(value) != want - 1:', '            elif kind == "files" and int(value) != want:',
+        ["a correct hyphenated count and a correct command-file count pass"]),
+    "mutant counts are not checked": (
+        "        for m in MUTANT_COUNT.finditer(line):", "        for m in []:",
+        ["a mutant count that disagrees with its harness is caught"]),
+    "only the dictionary named MUTANTS is counted": (
+        'any(isinstance(t, ast.Name) and t.id.endswith("MUTANTS") for t in node.targets)',
+        'any(isinstance(t, ast.Name) and t.id == "MUTANTS" for t in node.targets)',
+        ["a mutant count that matches its harness passes"]),
+    "a mutant count pairs with the first harness on its line": (
+        "            h = before[-1] if before else (harnesses[0] if harnesses else None)",
+        "            h = harnesses[0] if harnesses else None",
+        ["each mutant count pairs with the harness named just before it"]),
+    "the model-claim phrases are not banned": (
+        'BANNED = ["hundreds of production sessions", "guarantees the model", "always runs on"]',
+        'BANNED = ["hundreds of production sessions"]',
+        ["the banned claim in 'This guarantees the model", "the banned claim in 'Every seat always runs on"]),
 }
 
 base = subprocess.run([sys.executable, str(HERE / "check_claims.py"), "--self-test"], capture_output=True, text=True)

@@ -5,6 +5,7 @@ description: PACE (Parallel Agent Consensus Engine) — spawns four subagents (t
 
 # PACE Protocol (Parallel Agent Consensus Engine)
 
+<!-- spawn: none reason="the cost warning names the agents a run starts; they are marked at Steps 1, 2, 4 and 7c" -->
 > **When to use**: You need a single verified deliverable (code, proof, analysis, document) and want independent agents to cross-check each other's work. Best for tasks with a correct answer where errors are costly.
 >
 > **Cost warning**: This command spawns 5 subagents (2 players + 2 coaches + 1 cross-reviewer), plus a sixth revision reviewer when findings are applied to an artifact (Step 7c). The subagents run on Sonnet by default (see AGENT MODEL). Estimated cost: 80K-200K tokens per run depending on task complexity.
@@ -130,6 +131,7 @@ Each agent writes its own file (see AGENT FINISH DISCIPLINE). The orchestrator w
 
 ### Rationale
 
+<!-- spawn: none reason="rationale for the file manifest" -->
 Earlier PACE runs wrote only a summary report with narrative descriptions of what Players A and B said. That made it impossible to verify mechanically that two distinct subagents actually spawned, rather than the orchestrator role-playing both. An audit of sibling multi-agent commands found that runs had silently collapsed multi-agent outputs into single-context role-play. This file manifest is the structural check that forces each agent's output to exist as independent, hashable evidence.
 
 ---
@@ -179,10 +181,11 @@ Every Player, Coach, Cross-Reviewer and revision-reviewer prompt embeds this blo
 
 ### The declaration, before any agent is spawned
 
+<!-- spawn: none reason="the topology declaration printed before the first agent starts" -->
 **Print this line, every run, before the first Agent call. Not after, not in the final report.**
 
 ```
-PACE topology: 5 agents on Sonnet (default) · orchestrator <session model> at <effort> effort.
+PACE topology: requested 5 agents on sonnet (default) · second reader: orchestrator <session model> at <effort> effort.
 Say "opus players" or name a seat to raise it; otherwise this proceeds as stated.
 ```
 
@@ -202,8 +205,20 @@ When the user raises it, say which seats changed in the declaration line, so the
 PACE topology: Players A/B on Opus (raised by you), Coaches C/D + Cross-Reviewer on Sonnet.
 ```
 
-**Every subagent this protocol spawns — Player A, Player B, Coach C, Coach D, the Cross-Reviewer and the Step 7c revision reviewer — is spawned with `model: "sonnet"`, explicitly, on every call, unless the user raised that seat in the current turn.** Pass it as an argument to the Agent tool; do not rely on a default. If Sonnet is not available on the user's plan, use the best available model, name it in the declaration line, and record it in `subagent_model`.
+<!-- spawn: none reason="the model policy for every PACE agent; each start is marked at its step" -->
+**Every subagent this protocol spawns — Player A, Player B, Coach C, Coach D, the Cross-Reviewer and the Step 7c revision reviewer — is spawned with `model: "sonnet"`, explicitly, on every call, unless the user raised that seat in the current turn.** Pass it as an argument to the Agent tool; do not rely on a default. `sonnet` is the `reasoner` row of the toolkit's role table (`references/model-roles.md`). If an agent cannot run on the model it requested, follow MODEL FAILURE below, and record what ran in `subagent_model`.
 
+<!-- BEGIN MODEL FAILURE -->
+**MODEL FAILURE — when an agent cannot run on the model it requested.**
+1. **A session or weekly limit** ("You've hit your session limit"). These limits are shared across all models, so another model does not help. Stop starting agents, quote the error and its reset time, and offer two choices: wait, or stop. Do not retry.
+2. **An Opus limit, or a model the account cannot use, on the Chair's `opus` request** ("You've hit your Opus limit"; "There's an issue with the selected model"). Retry the Chair once on `sonnet`. Write `fallback_from: opus` and the error text into the run report, and name the model that ran in the printed model line.
+3. **Any other error, or any other role.** Stop that role, quote the error, and offer the choices: retry as written, run that role on the session's model, or stop. Never change a role's model on your own; rule 2 is the only exception.
+4. Do not rely on a fallback-model setting for this: Claude Code never switches models on an authentication, billing or rate-limit error.
+<!-- END MODEL FAILURE -->
+
+PACE has no Chair, so rule 2 never applies here.
+
+<!-- spawn: none reason="why the model is passed on every call" -->
 **Why it has to be explicit.** A subagent with no `model` set inherits the orchestrator's model. PACE spawns five of them and its cost is dominated by that fan-out, so one omitted argument is the difference between one expensive-model run and six. Nothing in the tool result says which model a subagent used, so an omission is invisible afterwards — which is why this is a written rule with a field in the run report rather than a habit.
 
 **The orchestrator (the Commissioner) stays on whatever model the session is running.** It does the convergence analysis, the judgment calls and the consolidation, which is where the reasoning that cannot be delegated lives. This rule is about the fan-out agents only.
@@ -216,8 +231,10 @@ PACE topology: Players A/B on Opus (raised by you), Coaches C/D + Cross-Reviewer
 
 ## STEP 1: SPAWN TWO PLAYERS
 
+<!-- spawn: role=reasoner model=sonnet site=pace#player-a,pace#player-b -->
 Spawn two Player subagents **in parallel** using the Agent tool, **each with `model: "sonnet"`** (see AGENT MODEL). Give each the following instructions.
 
+<!-- spawn: none reason="the no-simulation warning; the Player starts are marked above" -->
 **CRITICAL — NO SIMULATION ALLOWED.** You (the orchestrator) MUST make two actual Agent tool calls — one for Player A, one for Player B — in the same message so they run concurrently. Do NOT "role-play" Player A and Player B by writing two outputs yourself. Do NOT write inline prose labeled "Player A would say..." and "Player B would say...". If the Agent tool is not available in this session, STOP and tell the user: "Agent tool unavailable — PACE cannot run. Fall back to single-agent work or restart the session." Single-context role-play defeats the entire point of the protocol (independent reasoning from two separate contexts) and produces convergence data that is indistinguishable from a single agent's confidence.
 
 ### Instructions for Player A:
@@ -298,6 +315,7 @@ Wait for both Players to complete, then run the liveness check. Label their outp
 
 ## STEP 2: SPAWN TWO COACHES
 
+<!-- spawn: role=reasoner model=sonnet site=pace#coach-c,pace#coach-d -->
 Spawn two Coach subagents **in parallel** using the Agent tool — two actual Agent tool calls in the same message, **each with `model: "sonnet"`** (see AGENT MODEL). Each Coach reviews ONLY their own Player's work + the Task Essence — not the other Player's output or the other Coach's review. **Coaches MUST be spawned as independent subagents.** **Do NOT have the orchestrator act as a Coach** — no inline role-play, no "Coach C would say..." prose. If the Agent tool is not available, STOP and inform the user — do not attempt to simulate the coaches from the orchestrator's context.
 
 ### Instructions for Coach C (reviews Player A):
@@ -398,6 +416,7 @@ Before spawning the Cross-Reviewer, perform a **structured extraction** from eac
 - Full Coach review text (extract only top findings and confidence)
 - Duplicated Task Brief content (use the Task Essence instead)
 
+<!-- spawn: role=reasoner model=sonnet site=pace#cross-reviewer -->
 Spawn a **single Cross-Reviewer** subagent with the Agent tool, **with `model: "sonnet"`** (see AGENT MODEL):
 
 ### Instructions for Cross-Reviewer:
@@ -577,6 +596,7 @@ If your project has its own run-evidence auditor script, you may run it on `<run
 3. **Distinct Players**: compute SHA-256 of `player_a_output.md` and `player_b_output.md` (`shasum -a 256` on macOS, `sha256sum` on Linux). They MUST differ. Identical hashes = single-context fallback.
 4. **No collapsed files**: the directory contains no combined file such as `all_outputs.md`, `agents_combined.md` or `both_players.md`.
 
+<!-- spawn: none reason="the verdict list mentions spawned agents; it starts nothing" -->
 Map the results to a verdict:
 - `verified_real` — all four checks pass, with nothing that calls for `suspicious`.
 - `suspicious` — all four checks pass, but a Coach stalled, an agent's file had to be saved by the orchestrator from the agent's returned message, or another irregularity occurred. Name it.
@@ -585,6 +605,7 @@ Map the results to a verdict:
 
 ### 7b.2: Interpret the verdict
 
+<!-- spawn: none reason="the verdict table names the Agent tool in its fallback advice; it starts nothing" -->
 | Verdict | Action |
 |---------|--------|
 | `verified_real` | Proceed to Step 7c / Step 8. |
@@ -603,6 +624,7 @@ fallback_detected: false              # true if verdict is fallback
 
 ### 7b.4: Why this step exists
 
+<!-- spawn: none reason="rationale for the self-audit" -->
 A retrospective audit of earlier multi-agent runs found that many had structural signs of single-context fallback despite claiming multi-agent output. PACE is vulnerable to the same failure because Step 1's "spawn two Players" can be misread as "write two outputs inline" by a sloppy orchestrator. This step blocks that failure from reaching the deliverable.
 
 ---
@@ -611,7 +633,8 @@ A retrospective audit of earlier multi-agent runs found that many had structural
 
 **Applying a review's findings creates a new, unreviewed draft.** If the Commissioner directed you to apply the findings to an artifact (edit the document, code or brief that was reviewed), the result is not the artifact anyone reviewed — it is that artifact plus every change made in response. Those changes have had exactly one reader, the agent that made them, and re-reading your own rewrite is not an independent check.
 
-**So when findings were applied to an artifact, spawn ONE reviewer with `model: "sonnet"`, aimed at the repairs rather than at the artifact.** Give it three things: the repaired artifact, the source of truth, and a numbered list of what each repair was supposed to fix. Ask it three questions:
+<!-- spawn: role=reasoner model=sonnet site=pace#revision-reviewer -->
+**So when findings were applied to an artifact, spawn ONE reviewer subagent with `model: "sonnet"`, aimed at the repairs rather than at the artifact.** Give it three things: the repaired artifact, the source of truth, and a numbered list of what each repair was supposed to fix. Ask it three questions:
 
 1. Did each repair land correctly and completely?
 2. **Did any repair introduce a new defect?** This is the highest-value output; say so in the prompt.
@@ -644,6 +667,7 @@ After delivery, ask:
 
 ### If subagent spawning is unavailable
 
+<!-- spawn: none reason="edge case: no agent can be started" -->
 > "Subagent spawning is not available in this environment. To run the PACE protocol manually:
 > 1. Open two separate Claude Code sessions (Players A and B).
 > 2. Give each the same Task Brief (I will provide it).
@@ -753,7 +777,7 @@ effort: "{low|medium|high|xhigh|max|unknown — the level declared before spawni
 topology_declared: true          # false only if the declaration line was NOT printed before the first spawn
 task_summary: "{1-line from user's task}"
 outcome: "{complete|partial|failed}"
-agent_count: {total agents spawned}
+agent_count: {total agents started}
 convergence_rate: {fraction of substantive items both teams agreed on, 0.0-1.0}
 agree_count: {N}
 diverge_count: {N}

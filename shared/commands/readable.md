@@ -41,14 +41,25 @@ When given a directory path, find ALL `.pdf`, `.docx`, `.doc`, `.html`, and `.ht
 4. Report: filename, method used, character count, or reason for failure
 
 ### Image-Based PDFs
+<!-- spawn: role=transcriber model=sonnet site=readable#transcriber -->
 Some PDFs contain scanned images with no extractable text (e.g., screenshots of web pages, scanned papers). When `pypdf` and `fitz` both return empty text:
 1. Render each page as a high-DPI PNG image (200 DPI) and save to `/tmp/<filename_slug>_p<N>.png`
 2. Report: "IMAGE-BASED — rendered N pages as PNG to /tmp/<slug>_p*.png"
-3. **Then spawn a background subagent** that reads each PNG image using the Read tool (which supports visual image reading) and transcribes the FULL text of every page into a .txt file alongside the PDF
+3. **Then spawn a background subagent** with the Agent tool and `model: "sonnet"` (the `transcriber` row of `references/model-roles.md`) that reads each PNG image using the Read tool (which supports visual image reading) and transcribes the FULL text of every page into a .txt file alongside the PDF
 4. The subagent writes `<filename>.txt` in the same directory as the PDF with `=== PAGE N ===` headers
 5. Tables should be transcribed in markdown table format
 6. Figure/chart images noted as `[FIGURE: brief description]`
 7. Report when transcription is complete: "Transcription complete: <filename>.txt (<N> chars)"
+
+<!-- BEGIN MODEL FAILURE -->
+**MODEL FAILURE — when an agent cannot run on the model it requested.**
+1. **A session or weekly limit** ("You've hit your session limit"). These limits are shared across all models, so another model does not help. Stop starting agents, quote the error and its reset time, and offer two choices: wait, or stop. Do not retry.
+2. **An Opus limit, or a model the account cannot use, on the Chair's `opus` request** ("You've hit your Opus limit"; "There's an issue with the selected model"). Retry the Chair once on `sonnet`. Write `fallback_from: opus` and the error text into the run report, and name the model that ran in the printed model line.
+3. **Any other error, or any other role.** Stop that role, quote the error, and offer the choices: retry as written, run that role on the session's model, or stop. Never change a role's model on your own; rule 2 is the only exception.
+4. Do not rely on a fallback-model setting for this: Claude Code never switches models on an authentication, billing or rate-limit error.
+<!-- END MODEL FAILURE -->
+
+`/readable` starts no Chair, so rule 2 never applies here.
 
 **This is the critical difference from standard extraction**: image-based PDFs require VISUAL READING of rendered pages, not text extraction. The subagent uses Claude's multimodal capability to read the images and produce text. This takes longer but produces a complete, readable .txt file that can be searched and cited.
 

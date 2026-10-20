@@ -1,5 +1,5 @@
 ---
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(ls:*), Bash(date:*), Bash(mkdir:*), Bash(cp:*), Bash(quarto:*), Bash(python3:*), Bash(open:*), Bash(xdg-open:*), Bash(cmd.exe:*), Agent
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(ls:*), Bash(date:*), Bash(mkdir:*), Bash(cp:*), Bash(quarto:*), Bash(python3:*), Bash(open:*), Bash(xdg-open:*), Bash(cmd.exe:*)
 description: Generate a ~20-slide Quarto RevealJS presentation from background documents. Reads source material, designs slide structure, writes .qmd + .css, renders, checks the rendered page and screenshots it, and opens for review. Can also condense an existing deck to a target slide count.
 ---
 
