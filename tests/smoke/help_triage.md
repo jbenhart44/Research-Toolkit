@@ -25,7 +25,7 @@
 Match: /commit — analyzes staged changes and creates logical separate commits.
 Run: /commit   `Verify: tests/smoke/commit_grouping.md`
 
-Skip /dailysummary — that's for capturing today's work narrative, not committing code changes.
+Skip /daily-summary — that's for capturing today's work narrative, not committing code changes.
 ```
 
 **Expected CSV row** (after `emit_run_report.sh`):
@@ -111,8 +111,8 @@ What are you trying to do? Pick the closest:
 Primary: /startup — shows where every workstream left off, with recommended next action.
 Run: /startup
 
-Alt: /dailysummary if you want to close out today's work instead of resume prior work.
-Run: /dailysummary
+Alt: /daily-summary if you want to close out today's work instead of resume prior work.
+Run: /daily-summary
 ```
 
 **Expected CSV row** (after final recommendation):

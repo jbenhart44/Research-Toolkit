@@ -1,15 +1,17 @@
 # Research Amp Toolkit — Student Bootstrap
 
-**Version:** 2.0
-**Date:** 2026-10-19
+**Version:** 2.2.0
+**Date:** 2026-10-20
 
 ## What This File Does
 
-When you give this file to Claude Code, it installs the full 16-command
-research toolkit: setup (/setup), structured planning (PCV), verification
-(CoA, PACE, audit, review), workflow automation (startup, dailysummary,
-weeklysummary, commit, simplify, improve, help, runlog), and content
-generation (quarto, readable).
+When you give this file to Claude Code, it installs the full 24-command
+research toolkit: setup (/setup), structured planning (PCV, quick-ten),
+verification (CoA, PACE, audit, acquire, review, bulletproof, guard-hook),
+workflow automation (startup, daily-summary, weekly-summary, commit, simplify,
+improve, help, run-log, list-maker, step-by-step, meeting-breakdown, automate), and
+content generation (quarto, readable), plus the council seat agents that
+/coa starts.
 
 ## How to Install
 
@@ -36,6 +38,8 @@ file's location (go up one directory from `student/`). Then:
   subfolders (`handlers/`, `hooks/`, `planning/`, `construction/`,
   `verification/`, `transition/`, `bundled/`)
 - PCV agents: `Research-Toolkit/pcv/agents/*.md`
+- skills: each folder in `Research-Toolkit/shared/skills/`
+- council seat agents: `Research-Toolkit/coa/agents/*.md`
 
 ### Step 2: Install command files
 
@@ -56,7 +60,8 @@ example `pcv/skill/handlers/plan-tier.sh` goes to
 top-level files leaves `/pcv` broken at its first step.
 
 If `~/.claude/skills/pcv/` already has files, copy the whole folder to
-`~/.claude/skills/pcv.bak/` first.
+`~/.claude/toolkit-backups/<today's date>/skills/pcv/` first. Never put a
+backup inside `~/.claude/skills/`, where it could load as a second skill.
 
 ### Step 4: Install PCV agents
 
@@ -67,10 +72,29 @@ Glob `Research-Toolkit/pcv/agents/*.md` and copy every file to
 
 Some commands end by calling a helper script at
 `$HOME/.claude/toolkit/scripts/<name>.py` (the run-report helper, for one).
-Search the command files from Step 2 for `.claude/toolkit/scripts/` and note
-each `<name>.py` they call. Copy each one from `Research-Toolkit/scripts/` to
+Search the command files from Step 2, and the `SKILL.md` of every skill
+Step 4c installs, for `.claude/toolkit/scripts/` and note each `<name>.py`
+they call. Copy each one from `Research-Toolkit/scripts/` to
 `~/.claude/toolkit/scripts/`, creating the folder if needed. Copy only the
 files the commands call: never a `_selftest.py` or `_mutations.py` file.
+
+### Step 4c: Install the skills
+
+For each folder in `Research-Toolkit/shared/skills/`, copy its `SKILL.md`,
+and any files in its `assets/` folder except `_selftest.py` and
+`_mutations.py` files, to `~/.claude/skills/<folder name>/`. If that folder
+already exists, copy it to `~/.claude/toolkit-backups/<today's date>/skills/`
+first. If `~/.claude/commands/<folder name>.md` also exists, tell the user that
+the skill takes precedence, and remove nothing.
+
+### Step 4d: Install the council seat agents
+
+Glob `Research-Toolkit/coa/agents/*.md` and copy every file to
+`~/.claude/agents/`, backing up any existing file first (append `.bak`).
+Only if the user asks for the add-on seats, do the same for
+`Research-Toolkit/coa/agents/addon/*.md`.
+`/coa` starts these seats by name; without them it falls back to its
+built-in template.
 
 ### Step 5: Install the config template
 
@@ -85,9 +109,11 @@ If it already exists, do not overwrite it; `/setup` will update it.
   and `~/.claude/skills/pcv/VERSION` exists.
 - Every file from the Step 4 glob is present in `~/.claude/agents/`.
 - Every script noted in Step 4b is present in `~/.claude/toolkit/scripts/`.
+- Every skill from Step 4c has its `SKILL.md` in `~/.claude/skills/<name>/`.
+- Every file from the Step 4d glob is present in `~/.claude/agents/`.
 
 If anything is missing, copy it again and re-check. Do not report success
-until all four hold.
+until all six hold.
 
 ### Step 7: Report
 
@@ -95,13 +121,13 @@ Fill in the numbers from the globs; do not type them from this file.
 
 > **Research Amp Toolkit installed.**
 >
-> **{C + 1} commands**: {C} command files plus the `/pcv` skill
+> **{C + K + 1} commands**: {C} command files, {K} skills and the `/pcv` skill
 > **PCV v{contents of VERSION}**: {S} files in `~/.claude/skills/pcv/`
-> **{A} PCV agents** in `~/.claude/agents/`
+> **{A} PCV agents** and **{E} council seat agents** in `~/.claude/agents/`
 > **{R} runtime scripts** in `~/.claude/toolkit/scripts/`
 >
 > **Next steps:**
-> 1. Restart Claude Code so it picks up the newly installed commands.
+> 1. Restart Claude Code so it picks up the newly installed commands and agents.
 > 2. Type `/setup` and answer its questions about your project.
 > 3. Type `/startup` to get oriented.
 > 4. Type `/pcv` in any project to start structured planning.

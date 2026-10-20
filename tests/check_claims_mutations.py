@@ -15,19 +15,27 @@ HERE = Path(__file__).resolve().parent
 SRC = (HERE / "check_claims.py").read_text(encoding="utf-8")
 MUTANTS = {
     "/pcv is not counted": (
-        'count = len(arrays["SHARED_COMMANDS"]) + len(arrays["STUDENT_ONLY"]) + 1',
-        'count = len(arrays["SHARED_COMMANDS"]) + len(arrays["STUDENT_ONLY"])',
+        'count = len(arrays["SHARED_COMMANDS"]) + len(arrays["STUDENT_ONLY"]) + len(arrays["SKILLS"]) + 1',
+        'count = len(arrays["SHARED_COMMANDS"]) + len(arrays["STUDENT_ONLY"]) + len(arrays["SKILLS"])',
         ["derived count is shared + student + /pcv"]),
     "counts written in words are ignored": (
-        "            value = int(tok) if tok.isdigit() else WORDS[tok]",
-        "            value = int(tok) if tok.isdigit() else 0",
+        "        value = int(tok) if tok.isdigit() else WORDS[tok]",
+        "        value = int(tok) if tok.isdigit() else 0",
         ["a wrong count in words is caught"]),
     "qualifying words between number and 'commands' hide a claim": (
         r'((?:\s+[A-Za-z-]+){0,3}?)\s+commands\b', r'((?:\s+[A-Za-z-]+){0,1}?)\s+commands\b',
         ["a count with qualifying words between is caught"]),
     "small recommendation counts are treated as inventory": (
-        "            if value >= 8:", "            if value >= 0:",
+        "        if value >= 8:", "        if value >= 0:",
         ["small recommendation counts are not inventory claims"]),
+    "counts are read line by line, so a wrapped count is missed": (
+        "    for m in COUNT.finditer(text):",
+        "    for m in (m for line in text.splitlines() for m in COUNT.finditer(line)):",
+        ["a count wrapped across a line break is caught"]),
+    "command-file counts are read line by line": (
+        "    for m in FILES.finditer(text):",
+        "    for m in (m for line in text.splitlines() for m in FILES.finditer(line)):",
+        ["a command-file count wrapped across a line break is caught"]),
     "download URLs are not checked": (
         r'PIN = re.compile(r"(?:git checkout\s+|releases/download/|releases/tag/|Download\s+)v(\d+(?:\.\d+){1,2})", re.I)',
         r'PIN = re.compile(r"(?:git checkout\s+)v(\d+(?:\.\d+){1,2})", re.I)',
@@ -49,19 +57,19 @@ MUTANTS = {
         '        for phrase in BANNED:', '        for phrase in []:',
         ["the banned unbacked claim is caught"]),
     "extra files are ignored": (
-        "    files = claim_files(root) + [p for p in extra if p.resolve() not in claim_files(root)]",
-        "    files = claim_files(root)",
+        "    pages = claim_files(root) + [p for p in extra if p.resolve() not in claim_files(root)]",
+        "    pages = claim_files(root)",
         ["an extra file (the landing page) is checked too"]),
     "a hand list replaces discovery, so a new page is never read": (
-        "    files = claim_files(root) + [p for p in extra if p.resolve() not in claim_files(root)]",
-        '    files = [root / "README.md"] + [p for p in extra if p.resolve() not in claim_files(root)]',
+        "    pages = claim_files(root) + [p for p in extra if p.resolve() not in claim_files(root)]",
+        '    pages = [root / "README.md"] + [p for p in extra if p.resolve() not in claim_files(root)]',
         ["a page in any folder is checked"]),
     "hyphenated counts are ignored": (
         r'r"(?:((?:\s+[A-Za-z-]+){0,3}?)\s+commands\b|-commands?\b)", re.I)',
         r'r"(?:((?:\s+[A-Za-z-]+){0,3}?)\s+commands\b)", re.I)',
         ["a hyphenated count ('15-command') is caught"]),
     "the instructor page is held to the full count": (
-        '        want, source = (instructor, "install.sh --minimal") if name in SUBSET_FILES else (count, "install.sh")',
+        '        want, source = (instructor, "install.sh --minimal") if subset else (count, "install.sh")',
         '        want, source = (count, "install.sh")',
         ["the instructor page passes at the instructor count"]),
     "historical files are read as current": (
@@ -75,14 +83,25 @@ MUTANTS = {
         '        return 0, [], (count, version)',
         ["no VERSION file is exit 2"]),
     "a missing installer array still gives a count": (
-        '        if len(arrays) == 2:\n            count = len(arrays["SHARED_COMMANDS"]) + len(arrays["STUDENT_ONLY"]) + 1',
-        '        if arrays:\n            count = len(arrays.get("SHARED_COMMANDS", [])) + len(arrays.get("STUDENT_ONLY", [])) + 1',
+        '        if len(arrays) == 3:\n'
+        '            count = len(arrays["SHARED_COMMANDS"]) + len(arrays["STUDENT_ONLY"]) + len(arrays["SKILLS"]) + 1\n'
+        '            instructor = len(arrays["SHARED_COMMANDS"]) + 1\n'
+        '            files = len(arrays["SHARED_COMMANDS"]) + len(arrays["STUDENT_ONLY"])',
+        '        if arrays:\n'
+        '            a = {k: arrays.get(k, []) for k in ("SHARED_COMMANDS", "STUDENT_ONLY", "SKILLS")}\n'
+        '            count = len(a["SHARED_COMMANDS"]) + len(a["STUDENT_ONLY"]) + len(a["SKILLS"]) + 1\n'
+        '            instructor = len(a["SHARED_COMMANDS"]) + 1\n'
+        '            files = len(a["SHARED_COMMANDS"]) + len(a["STUDENT_ONLY"])',
         ["an installer with an array missing is exit 2"]),
+    "skills are not counted toward the command total": (
+        '+ len(arrays["STUDENT_ONLY"]) + len(arrays["SKILLS"]) + 1', '+ len(arrays["STUDENT_ONLY"]) + 1',
+        ["skills count toward the command total"]),
     "command-file counts are not checked": (
-        "        for m in FILES.finditer(line):", "        for m in []:",
+        "    for m in FILES.finditer(text):", "    for m in []:",
         ["a wrong command-file count is caught"]),
     "command-file counts are held to the count that includes /pcv": (
-        '            elif kind == "files" and int(value) != want - 1:', '            elif kind == "files" and int(value) != want:',
+        "        want_files = instructor - 1 if subset else command_files",
+        "        want_files = instructor - 1 if subset else count",
         ["a correct hyphenated count and a correct command-file count pass"]),
     "mutant counts are not checked": (
         "        for m in MUTANT_COUNT.finditer(line):", "        for m in []:",

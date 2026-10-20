@@ -1,8 +1,8 @@
-# AI Research Toolkit — Proactive Suggestion Fragment (v0.1.1)
+# AI Research Toolkit — Proactive Suggestion Fragment (v0.1.2)
 
 **Status**: Default-OFF. This fragment is bundled with the toolkit but is NOT auto-imported into your CLAUDE.md. See "How to opt in" at the bottom of this file.
 
-**What this is**: 15 declarative rules — one per toolkit command — that tell Claude when to *suggest* the right command at the moment the user is about to take an action that the command would improve. Each rule fires on observable conversational signals in the current turn; flip conditions are stateless. **No router, no observer, no always-active agent.** This is the declarative path; a runtime market-style variant is gated behind the falsifiable pilot test at the end of this file.
+**What this is**: 23 declarative rules — one per toolkit command except `/setup` — that tell Claude when to *suggest* the right command at the moment the user is about to take an action that the command would improve. Each rule fires on observable conversational signals in the current turn; flip conditions are stateless. **No router, no observer, no always-active agent.** This is the declarative path; a runtime market-style variant is gated behind the falsifiable pilot test at the end of this file.
 
 **Why this exists**: Krishnan (2026), "Why Coase Needs Hayek," empirically showed that hub-spoke smart-routing of agentic tasks costs ~4× more than solo agents AND can lose on quality (6.7 vs. 7.2/7.2 across 15 tasks). A runtime always-active suggestion agent IS hub-spoke. This fragment achieves the same suggestion goal via static, declarative rules that Claude reads from CLAUDE.md once per session — no runtime cost, no central agent.
 
@@ -10,7 +10,7 @@
 
 ## Header policy: stateful flip conditions
 
-Stateful flip conditions: **compile to stateless artifact-checks where possible, document the limitation otherwise**. This fragment is declarative text and cannot remember whether a suggestion was declined earlier in the session. Where a command produces a deterministic on-disk artifact as a normal side-effect of execution (e.g., `pcvplans/charge.md` for `/pcv`, `coa_<date>_*/chair_synthesis.md` for `/coa`, `Daily Summary/<date>.md` for `/dailysummary`, a recent commit visible in `git log` for `/commit`), each row's anti-trigger may reference that artifact directly via current-turn observation or a stateless filesystem check. **No new flag files, decline registries, or session-suggestion logs are permitted** — those are session observers wearing a filesystem costume and re-introduce the hub-spoke topology this fragment exists to avoid.
+Stateful flip conditions: **compile to stateless artifact-checks where possible, document the limitation otherwise**. This fragment is declarative text and cannot remember whether a suggestion was declined earlier in the session. Where a command produces a deterministic on-disk artifact as a normal side-effect of execution (e.g., `pcvplans/charge.md` for `/pcv`, `coa_<date>_*/chair_synthesis.md` for `/coa`, `Daily Summary/<date>.md` for `/daily-summary`, a recent commit visible in `git log` for `/commit`), each row's anti-trigger may reference that artifact directly via current-turn observation or a stateless filesystem check. **No new flag files, decline registries, or session-suggestion logs are permitted** — those are session observers wearing a filesystem costume and re-introduce the hub-spoke topology this fragment exists to avoid.
 
 Reading existing on-disk artifacts that other commands already produce as a normal side-effect of execution is NOT new code infrastructure. *Writing* new flag files, decline registries, or session observers IS infrastructure and is forbidden.
 
@@ -18,7 +18,7 @@ Reading existing on-disk artifacts that other commands already produce as a norm
 
 ---
 
-## The 15 rules — Observable + Gate + Anti-trigger
+## The rules, one per command — Observable + Gate + Anti-trigger
 
 Each rule reads as: *"When [observable] AND [gate], suggest /command — UNLESS [anti-trigger]."* Every Observable is verifiable in the current turn. Every Anti-trigger is stateless.
 
@@ -118,21 +118,21 @@ Both Gate tests are required. Action-divergence is the necessary condition (no p
 - **Anti-trigger**: User already quoted a daily summary or listed open tasks in the opening message; OR user explicitly framed the session as a fresh, unrelated task.
 - **Failure mode caught**: User starts in wrong context — stale branch assumptions, missed blockers, duplicates work completed previously.
 
-### 11. /dailysummary
+### 11. /daily-summary
 
 - **Observable**: Session contains ≥2 commits, completed tasks, or significant decisions visible in conversation history.
 - **Gate**: User signals session end: "wrapping up" / "that's it for today" / "need to go" / "good stopping point" / "pick this up tomorrow".
 - **Anti-trigger**: A daily summary file for today already exists on disk (e.g., `Daily Summary/<today>.md`) AND its file path or content is referenced in this turn; OR user signals immediate continuation ("I'll keep going").
 - **Failure mode caught**: Completed work, decisions, and blockers fall out of memory; next session starts without accurate state.
 
-### 12. /weeklysummary
+### 12. /weekly-summary
 
-- **Observable**: User references end-of-week, Monday startup, or multi-day progress ("this week" / "last week" / "how has the week gone") AND `/dailysummary` entries from ≥3 distinct dates are reachable in the project.
+- **Observable**: User references end-of-week, Monday startup, or multi-day progress ("this week" / "last week" / "how has the week gone") AND `/daily-summary` entries from ≥3 distinct dates are reachable in the project.
 - **Gate**: Conversation context implies cross-session synthesis need, not single-day summary.
 - **Anti-trigger**: Weekly summary for the current ISO week already mentioned or linked in this turn; OR user only needs today's summary.
 - **Failure mode caught**: Cross-session patterns invisible; advisor/committee handoffs lack longitudinal view.
 
-### 13. /runlog
+### 13. /run-log
 
 - **Observable**: User asks about patterns, trends, or comparisons across multiple runs ("getting better" / "compare last week" / "how has performance changed" / "what did /pace find across sessions").
 - **Gate**: Project has entries in `run_log.csv` or `command_performance_log.md` (files exist on disk).
@@ -152,6 +152,62 @@ Both Gate tests are required. Action-divergence is the necessary condition (no p
 - **Gate**: ≥2 plausible candidate commands could apply AND user has not named a specific command.
 - **Anti-trigger**: User already named the specific command they want (knows what they want, asking how to use it); OR question is about a specific task that maps unambiguously to a single command.
 - **Failure mode caught**: User picks command by guesswork; under-uses the right tool or over-uses a costly one.
+
+### 16. /quick-ten
+
+- **Observable**: The user is about to start a substantial build (a page, a document, a deck, a tool, a plan) and the request leaves the audience, the done-criteria or the scope open.
+- **Gate**: At least two open choices would each change what gets built.
+- **Anti-trigger**: The task is small or reversible; OR the request already states its audience, scope and done-criteria; OR the user said "just build it"; OR `/quick-ten` already ran for this build.
+- **Failure mode caught**: A build aimed at a guessed audience or scope, redone after the first look.
+
+### 17. /bulletproof
+
+- **Observable**: New functionality has just landed, or is about to (a route, a parser, a fetcher, a check), and it has no test, or its tests have never been seen to fail.
+- **Gate**: The functionality exists to prevent or produce something that can be stated as a sentence, so a defect can be planted against it.
+- **Anti-trigger**: A throwaway script or exploration; OR the change is prose or configuration with no behaviour; OR `/bulletproof` already ran on this functionality.
+- **Failure mode caught**: A green suite that would not notice the defect it was written for.
+
+### 18. /guard-hook
+
+- **Observable**: The user is about to add a hook that blocks or warns (a PreToolUse or PostToolUse guard), or asks whether the hooks already installed are working.
+- **Gate**: The hook's job is to stop or flag something, so it can be made to fail.
+- **Anti-trigger**: A hook that only records (a counter or a logger); OR the hook was built with `/guard-hook` and nothing in it has changed.
+- **Failure mode caught**: A guard that has never been watched failing, or one registered where the harness never invokes it.
+
+### 19. /acquire
+
+- **Observable**: The user is about to cite, quote or rely on a paper that is not on disk as a PDF with a text extraction, or hands over a list of papers (often suggested by a language model) to fetch.
+- **Gate**: A figure, a claim or a requirement will be taken from the paper.
+- **Anti-trigger**: The PDF and its `.txt` are already beside the citing document; OR the user only asked whether a paper exists.
+- **Failure mode caught**: A citation to a paper nobody has read, a DOI that points at a different paper, or a figure checked against an abstract instead of the text.
+
+### 20. /meeting-breakdown
+
+- **Observable**: The user shares a meeting transcript that covers more than one thread of work and asks what to do with it.
+- **Gate**: The meeting produced decisions or next steps in at least two distinct domains.
+- **Anti-trigger**: The transcript is short or single-topic; OR a `<stem>_breakdown.md` already sits beside it.
+- **Failure mode caught**: A meeting that ends as one undifferentiated summary, with the deferrals and the decisions the user owns lost in it.
+
+### 21. /list-maker
+
+- **Observable**: A meeting or a session has produced more work than one sitting can hold, and the user wants to track it across sessions.
+- **Gate**: At least five separate items of work exist, or the user refers to items by number.
+- **Anti-trigger**: The project already keeps a `worklist.json` for this stream and the items are on it; OR the work fits in this session.
+- **Failure mode caught**: Work lost between sessions, or a "number 14" that points at a different item next week.
+
+### 22. /step-by-step
+
+- **Observable**: A session changed several things (commits, uncommitted files) and the user asks to be walked through them; OR the user asks to work a numbered list one item at a time.
+- **Gate**: At least three items changed, or a `/list-maker` ledger has open items.
+- **Anti-trigger**: One or two changes, already explained; OR the user asked for a summary, not a walkthrough.
+- **Failure mode caught**: A walkthrough that covers seven of nine changes while sounding complete.
+
+### 23. /automate
+
+- **Observable**: The user has just finished a multi-step task and says it will come up again.
+- **Gate**: The task is finished, with a result on disk, and its steps would recur in roughly the same shape.
+- **Anti-trigger**: A one-time task; OR almost every step was a judgment call; OR a skill for this task already exists.
+- **Failure mode caught**: The same multi-step task rebuilt from memory each time, with a different step forgotten each time.
 
 ---
 

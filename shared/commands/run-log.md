@@ -1,9 +1,9 @@
 ---
 allowed-tools: Read, Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(ls:*), Bash(date:*), Bash(sort:*), Bash(awk:*), Bash(python3:*), Glob
-description: Render a cross-command longitudinal table of recent toolkit runs (convergence, tokens, outcomes) from existing CSVs. Read-only aggregation; re-running gives the same table.
+description: Render a cross-command longitudinal table of recent toolkit runs (convergence, tokens, outcomes) from existing CSVs. Changes none of the files it reads; like the other commands, it appends one row of its own to run_log.csv.
 ---
 
-# /runlog — Longitudinal Toolkit Observability
+# /run-log — Longitudinal Toolkit Observability
 
 > **When to use**: After several toolkit runs have accumulated. Want a single table showing which commands you've used, how they performed, and where improvement signals are piling up. Instructor use: verify which verification commands students have actually run over the semester.
 
@@ -11,7 +11,7 @@ description: Render a cross-command longitudinal table of recent toolkit runs (c
 
 ## What It Does
 
-Pure aggregation. Reads three existing CSVs produced by the instrumented commands (/pace, /coa, /audit, /improve, /dailysummary, /commit, /startup, /help) and renders a longitudinal table. No new data collection. No external services. **Reproducible by construction**: re-running produces the same table modulo new rows appended since last run.
+Pure aggregation. Reads three existing CSVs produced by the instrumented commands (/pace, /coa, /audit, /improve, /daily-summary, /commit, /startup, /help) and renders a longitudinal table. No new data collection. No external services. **Reproducible by construction**: re-running produces the same table modulo new rows appended since last run.
 
 ## Inputs (reads only, never writes to)
 
@@ -28,19 +28,19 @@ A markdown table + optional summary footer. Output paths:
 ## Usage
 
 ```
-/runlog                           # Default: last 14 days, all commands
-/runlog --since 2026-01-01        # Date range filter
-/runlog --command pace            # Single-command filter
-/runlog --command pace --command coa   # Multi-command filter
-/runlog --all                     # Full history, no date filter
-/runlog --drill-down <run-id>     # Per-run detail for a specific run
-/runlog --top-signals             # Show just the recurring improvement signals
+/run-log                           # Default: last 14 days, all commands
+/run-log --since 2026-01-01        # Date range filter
+/run-log --command pace            # Single-command filter
+/run-log --command pace --command coa   # Multi-command filter
+/run-log --all                     # Full history, no date filter
+/run-log --drill-down <run-id>     # Per-run detail for a specific run
+/run-log --top-signals             # Show just the recurring improvement signals
 ```
 
 ## Default Output Schema
 
 ```markdown
-# /runlog — Longitudinal Toolkit Report
+# /run-log — Longitudinal Toolkit Report
 **Generated**: YYYY-MM-DD HH:MM:SSZ
 **Window**: last 14 days
 **Source CSVs read**: .toolkit/evidence/run_log.csv (N rows), command_performance_log.md (M entries)
@@ -52,7 +52,7 @@ A markdown table + optional summary footer. Output paths:
 | /pace | 3 | 0.82 | 85K | 3/0/0 | 2026-04-15 | "Verify source data directly" |
 | /coa | 2 | 0.75 | 120K | 2/0/0 | 2026-04-16 | "Gemini quota insufficient" |
 | /pcv | 2 | 0.82 | 200K | 2/0/0 | 2026-04-17 | "Supplementary-question pattern" |
-| /dailysummary | 7 | — | 15K | 6/1/0 | 2026-04-16 | "--append-pointer mode needed" |
+| /daily-summary | 7 | — | 15K | 6/1/0 | 2026-04-16 | "--append-pointer mode needed" |
 | /audit | 2 | — | 10K | 2/0/0 | 2026-04-10 | "None" |
 | /improve | 2 | — | 45K | 2/0/0 | 2026-04-16 | "Gate Pass-1 reads by session friction" |
 | /startup | 5 | — | 8K | 5/0/0 | 2026-04-17 | "None" |
@@ -70,11 +70,11 @@ A markdown table + optional summary footer. Output paths:
 
 1. "Gate historical reads by session friction count" (3 runs)
 2. "Gemini free-tier quota insufficient" (3 runs)
-3. "--append-pointer mode for dailysummary" (2 runs)
+3. "--append-pointer mode for daily-summary" (2 runs)
 
 ## Evidence Footer
 
-- Command: /runlog v1.1
+- Command: /run-log v1.1
 - Run timestamp: YYYY-MM-DD HH:MM:SSZ
 - Inputs:
   - run_log.csv SHA-256: <hash> (N rows)
@@ -138,7 +138,7 @@ This approach:
 - Detects column-shifted rows via heuristic and skips them with a warning (reported in the evidence footer as "Skipped N malformed rows")
 - Accepts both the 13-column canonical schema AND legacy 9-column rows (the `csv` module tolerates row length variance via DictReader)
 
-**Fallback: if Python is not available**, use awk with a safer field extraction via `--csv` aware tools like `csvtool` or `mlr`. Raw `awk -F','` is REJECTED for the final /runlog implementation — it produced miscounts during T4 verification.
+**Fallback: if Python is not available**, use awk with a safer field extraction via `--csv` aware tools like `csvtool` or `mlr`. Raw `awk -F','` is REJECTED for the final /run-log implementation — it produced miscounts during T4 verification.
 
 ### Step 3: Apply filters
 
@@ -174,11 +174,11 @@ If `--drill-down <run-id>` was passed:
 
 ### Step 7: Emit its own run_report (recursive self-observability)
 
-`/runlog` itself emits a run_report — otherwise we have an "observer with no logs" anti-pattern.
+`/run-log` itself emits a run_report — otherwise we have an "observer with no logs" anti-pattern.
 
 ```bash
 python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \
-  --command runlog \
+  --command run-log \
   --run-dir "$EVIDENCE_DIR/runlog_reports/.run_reports/$(date +%Y-%m-%d_%H%M%S)" \
   --outcome complete \
   --task-summary "Longitudinal toolkit report (last $WINDOW_DAYS days)" \
@@ -188,7 +188,7 @@ python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \
 ## Important Constraints
 
 - **Read-only**: NEVER write to `run_log.csv` or `command_performance_log.md`. These are append-only artifacts produced by other commands.
-- **No network**: `/runlog` never calls external services. All data is local.
+- **No network**: `/run-log` never calls external services. All data is local.
 - **Deterministic**: Re-running with the same CSVs produces the same table. Anyone can check the report by re-running it.
 - **Silent on missing data**: If a command has no runs in the window, it's omitted from the table (not "N/A" row). Transparent about absence.
 - **Never break on malformed rows**: If a CSV row has wrong column count or unparseable values, skip it and continue; include a note in the evidence footer: "Skipped N malformed rows."
@@ -199,7 +199,7 @@ Instructor / cohort grading use case:
 
 ```bash
 cd student_name_submission/
-/runlog --since 2026-09-01 --all
+/run-log --since 2026-09-01 --all
 ```
 
 Output answers: Did this student run `/audit`? How many times? Which commands did they converge on? Is there a pattern of `/improve` findings they ignored?
@@ -213,7 +213,7 @@ From a fresh clone of the toolkit:
 ```bash
 # Populate some fake rows
 printf 'test1,pace,v1.1,2026-04-17,"fake",complete,opus,2026-04-17T00:00:00Z,"{}"\n' > /tmp/test_run_log.csv
-/runlog --since 2026-04-17 --evidence-dir /tmp
+/run-log --since 2026-04-17 --evidence-dir /tmp
 # Expected: table with one /pace row, outcome complete.
 ```
 

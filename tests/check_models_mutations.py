@@ -68,9 +68,13 @@ MUTANTS = {
     "M13: a generated block only has to exist": (
         "            if got is None or got.strip() != render(t, name):", "            if got is None:",
         ["M13: a generated README table that differs"]),
-    "M13: the chair sentence is not required": (
-        '                if CHAIR_SENTENCE not in body.replace("\\n", " ").replace("> ", ""):', "                if False:",
+    "M13: the config sentence is not required": (
+        '                if sentence not in body.replace("\\n", " ").replace("> ", ""):', "                if False:",
         ["M13: a config: marker without the chair sentence"]),
+    "M13: the config sentence is always the Chair's": (
+        '                sentence = config_sentence(r.get("config_key", "?"), r["sonnet-ceiling"], r["opus-ceiling"])',
+        "                sentence = CHAIR_SENTENCE",
+        ["M13: a transcriber marker carrying the Chair's sentence is caught"]),
     "M14: a script's --model default is not compared": (
         "            if model != m.group(1):", "            if False:",
         ["M14: a script whose --model default differs"]),
@@ -87,6 +91,10 @@ MUTANTS = {
     "the pcv/ exemption is widened to shared/": (
         'SKIP_DIRS = {".git", "pcv"}', 'SKIP_DIRS = {".git", "pcv", "shared"}',
         ["M6: a pinned model ID in a shipped file", "M7: fable as a model value"]),
+    "the test-fixture exemption is widened to every script": (
+        '    return bool(re.search(r"_(?:selftest|mutations)\\.py$", rel.name)) or str(rel) == "tests/check_models.py"',
+        '    return rel.suffix == ".py"',
+        ["the same line in a shipped script is caught (M6 and M7)"]),
     "a spawning command with no site passes": (
         '        if not (root / "shared" / "commands" / f"{cmd}.md").is_file() or not sites_per_cmd.get(cmd):',
         '        if not (root / "shared" / "commands" / f"{cmd}.md").is_file():',

@@ -9,7 +9,7 @@ jebenhar@ncsu.edu · https://jbenhart44.github.io
 
 ## Attribution
 
-The Research Amp Toolkit was built by Jake Benhart: the workflow and verification commands (/setup, /coa, /pace, /audit, /improve, /startup, /dailysummary, /weeklysummary, /commit, /simplify, /quarto, /readable, /runlog, /help, /review), the hooks, and the release gates.
+The Research Amp Toolkit was built by Jake Benhart: the workflow and verification commands (/setup, /coa, /pace, /audit, /improve, /startup, /daily-summary, /weekly-summary, /commit, /simplify, /quarto, /readable, /run-log, /help, /review), the hooks, and the release gates.
 
 **PCV is the work of Dr. Michael G. Kay** (Director of IMSEI & Associate Professor, Edward P. Fitts Department of Industrial and Systems Engineering, NC State University). He created the Plan-Construct-Verify methodology and the `/pcv` skill, which this toolkit bundles unmodified (PCV v3.14 as of 2026-04-19; upstream: https://mgkay.github.io/pcv/). The toolkit's planning discipline grew out of PCV.
 
@@ -20,7 +20,7 @@ The Research Amp Toolkit was built by Jake Benhart: the workflow and verificatio
   author  = {Benhart, Jake},
   title   = {Research Amp Toolkit: Verification-First Commands for AI-Assisted Research with Claude Code},
   year    = {2026},
-  version = {2.1.0},
+  version = {2.2.0},
   url     = {https://github.com/jbenhart44/Research-Toolkit},
   note    = {Bundles PCV (Plan-Construct-Verify) by Michael G. Kay}
 }

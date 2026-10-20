@@ -85,9 +85,9 @@ def main():
     check("a typed slash command writes one row", len(got) == 1 and got[0]["name"] == "coa" and got[0]["source"] == "typed")
 
     p = fresh()
-    fire(typed("  /quickten the questions"), p)
+    fire(typed("  /quick-ten the questions"), p)
     got = rows(p)
-    check("leading whitespace before a typed command is tolerated", len(got) == 1 and got[0]["name"] == "quickten")
+    check("leading whitespace before a typed command is tolerated", len(got) == 1 and got[0]["name"] == "quick-ten")
 
     p = fresh()
     fire(typed("please run /coa on this"), p)

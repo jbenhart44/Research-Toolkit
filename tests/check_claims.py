@@ -4,7 +4,8 @@
 The v1.x pages said 11, 13, 14 and 15 commands at the same time, because each number was typed by
 hand. This check derives the truth and compares every claim against it.
 
-  command count     = len(SHARED_COMMANDS) + len(STUDENT_ONLY) in install.sh, + 1 for /pcv
+  command count     = len(SHARED_COMMANDS) + len(STUDENT_ONLY) + len(SKILLS) in install.sh, + 1 for /pcv
+                      (all three arrays must be present, or the truth cannot be derived: exit 2)
   instructor count  = len(SHARED_COMMANDS) + 1 (what `install.sh --minimal` installs); the
                       files in SUBSET_FILES are held to this count instead
   version           = the VERSION file
@@ -61,20 +62,21 @@ MUTANT_COUNT = re.compile(r"\b(\d+)\s+(?:planted defects|mutants)\b", re.I)
 BANNED = ["hundreds of production sessions", "guarantees the model", "always runs on"]
 
 
-def derive(root: Path) -> tuple[int | None, int | None, str | None]:
-    """(command count, instructor count, version) from the tree, or None where it cannot be derived."""
-    count = instructor = version = None
+def derive(root: Path) -> tuple[int | None, int | None, str | None, int | None]:
+    """(command count, instructor count, version, command-file count) from the tree; None where not derivable."""
+    count = instructor = version = files = None
     inst = root / "install.sh"
     if inst.exists():
         text = inst.read_text(encoding="utf-8", errors="replace")
-        arrays = {m.group(1): m.group(2).split() for m in re.finditer(r"^(SHARED_COMMANDS|STUDENT_ONLY)=\(([^)]*)\)", text, re.M)}
-        if len(arrays) == 2:
-            count = len(arrays["SHARED_COMMANDS"]) + len(arrays["STUDENT_ONLY"]) + 1
+        arrays = {m.group(1): m.group(2).split() for m in re.finditer(r"^(SHARED_COMMANDS|STUDENT_ONLY|SKILLS)=\(([^)]*)\)", text, re.M)}
+        if len(arrays) == 3:
+            count = len(arrays["SHARED_COMMANDS"]) + len(arrays["STUDENT_ONLY"]) + len(arrays["SKILLS"]) + 1
             instructor = len(arrays["SHARED_COMMANDS"]) + 1
+            files = len(arrays["SHARED_COMMANDS"]) + len(arrays["STUDENT_ONLY"])
     vf = root / "VERSION"
     if vf.exists() and vf.read_text(encoding="utf-8").strip():
         version = vf.read_text(encoding="utf-8").strip()
-    return count, instructor, version
+    return count, instructor, version, files
 
 
 def claim_files(root: Path) -> list[Path]:
@@ -102,15 +104,18 @@ def mutant_entries(root: Path, harness: str) -> int | None:
 def claims_in(text: str) -> list[tuple[int, str, str]]:
     """(line, kind, value) for every claim in text. kind is count, files, mutants, pin, cff_version or banned."""
     out = []
+    # Counts are read over the whole text, not line by line, so a count that wraps ("16 Claude Code\n  commands",
+    # as in CITATION.cff's abstract) is still a claim. Limit: a number ending one paragraph can pair with "commands"
+    # within three words of the next.
+    for m in COUNT.finditer(text):
+        tok = m.group(1).lower()
+        value = int(tok) if tok.isdigit() else WORDS[tok]
+        if value >= 8:
+            out.append((text.count("\n", 0, m.start()) + 1, "count", str(value)))
+    for m in FILES.finditer(text):
+        tok = m.group(1).lower()
+        out.append((text.count("\n", 0, m.start()) + 1, "files", str(int(tok) if tok.isdigit() else WORDS[tok])))
     for n, line in enumerate(text.splitlines(), 1):
-        for m in COUNT.finditer(line):
-            tok = m.group(1).lower()
-            value = int(tok) if tok.isdigit() else WORDS[tok]
-            if value >= 8:
-                out.append((n, "count", str(value)))
-        for m in FILES.finditer(line):
-            tok = m.group(1).lower()
-            out.append((n, "files", str(int(tok) if tok.isdigit() else WORDS[tok])))
         harnesses = list(HARNESS.finditer(line))
         for m in MUTANT_COUNT.finditer(line):
             before = [h for h in harnesses if h.start() < m.start()]
@@ -131,20 +136,22 @@ def claims_in(text: str) -> list[tuple[int, str, str]]:
 
 def run(root: Path, extra: list[Path]) -> tuple[int, list[str], tuple]:
     root = root.resolve()
-    count, instructor, version = derive(root)
+    count, instructor, version, command_files = derive(root)
     if count is None or version is None:
         return 2, [f"cannot derive the truth: count={count} version={version}"], (count, version)
     problems = []
-    files = claim_files(root) + [p for p in extra if p.resolve() not in claim_files(root)]
-    for p in files:
+    pages = claim_files(root) + [p for p in extra if p.resolve() not in claim_files(root)]
+    for p in pages:
         p = p.resolve()
         name = p.relative_to(root).as_posix() if root in p.parents else f"{p.parent.name}/{p.name}"
-        want, source = (instructor, "install.sh --minimal") if name in SUBSET_FILES else (count, "install.sh")
+        subset = name in SUBSET_FILES
+        want, source = (instructor, "install.sh --minimal") if subset else (count, "install.sh")
+        want_files = instructor - 1 if subset else command_files
         for n, kind, value in claims_in(p.read_text(encoding="utf-8", errors="replace")):
             if kind == "count" and int(value) != want:
                 problems.append(f"{name}:{n}  says {value} commands; {source} gives {want}")
-            elif kind == "files" and int(value) != want - 1:
-                problems.append(f"{name}:{n}  says {value} command files; {source} gives {want - 1}")
+            elif kind == "files" and int(value) != want_files:
+                problems.append(f"{name}:{n}  says {value} command files; {source} gives {want_files}")
             elif kind == "mutants":
                 harness, said = value.split(":")
                 real = mutant_entries(root, harness)
@@ -167,9 +174,9 @@ def self_test() -> int:
         ok, bad = (ok + 1, bad) if cond else (ok, bad + 1)
         print(f"  {'PASS' if cond else 'FAIL'} {label}")
 
-    def tree(readme, version="2.0.0", shared="(setup coa pace)", student="(startup audit)"):
+    def tree(readme, version="2.0.0", shared="(setup coa pace)", student="(startup audit)", skills="()"):
         d = Path(tempfile.mkdtemp(prefix="checkclaims_"))
-        (d / "install.sh").write_text(f"SHARED_COMMANDS={shared}\nSTUDENT_ONLY={student}\n", encoding="utf-8")
+        (d / "install.sh").write_text(f"SHARED_COMMANDS={shared}\nSTUDENT_ONLY={student}\nSKILLS={skills}\n", encoding="utf-8")
         if version is not None:
             (d / "VERSION").write_text(version + "\n", encoding="utf-8")
         (d / "README.md").write_text(readme, encoding="utf-8")
@@ -177,7 +184,7 @@ def self_test() -> int:
 
     # 3 + 2 + /pcv = 6 commands; numbers below 8 are not inventory claims, so the fixtures use a bigger set
     big_shared = "(setup coa pace improve quarto readable help review)"
-    big_student = "(startup dailysummary weeklysummary commit simplify audit runlog)"
+    big_student = "(startup daily-summary weekly-summary commit simplify audit run-log)"
     good = "16 Claude Code commands. Install: git checkout v2.0.0\nIt recommends 1-3 commands.\n"
     code, probs, truth = run(tree(good, shared=big_shared, student=big_student), [])
     check("derived count is shared + student + /pcv", truth == (16, "2.0.0"))
@@ -189,12 +196,21 @@ def self_test() -> int:
     check("a wrong count in words is caught", code == 1 and any("says 15" in p for p in probs))
     code, probs, _ = run(tree("the 11 core research workflow commands work\n", shared=big_shared, student=big_student), [])
     check("a count with qualifying words between is caught", code == 1 and any("says 11" in p for p in probs))
+    code, probs, _ = run(tree("abstract: >\n  Verification first: 15 Claude Code\n  commands for research.\n",
+                              shared=big_shared, student=big_student), [])
+    check("a count wrapped across a line break is caught, on the line it starts",
+          code == 1 and any(p.startswith("README.md:2") and "says 15" in p for p in probs))
+    code, probs, _ = run(tree("It ships 14 command\nfiles plus /pcv.\n", shared=big_shared, student=big_student), [])
+    check("a command-file count wrapped across a line break is caught", code == 1 and any("says 14 command files" in p for p in probs))
     code, probs, _ = run(tree("It recommends 1-3 commands, or 2 commands at most.\n", shared=big_shared, student=big_student), [])
     check("small recommendation counts are not inventory claims", code == 0)
     code, probs, _ = run(tree("The full 15-command toolkit\n", shared=big_shared, student=big_student), [])
     check("a hyphenated count ('15-command') is caught", code == 1 and any("says 15" in p for p in probs))
     code, probs, _ = run(tree("The full 16-command toolkit: 15 command files plus /pcv\n", shared=big_shared, student=big_student), [])
     check("a correct hyphenated count and a correct command-file count pass", code == 0)
+    code, probs, truth = run(tree("17 Claude Code commands: 15 command files, one skill and /pcv.\n",
+                                  shared=big_shared, student=big_student, skills="(quick-ten)"), [])
+    check("skills count toward the command total, but not toward the command files", code == 0 and truth[0] == 17)
     code, probs, _ = run(tree("It ships 14 command files plus /pcv.\n", shared=big_shared, student=big_student), [])
     check("a wrong command-file count is caught", code == 1 and any("says 14 command files" in p for p in probs))
     code, probs, _ = run(tree("`shared/commands/` holds fifteen slash command definitions.\n", shared=big_shared, student=big_student), [])

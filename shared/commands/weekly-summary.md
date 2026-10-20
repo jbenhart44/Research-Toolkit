@@ -3,7 +3,7 @@ allowed-tools: Bash(git:*), Bash(date:*), Bash(ls:*), Bash(python3:*), Read, Wri
 description: Generate an ISO calendar week summary from daily summaries — groups by workstream, carries forward open TODOs, tags MEMORY.md candidates, tracks dormant workstreams, appends the week's toolkit run log
 ---
 
-# /weeklysummary — Weekly Work Summary
+# /weekly-summary — Weekly Work Summary
 
 > **When to use**: At the end of a work week (Friday/Saturday) or start of the next (Monday). Consolidates daily summaries into a single weekly view grouped by workstream.
 >
@@ -11,13 +11,13 @@ description: Generate an ISO calendar week summary from daily summaries — grou
 
 ## Timing Recommendation
 
-**Invoke /weeklysummary at the END of a work week (Friday/Saturday) or at the START of a new week (Monday).** Mid-week invocations produce partial summaries, which are labeled as such.
+**Invoke /weekly-summary at the END of a work week (Friday/Saturday) or at the START of a new week (Monday).** Mid-week invocations produce partial summaries, which are labeled as such.
 
 If a weekly summary already exists for the current ISO week, this command OVERWRITES it (the weekly summary is a live document until the week closes).
 
 ---
 
-<!-- spawn: role=writer model=sonnet site=weeklysummary#writer -->
+<!-- spawn: role=writer model=sonnet site=weekly-summary#writer -->
 **IMPORTANT**: This summary is written by a **Sonnet** model subagent. Spawn a single Agent with `model: "sonnet"` (the `writer` row of `references/model-roles.md`) and pass it the gathered information along with the formatting instructions below. The Sonnet agent writes the summary; the main agent saves it.
 
 The reason for Sonnet, and never Haiku: smaller models have been observed to produce inaccurate numerical figures and wrong orderings when summarizing technical sessions. Sonnet's accuracy on project-specific details justifies the cost.
@@ -112,7 +112,7 @@ Glob `{weekly_folder}/` for the most recent prior weekly summary, meaning the la
 
 ## Step 5: Generate Weekly Summary
 
-<!-- spawn: role=writer model=sonnet site=weeklysummary#writer -->
+<!-- spawn: role=writer model=sonnet site=weekly-summary#writer -->
 Spawn a **Sonnet** subagent (`model: "sonnet"`) with all extracted data. The subagent writes the summary using this template:
 
 ```markdown
@@ -193,7 +193,7 @@ These are suggestions for manual MEMORY.md update — this command NEVER writes 
 
 ### Wiki-Link Rules
 
-Use the same convention as `/dailysummary`:
+Use the same convention as `/daily-summary`:
 - Regular files: `[[filename.md]]` (bare filename with extension)
 - Ambiguous files: `[[parent/filename.md]]` (one parent dir)
 - Numbered findings: reuse the exact form the dailies already use (e.g. `[[F12 Name]]`). Never invent a finding number or a title.
@@ -201,7 +201,7 @@ Use the same convention as `/dailysummary`:
 
 ### Numerical Accuracy
 
-Same rule as `/dailysummary`: **verify all numbers against source files before writing.** Do NOT approximate from conversation context.
+Same rule as `/daily-summary`: **verify all numbers against source files before writing.** Do NOT approximate from conversation context.
 
 ---
 
@@ -211,7 +211,7 @@ After the subagent returns the summary and before saving it, append a table of t
 
 The table belongs in the weekly summary rather than the daily one because the run log's useful signals show up across days: convergence drifting down, the same command failing twice, a verification command that stopped being run. One day of rows is too few to show them.
 
-1. **Source**: `{evidence_dir}/run_log.csv` (default `.toolkit/evidence/run_log.csv`). Instrumented toolkit commands append to this file and `/runlog` reads it. Read it only; never write to it.
+1. **Source**: `{evidence_dir}/run_log.csv` (default `.toolkit/evidence/run_log.csv`). Instrumented toolkit commands append to this file and `/run-log` reads it. Read it only; never write to it.
 
 2. **Parse with a CSV-aware reader.** The `task_summary` and `notes` cells are quoted and can contain commas or JSON, so splitting lines on `,` miscounts fields. Older rows may be column-shifted (a run ID in the `tool` column, a model name in the `date` column). Skip any row whose `date` is not a date or whose `tool` contains one, and report how many were skipped. Substitute the literal values for the three arguments:
 
@@ -259,7 +259,7 @@ PY
 
    [table printed by the script, OR "No instrumented toolkit runs this week."]
 
-   For per-command totals and recurring improvement signals over the same window, run `/runlog --since YYYY-MM-DD` (this week's Monday).
+   For per-command totals and recurring improvement signals over the same window, run `/run-log --since YYYY-MM-DD` (this week's Monday).
    ```
 
 4. **If `run_log.csv` does not exist**, append the section anyway with this note in place of the table:

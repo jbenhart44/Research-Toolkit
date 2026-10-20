@@ -101,19 +101,19 @@ Each entry states the rule, the file it lives in, and a one-line summary of what
 - Prevents: E4 (silent methodology changes)
 
 **Session summaries use the higher-capability model.** Daily summaries, project summaries, and PCV summaries are written by a Sonnet-tier subagent, not a smaller model. Smaller models have produced numerical errors on project-specific figures.
-- Lives in: project `CLAUDE.md` hard-rule section; `shared/commands/dailysummary.md` and `shared/commands/weeklysummary.md` configure the subagent accordingly
+- Lives in: project `CLAUDE.md` hard-rule section; `shared/commands/daily-summary.md` and `shared/commands/weekly-summary.md` configure the subagent accordingly
 - Prevents: numerical drift in session-summary artifacts
 
 ---
 
 ## Read-only constraints
 
-**Audit logs are append-only.** `/runlog`'s `run_log.csv` and `command_performance_log.md` are produced by other commands and never written to by `/runlog` itself.
-- Lives in: `shared/commands/runlog.md`
+**Audit logs are append-only.** `/run-log`'s `run_log.csv` and `command_performance_log.md` are produced by other commands and never written to by `/run-log` itself.
+- Lives in: `shared/commands/run-log.md`
 - Prevents: corruption of the longitudinal observation surface
 
-**Memory and summary boundaries.** `/weeklysummary` never writes to `MEMORY.md` automatically; it produces suggestions for manual review. The MEMORY surface is the user's responsibility, with the toolkit observing rather than mutating it.
-- Lives in: `shared/commands/weeklysummary.md`
+**Memory and summary boundaries.** `/weekly-summary` never writes to `MEMORY.md` automatically; it produces suggestions for manual review. The MEMORY surface is the user's responsibility, with the toolkit observing rather than mutating it.
+- Lives in: `shared/commands/weekly-summary.md`
 - Prevents: silent corruption of the user's memory layer
 
 ---

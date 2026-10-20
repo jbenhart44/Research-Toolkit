@@ -2,7 +2,7 @@
 
 **Audience**: Instructors teaching research-writing or methodology courses who want to verify citations and numerical claims in student submissions.
 
-**Prerequisite**: This guide assumes you have already installed the toolkit (`bash install.sh --instructor`). You do NOT need `/pace`, `/coa`, or any other verification command for this workflow — `/audit` alone is enough.
+**Prerequisite**: This guide assumes you have already installed the full toolkit (`bash install.sh`). The instructor install (`bash install.sh --minimal`) does not include `/audit`. You do NOT need `/pace`, `/coa`, or any other verification command for this workflow — `/audit` alone is enough.
 
 ---
 

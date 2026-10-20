@@ -1,6 +1,6 @@
 # Research Amp Toolkit — Usage Guide
 
-The 16 commands in this toolkit work best as a system, not as isolated tools. This guide gets you from "just installed" to productive in under 10 minutes.
+The 24 commands in this toolkit work best as a system, not as isolated tools. This guide gets you from "just installed" to productive in under 10 minutes.
 
 ---
 
@@ -17,7 +17,7 @@ Three situations cover 80% of first-year use cases.
 → Run `/coa "your question"`. Six specialist perspectives will argue it out, and a Chair will synthesize where they agree and where the genuine ambiguity lives. For a faster 3-seat panel on a focused question, use `/coa --quick`.
 
 **"I closed my terminal last week and I don't know where I left off."**
-→ Run `/startup`. It reads your recent daily summaries and tells you exactly what's blocked, what's next, and what files changed. Requires that you've been writing `/dailysummary` at the end of sessions — start doing that today.
+→ Run `/startup`. It reads your recent daily summaries and tells you exactly what's blocked, what's next, and what files changed. Requires that you've been writing `/daily-summary` at the end of sessions — start doing that today.
 
 ---
 
@@ -32,7 +32,7 @@ Three situations cover 80% of first-year use cases.
 [write your document]
 /audit your_document.qmd  ← verify every cited number
 /commit                    ← checkpoint
-/dailysummary              ← record what was written and verified
+/daily-summary              ← record what was written and verified
 ```
 
 Maya (public health) runs this chain every time she adds citations to her dissertation chapter. The `/readable` step takes a few minutes; it saves hours of "wait, where did that number come from?" before her defense.
@@ -43,10 +43,10 @@ Maya (public health) runs this chain every time she adds citations to her disser
 
 ```
 /coa "your decision question"   ← get 6 expert perspectives
-/dailysummary                   ← capture the rationale before it leaves context
+/daily-summary                   ← capture the rationale before it leaves context
 ```
 
-Priya (computational biology) runs this chain before committing to any pipeline choice she can't easily reverse. The `/coa` output is advisory — you decide. The `/dailysummary` step makes sure the council's reasoning is on disk, not just in her memory.
+Priya (computational biology) runs this chain before committing to any pipeline choice she can't easily reverse. The `/coa` output is advisory — you decide. The `/daily-summary` step makes sure the council's reasoning is on disk, not just in her memory.
 
 ### Chain 3: The Session Rhythm
 
@@ -57,10 +57,10 @@ Priya (computational biology) runs this chain before committing to any pipeline 
 [do your work]
 /pace or /coa       ← verify or decide if needed
 /commit             ← checkpoint before closing
-/dailysummary       ← record what happened
+/daily-summary       ← record what happened
 ```
 
-Then next session: `/startup` reads yesterday's `/dailysummary` and you pick up exactly where you left off. The rhythm builds a searchable history of every decision you've made.
+Then next session: `/startup` reads yesterday's `/daily-summary` and you pick up exactly where you left off. The rhythm builds a searchable history of every decision you've made.
 
 ---
 
@@ -72,10 +72,10 @@ The command specs are accurate on behavior but misleading on a few key points. R
 The old documentation said "use `/readable` because Read can't render PDFs." That's wrong. Claude Code's built-in Read tool handles individual PDFs natively. Use `/readable` when you need batch processing across a whole directory, image-based OCR for scanned documents, or persistent `.txt` files you can grep across multiple papers. Not because Read is broken.
 
 **2. `/startup` assumes you write daily summaries.**
-`/startup` is a summary reader, not a git reader. If your summary folder is empty, it falls back to `git log` — useful but not the full workstream picture. The fix: run `/dailysummary` at the end of every session. It takes 60 seconds and makes every future `/startup` dramatically more useful.
+`/startup` is a summary reader, not a git reader. If your summary folder is empty, it falls back to `git log` — useful but not the full workstream picture. The fix: run `/daily-summary` at the end of every session. It takes 60 seconds and makes every future `/startup` dramatically more useful.
 
-**3. `/weeklysummary` requires Sonnet and overwrites on re-run.**
-On Haiku-only plans, `/weeklysummary` will fail at the summary-writing step. It also overwrites the existing weekly file each time you run it — the weekly summary is a live document until the week closes. If you need to preserve a mid-week snapshot, rename the file before re-running.
+**3. `/weekly-summary` requires Sonnet and overwrites on re-run.**
+On Haiku-only plans, `/weekly-summary` will fail at the summary-writing step. It also overwrites the existing weekly file each time you run it — the weekly summary is a live document until the week closes. If you need to preserve a mid-week snapshot, rename the file before re-running.
 
 **4. `/audit` reports discrepancies — it doesn't give you a verdict.**
 MISMATCH and NOT ON DISK are findings, not failures. Some number variations are acceptable ("$340" vs "$340.00"); some aren't. You review the findings and decide what to fix. The command surfaces the issues; you make the call.
@@ -93,7 +93,7 @@ MISMATCH and NOT ON DISK are findings, not failures. Some number variations are 
 | `/audit` | Verify every cited figure against the source paper | [Guide](https://jbenhart44.github.io/toolkit/commands/audit.html) |
 | `/coa` | Get 6 expert perspectives on a research decision | [Guide](https://jbenhart44.github.io/toolkit/commands/coa.html) |
 | `/commit` | Group and commit changes with clean messages | [Guide](https://jbenhart44.github.io/toolkit/commands/commit.html) |
-| `/dailysummary` | Record what happened this session | [Guide](https://jbenhart44.github.io/toolkit/commands/dailysummary.html) |
+| `/daily-summary` | Record what happened this session | [Guide](https://jbenhart44.github.io/toolkit/commands/daily-summary.html) |
 | `/help` | Not sure which command to use? Start here | [Guide](https://jbenhart44.github.io/toolkit/commands/help.html) |
 | `/improve` | Audit your Claude Code setup for stale references and gaps | [Guide](https://jbenhart44.github.io/toolkit/commands/improve.html) |
 | `/pace` | Verify a deliverable through two independent agents | [Guide](https://jbenhart44.github.io/toolkit/commands/pace.html) |
@@ -101,7 +101,7 @@ MISMATCH and NOT ON DISK are findings, not failures. Some number variations are 
 | `/quarto` | Generate a slide deck from background documents | [Guide](https://jbenhart44.github.io/toolkit/commands/quarto.html) |
 | `/readable` | Extract text from PDFs for batch search and citation work | [Guide](https://jbenhart44.github.io/toolkit/commands/readable.html) |
 | `/review` | Read a paper or memo through three expert lenses | [Guide](https://jbenhart44.github.io/toolkit/commands/review.html) |
-| `/runlog` | See how your commands have performed across runs | [Source](https://github.com/jbenhart44/Research-Toolkit/blob/main/shared/commands/runlog.md) |
+| `/run-log` | See how your commands have performed across runs | [Source](https://github.com/jbenhart44/Research-Toolkit/blob/main/shared/commands/run-log.md) |
 | `/simplify` | Clean up working code or documents | [Guide](https://jbenhart44.github.io/toolkit/commands/simplify.html) |
 | `/startup` | Orient at the start of a session | [Guide](https://jbenhart44.github.io/toolkit/commands/startup.html) |
-| `/weeklysummary` | Roll up the week's work by workstream | [Guide](https://jbenhart44.github.io/toolkit/commands/weeklysummary.html) |
+| `/weekly-summary` | Roll up the week's work by workstream | [Guide](https://jbenhart44.github.io/toolkit/commands/weekly-summary.html) |

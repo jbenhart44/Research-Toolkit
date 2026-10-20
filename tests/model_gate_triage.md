@@ -11,7 +11,7 @@ is in two parts, in the order they were written:
 Units. A **role-site** is one role at one place: one kind of agent that a command starts at one step (for example,
 `/pace` Coach C). A **block** is a run of lines with no blank line between them, which is what the gate reads; a
 heading on its own merges with the block under it. One block can hold several role-sites (`/pace` starts both Players
-from one paragraph) and one role-site can need several blocks (`/weeklysummary` names its writer twice).
+from one paragraph) and one role-site can need several blocks (`/weekly-summary` names its writer twice).
 
 ## Part 1 — Prior (committed before any gate run)
 
@@ -36,8 +36,8 @@ blocks and 16 blocks marked `spawn: none`.
 | 9 | pace | Cross-Reviewer | `pace.md:401` | `:401` | `sonnet` |
 | 10 | pace | revision reviewer | `pace.md:614` ("spawn ONE reviewer") | `:614`, after a reword | `sonnet` |
 | 11 | review | the three lens agents | `review.md:65` | `:63-65` (heading merged) | none |
-| 12 | dailysummary | writer | `dailysummary.md:113` | `:113` | `sonnet` |
-| 13 | weeklysummary | writer | `weeklysummary.md:20`, `:106` | `:20` and `:106` (two blocks, one role-site) | `sonnet` |
+| 12 | daily-summary | writer | `daily-summary.md:113` | `:113` | `sonnet` |
+| 13 | weekly-summary | writer | `weekly-summary.md:20`, `:106` | `:20` and `:106` (two blocks, one role-site) | `sonnet` |
 | 14 | readable | transcriber | `readable.md:47` | `:45-51` | none |
 
 Not role-sites: the crossmodel route at `coa.md:400-404` (an external model, outside the Claude account; it gets a
@@ -78,7 +78,7 @@ Not role-sites: the crossmodel route at `coa.md:400-404` (an external model, out
 
 Other predictions: no Python file in `scripts/` or `hooks/` passes `--model` or calls `claude -p`; `audit.md` and
 `quarto.md` list `Agent` in `allowed-tools` and start no agent (removed in v2.1.0); the five "best available model"
-sentences are `dailysummary.md:117`, `pace.md:205`, `weeklysummary.md:10`, `:24`, `:288`; no shipped command says
+sentences are `daily-summary.md:117`, `pace.md:205`, `weekly-summary.md:10`, `:24`, `:288`; no shipped command says
 "Task tool".
 
 ## Part 2 — Run and reconciliation
@@ -105,7 +105,7 @@ sentences are `dailysummary.md:117`, `pace.md:205`, `weeklysummary.md:10`, `:24`
 | `pace.md:743` | the run-report template: `agent_count: {total agents spawned}` |
 
 **Line numbers.** Ten blocks start one or more lines above where the Prior placed them (`coa.md:6`, `:517`, `:727`;
-`pace.md:131`, `:178`, `:604`; `commit.md:216`; `improve.md:232`; `readable.md:43`; `weeklysummary.md:104`), because a
+`pace.md:131`, `:178`, `:604`; `commit.md:216`; `improve.md:232`; `readable.md:43`; `weekly-summary.md:104`), because a
 heading merges with the block under it. Same blocks; the Prior quoted the content line.
 
 **Two design gaps found by the run, fixed before any marker was written.**

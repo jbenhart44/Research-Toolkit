@@ -813,6 +813,6 @@ Quote `task_summary` and `notes` (they may contain commas). `report_path` is `<r
 3. **Report to user**:
 > "Run evidence saved to `<run-dir>/`"
 
-> **What next?** Run `/dailysummary` to capture the PACE findings before they leave context — the convergence result, any discrepancy that was resolved, and the verified deliverable are all worth preserving in your session record.
+> **What next?** Run `/daily-summary` to capture the PACE findings before they leave context — the convergence result, any discrepancy that was resolved, and the verified deliverable are all worth preserving in your session record.
 
 $ARGUMENTS

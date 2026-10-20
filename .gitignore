@@ -6,3 +6,6 @@ pcv.previous/
 .DS_Store
 *~
 *.bak
+
+# Python bytecode, written by running a self-test in the clone
+__pycache__/

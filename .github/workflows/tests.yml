@@ -33,12 +33,25 @@ jobs:
           python3 tests/check_models.py --self-test
           python3 tests/check_models_mutations.py
 
-      - name: Usage counter and report (self-tests and mutation checks)
+      - name: Hooks (every hook's self-test and mutation check, and the config reader's)
         run: |
-          python3 hooks/usage_counter_selftest.py
-          python3 hooks/usage_counter_mutations.py
-          python3 scripts/usage_counts.py --self-test
-          python3 scripts/usage_counts_mutations.py
+          for t in hooks/*_selftest.py; do python3 "$t"; done
+          for m in hooks/*_mutations.py; do python3 "$m"; done
+
+      - name: Scripts (every helper's and check's self-test and mutation check)
+        run: |
+          for t in scripts/*_selftest.py; do python3 "$t"; done
+          python3 scripts/render_chatbot_prompts.py --check
+          for s in scripts/usage_counts.py scripts/check_*.py scripts/register_hooks.py scripts/acquire.py scripts/agent_stalls.py scripts/render_chatbot_prompts.py; do
+            case "$s" in *_mutations.py) continue ;; esac
+            python3 "$s" --self-test
+          done
+          for m in scripts/*_mutations.py; do python3 "$m"; done
+
+      - name: Skills (every skill runner's self-test and mutation check)
+        run: |
+          for t in shared/skills/*/assets/*_selftest.py; do python3 "$t"; done
+          for m in shared/skills/*/assets/*_mutations.py; do python3 "$m"; done
 
       - name: Shell scripts parse
         run: for f in install.sh hooks/*.sh scripts/*.sh; do bash -n "$f"; done
@@ -47,11 +60,6 @@ jobs:
         run: |
           out=$(echo '{"tool_name":"Agent","tool_input":{"prompt":"hi"}}' | HOME="$RUNNER_TEMP" /bin/bash hooks/token_budget_guard.sh 2>&1 >/dev/null)
           if [ -n "$out" ]; then echo "stderr from token_budget_guard.sh: $out"; exit 1; fi
-
-      - name: Run-report helper (self-test and mutation check)
-        run: |
-          python3 scripts/emit_run_report_selftest.py
-          python3 scripts/emit_run_report_mutations.py
 
       - name: Install gate (real installs into temporary HOMEs; every count derived from install.sh)
         run: |

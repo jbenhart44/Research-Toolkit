@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "about": "Which tools work as a prompt in an ordinary chatbot (no Claude Code), and what changes there. Read by scripts/render_chatbot_prompts.py, which turns each command or skill file into a chatbot prompt for the landing page. Every command and skill needs a row; fit is full, limited or none.",
+  "tools": {
+    "help": {"fit": "full", "note": "Describe your situation in one line and it names the tool to use. It may name a tool that needs Claude Code; the toolkit page and the README in the ZIP list the tools that work in a chat."},
+    "quick-ten": {"fit": "full", "note": "Describe what you are about to build. It asks the few questions whose answers change the build, then writes a short brief."},
+    "simplify": {"fit": "full", "note": "Paste the code or the document. It reviews it for redundancy and complexity and proposes simpler versions; it cannot run your tests, so run them yourself before you keep a change."},
+    "coa": {"fit": "limited", "note": "Useful for structured disagreement on a decision. One chatbot plays every council member and the Chair who sums them up, so the members are not independent and their agreement is weak evidence. It cannot read your files: paste the evidence each member should use."},
+    "pace": {"fit": "limited", "note": "Gives you two framings of a task and a review of each. One chatbot writes both framings and both reviews, so their agreement proves little. Paste the task and any source it must check against."},
+    "review": {"fit": "limited", "note": "Paste the document. One chatbot reads it through all three lenses in turn, so the lenses are not independent readers."},
+    "audit": {"fit": "limited", "note": "Paste the document and the text of each source. It checks each cited number against the text you pasted; a source you do not paste is reported as not on file, never as checked."},
+    "quarto": {"fit": "limited", "note": "Paste your notes. It drafts the Quarto source for the deck; you render it yourself with Quarto installed."},
+    "bulletproof": {"fit": "limited", "note": "Paste the code. It writes the tests and the planted defects; you run them and paste the results back, because it cannot run anything."},
+    "list-maker": {"fit": "limited", "note": "Paste a transcript. It writes the numbered, tiered list. It cannot keep the ledger file, so save the list it gives you and paste it back next time to keep the numbers."},
+    "step-by-step": {"fit": "limited", "note": "Paste the list of changes (for example the output of git log --oneline) or a numbered work list. It walks it one item per turn and tracks which items are left."},
+    "meeting-breakdown": {"fit": "limited", "note": "Paste the transcript. One chatbot plays the five agents in turn, so the review steps are not independent. It writes the per-domain plan in the chat rather than beside the transcript."},
+    "setup": {"fit": "none", "note": "It writes the Claude Code config file the other commands read."},
+    "startup": {"fit": "none", "note": "It reads your project's summaries and git history on disk."},
+    "daily-summary": {"fit": "none", "note": "It builds the summary from your git history and the files the session changed."},
+    "weekly-summary": {"fit": "none", "note": "It aggregates the daily summary files in your project."},
+    "commit": {"fit": "none", "note": "It reads and writes your git repository."},
+    "run-log": {"fit": "none", "note": "It reads the run logs other commands write on disk."},
+    "improve": {"fit": "none", "note": "It audits the Claude Code setup on your machine."},
+    "readable": {"fit": "none", "note": "It writes text files beside your PDFs for later searches. A chatbot reads an attached PDF directly."},
+    "acquire": {"fit": "none", "note": "It downloads and extracts files with a script. In a chat, attach the paper and use /audit with its text."},
+    "guard-hook": {"fit": "none", "note": "It builds and tests Claude Code hooks."},
+    "automate": {"fit": "none", "note": "It writes a Claude Code skill and script from your session's history."},
+    "pcv": {"fit": "none", "note": "PCV is a multi-file protocol that runs scripts in your project. Its method is described at https://mgkay.github.io/pcv/."}
+  }
+}

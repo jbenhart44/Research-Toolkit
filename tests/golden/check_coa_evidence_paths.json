@@ -1,0 +1,24 @@
+{
+  "what": "Verdicts of the original Julia check_coa_evidence_paths.jl (its own checkpath function) on a fixed fixture tree. The Python port, scripts/check_coa_evidence_paths.py, must give the same verdict for every input; its --self-test reads this file.",
+  "produced": "2026-10-20, Julia 1.12 on macOS, by including the original and calling checkpath(input, base) with base = a fresh folder holding the tree below",
+  "left_out": "a differently-cased path ('shared folder/report.pdf'): it resolved as a file on macOS, whose filesystem ignores case, and would be missing on Linux, so it is not a portable verdict",
+  "tree": {
+    "files": ["brief.md", "session/notes.md", "Shared Folder/report.pdf"],
+    "dirs": ["empty_dir"]
+  },
+  "cases": [
+    {"given": "brief.md", "kind": "file"},
+    {"given": "session", "kind": "dir"},
+    {"given": "session/", "kind": "dir"},
+    {"given": "session/notes.md", "kind": "file"},
+    {"given": "empty_dir", "kind": "dir"},
+    {"given": "empty_dir/", "kind": "dir"},
+    {"given": "  brief.md  ", "kind": "file"},
+    {"given": "not_here.pdf", "kind": "MISSING"},
+    {"given": "Shared Folder/report.pdf", "kind": "file"},
+    {"given": "Shared Folder/missing.pdf", "kind": "MISSING"},
+    {"given": "session/notes.md/", "kind": "file"},
+    {"given": "<BASE>/brief.md", "kind": "file"},
+    {"given": "<BASE>/nope.md", "kind": "MISSING"}
+  ]
+}

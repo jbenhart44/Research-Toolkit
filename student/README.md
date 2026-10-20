@@ -1,6 +1,6 @@
 # Student Toolkit
 
-The full 16-command Research Amp Toolkit: structured planning, verification, documentation, and workflow automation, as its author uses them in PhD research.
+The full 24-command Research Amp Toolkit: structured planning, verification, documentation, and workflow automation, as its author uses them in PhD research.
 
 ## Installation
 
@@ -46,11 +46,11 @@ After installation:
 - `/readable` — Extract text from PDFs and Word docs
 
 ### Stay organized
-- `/dailysummary` — Summarize today's work
-- `/weeklysummary` — Aggregate the week's progress by workstream
+- `/daily-summary` — Summarize today's work
+- `/weekly-summary` — Aggregate the week's progress by workstream
 - `/commit` — Create logical, well-organized git commits
 - `/improve` — Audit your own Claude Code setup for improvements
-- `/runlog` — See how your commands have performed across runs
+- `/run-log` — See how your commands have performed across runs
 
 ### Not sure?
 - `/help` — Describe the situation in one line; it recommends 1-3 commands
@@ -58,6 +58,6 @@ After installation:
 ## Tips
 
 - **Run `/setup` first, then start with `/pcv` and `/startup`.** These give you the most immediate value.
-- **Run `/dailysummary` at the end of every session.** Your future self will thank you.
+- **Run `/daily-summary` at the end of every session.** Your future self will thank you.
 - **Use `/coa --quick` for focused questions.** A 3-seat panel is fast and cheap.
 - **Run `/improve` monthly.** It catches stale references and missing workflows.

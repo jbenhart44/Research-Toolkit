@@ -41,15 +41,12 @@ When given a directory path, find ALL `.pdf`, `.docx`, `.doc`, `.html`, and `.ht
 4. Report: filename, method used, character count, or reason for failure
 
 ### Image-Based PDFs
-<!-- spawn: role=transcriber model=sonnet site=readable#transcriber -->
+<!-- spawn: role=transcriber model=config:model_transcriber floor=haiku site=readable#transcriber -->
 Some PDFs contain scanned images with no extractable text (e.g., screenshots of web pages, scanned papers). When `pypdf` and `fitz` both return empty text:
-1. Render each page as a high-DPI PNG image (200 DPI) and save to `/tmp/<filename_slug>_p<N>.png`
-2. Report: "IMAGE-BASED — rendered N pages as PNG to /tmp/<slug>_p*.png"
-3. **Then spawn a background subagent** with the Agent tool and `model: "sonnet"` (the `transcriber` row of `references/model-roles.md`) that reads each PNG image using the Read tool (which supports visual image reading) and transcribes the FULL text of every page into a .txt file alongside the PDF
-4. The subagent writes `<filename>.txt` in the same directory as the PDF with `=== PAGE N ===` headers
-5. Tables should be transcribed in markdown table format
-6. Figure/chart images noted as `[FIGURE: brief description]`
-7. Report when transcription is complete: "Transcription complete: <filename>.txt (<N> chars)"
+1. Render each page as a 200-DPI PNG into a new temporary folder (`<folder>`) and report: "IMAGE-BASED — rendered N pages to <folder>".
+2. **Start the transcriber** with the Agent tool (the `transcriber` row of `references/model-roles.md`). For its model, pass `model` = the value of `model_transcriber` in `~/.claude/toolkit-config.md` if it is `haiku` or `sonnet`; otherwise pass `haiku` and print one line. The floor is `model: "haiku"`. On `haiku` (smaller plans), start **two** transcribers in one message, writing `<folder>/reader_1.txt` and `<folder>/reader_2.txt`; on `sonnet`, start one, writing `<folder>/reader_1.txt`. Each reads every PNG with the Read tool (which reads images) and writes the FULL text of every page with `=== PAGE N ===` headers, tables as markdown tables, figures as `[FIGURE: brief description]`, and a `[MATERIAL GAP: <reason>]` line for a page it cannot read, never a guess.
+3. **Check before anything is installed:** `python3 "$HOME/.claude/toolkit/scripts/check_transcription.py" --pdf "<pdf>" --transcript <folder>/reader_1.txt` (add `--second <folder>/reader_2.txt` when two ran). With two readers it also refuses unless both agree on every number, page by page: a misread digit is a number the other reader does not have. Exit 0: copy `reader_1.txt` to `<filename>.txt` beside the PDF, with a first line `[TRANSCRIBED from page images by <model> on <date>; check_transcription.py passed]`. Exit 1: install nothing, report the failing checks, and offer to rerun the transcription on `sonnet`. Never change the model on your own.
+4. Report: "Transcription complete: <filename>.txt (<N> chars, <model>, checks passed)".
 
 <!-- BEGIN MODEL FAILURE -->
 **MODEL FAILURE — when an agent cannot run on the model it requested.**

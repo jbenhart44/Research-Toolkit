@@ -3,17 +3,17 @@ allowed-tools: Bash(git:*), Bash(date:*), Bash(ls:*), Bash(stat:*), Bash(python3
 description: Create a dated summary of today's work in the daily summaries folder
 ---
 
-# /dailysummary — Daily Work Summary
+# /daily-summary — Daily Work Summary
 
-> **When to use**: At the end of a work session to capture what was done, decisions made, and next steps. Creates a dated record that `/startup` and `/weeklysummary` read later.
+> **When to use**: At the end of a work session to capture what was done, decisions made, and next steps. Creates a dated record that `/startup` and `/weekly-summary` read later.
 
 ## Mode Selection
 
 **Three modes** — pick based on session weight:
 
-- `/dailysummary` or `/dailysummary --full` — **Full mode.** All sections, wiki-links, navigation, numerical verification, `/improve` candidates. Use after heavy sessions (multiple deliverables, code changes, multi-agent runs).
-- `/dailysummary --quick` — **Quick mode.** Stripped down: Date, Summary (3-4 sentences), Key Accomplishments (bullets), Next Steps, Commits. No wiki-links, no `/improve` candidates, no numerical verification, no navigation link. Use after light sessions (documentation edits, planning, conversations).
-- `/dailysummary --append-pointer` — **Append-pointer mode.** Writes a ≤10-line block APPENDED to an existing same-day summary file. Use for mid-session continuations where a new file would be clutter. Auto-selected when a same-day summary for this session's workstream exists AND `git diff` shows <3 modified files since last write.
+- `/daily-summary` or `/daily-summary --full` — **Full mode.** All sections, wiki-links, navigation, numerical verification, `/improve` candidates. Use after heavy sessions (multiple deliverables, code changes, multi-agent runs).
+- `/daily-summary --quick` — **Quick mode.** Stripped down: Date, Summary (3-4 sentences), Key Accomplishments (bullets), Next Steps, Commits. No wiki-links, no `/improve` candidates, no numerical verification, no navigation link. Use after light sessions (documentation edits, planning, conversations).
+- `/daily-summary --append-pointer` — **Append-pointer mode.** Writes a ≤10-line block APPENDED to an existing same-day summary file. Use for mid-session continuations where a new file would be clutter. Auto-selected when a same-day summary for this session's workstream exists AND `git diff` shows <3 modified files since last write.
 
 **Every mode** runs the commit inventory (Steps 1b–1d) and the saved-file checks (Step 7). The Commits and Next Steps sections appear in every mode, and each check costs one tool call.
 
@@ -28,7 +28,7 @@ description: Create a dated summary of today's work in the daily summaries folde
 
 ## Timing Recommendation
 
-**Invoke /dailysummary at the END of a session, not the middle.** Mid-session invocations produce incomplete summaries that require re-running. If you must run mid-session, mark the summary as DRAFT and update before session close.
+**Invoke /daily-summary at the END of a session, not the middle.** Mid-session invocations produce incomplete summaries that require re-running. If you must run mid-session, mark the summary as DRAFT and update before session close.
 
 If this command detects that significant work has occurred AFTER a previous daily summary was written (by checking git status for modified files not covered in the existing summary), it should UPDATE the existing file rather than creating a new one.
 
@@ -110,7 +110,7 @@ If `$ARGUMENTS` explicitly overrides (`--full`, `--quick`, `--append-pointer`), 
 
 ---
 
-<!-- spawn: role=writer model=sonnet site=dailysummary#writer -->
+<!-- spawn: role=writer model=sonnet site=daily-summary#writer -->
 **IMPORTANT**: This summary is written by a **Sonnet** model subagent. Spawn a single Agent with `model: "sonnet"` (the `writer` row of `references/model-roles.md`) and pass it the gathered information (git log, file changes, context) along with the formatting instructions below. The Sonnet agent writes the summary; the main agent saves it.
 
 The reason for Sonnet, and never Haiku: smaller models have been observed to produce inaccurate numerical figures, wrong file orderings, and incorrect parameter values when summarizing technical sessions. Sonnet's accuracy on project-specific details justifies the cost.
@@ -315,7 +315,7 @@ Add `Previous: [[filename]]` as the first line of the document, pointing to the 
 
 This matters most in Next Steps and handoff sections, which are read as current state by definition. In one case a handoff file said "a dry run confirmed exactly 21 files"; when the sync ran hours later the count was 17, because four files had converged in between, and nothing in the text signalled the number could move.
 
-**Title Selection**: Choose a descriptive 3-5 word title that captures the essence of the day's work. Examples: `Model_Calibration_Complete`, `Documentation_Restructure`, `Experiment_Results_Analyzed`. When `workstreams` has more than one entry, include the workstream name in the title so `/startup`, `/weeklysummary` and the next `Previous:` link can match it.
+**Title Selection**: Choose a descriptive 3-5 word title that captures the essence of the day's work. Examples: `Model_Calibration_Complete`, `Documentation_Restructure`, `Experiment_Results_Analyzed`. When `workstreams` has more than one entry, include the workstream name in the title so `/startup`, `/weekly-summary` and the next `Previous:` link can match it.
 
 ---
 
@@ -415,11 +415,11 @@ Any user re-running the command at the same time with the same git state should 
 
 ## Step 9: Emit run_report (instrumentation)
 
-After writing the summary, emit a structured run_report for observability via `/runlog`. Substitute literal values — variables from earlier Bash calls are gone:
+After writing the summary, emit a structured run_report for observability via `/run-log`. Substitute literal values — variables from earlier Bash calls are gone:
 
 ```bash
 python3 "$HOME/.claude/toolkit/scripts/emit_run_report.py" \
-  --command dailysummary \
+  --command daily-summary \
   --run-dir "Daily Summary/.run_reports/$(date +%Y-%m-%d_%H%M%S)" \
   --evidence-dir ".toolkit/evidence" \
   --tool-version v2.0 \

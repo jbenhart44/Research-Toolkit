@@ -2,7 +2,7 @@ cff-version: 1.2.0
 title: "Research Amp Toolkit"
 message: "If you use this toolkit, please cite it."
 type: software
-version: "2.1.0"
+version: "2.2.0"
 date-released: "2026-10-20"
 authors:
   - family-names: "Benhart"
@@ -12,11 +12,13 @@ authors:
 repository-code: "https://github.com/jbenhart44/Research-Toolkit"
 url: "https://jbenhart44.github.io/toolkit/"
 abstract: >
-  Verification-first agent engineering for Claude Code: 16 Claude Code
-  commands for AI-assisted research — setup (/setup), verification
-  (/pcv, /pace, /coa, /audit), workflow bookkeeping (/startup,
-  /dailysummary, /weeklysummary, /commit, /simplify, /improve, /runlog),
-  content generation (/quarto, /readable, /review), and triage (/help).
+  Verification-first agent engineering for Claude Code: 24 Claude Code
+  commands for AI-assisted research — setup (/setup), planning (/quick-ten),
+  verification (/pcv, /pace, /coa, /audit, /acquire, /bulletproof,
+  /guard-hook), workflow bookkeeping (/startup, /daily-summary, /weekly-summary,
+  /commit, /simplify, /improve, /run-log, /meeting-breakdown, /list-maker,
+  /step-by-step, /automate), content generation (/quarto, /readable, /review),
+  and triage (/help).
   Implements Spec-Driven Development patterns: plan-construct-verify with
   explicit specifications, multi-agent cross-checking, and verifiable
   citation and numerical audits. The release gates are proven by mutation
