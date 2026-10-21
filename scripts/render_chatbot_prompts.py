@@ -129,27 +129,21 @@ def section(root: Path, table: dict) -> str:
     rel = lambda n: have[n].relative_to(root).as_posix()  # noqa: E731
     out = [BEGIN,
            '<h2 id="chatbot">Use the Tools in a Chatbot</h2>',
-           "<p>No Claude Code? Some of these tools also work as a prompt in an ordinary chat. Open a tool, copy its "
-           "prompt into a new chat, and give it your material when it asks. Each prompt is the tool&rsquo;s own "
-           "instructions with the Claude Code file header and markers removed. A short preface tells the chatbot what "
-           "it cannot do in a chat (run commands, open your files, start separate agents) and that it must never claim "
-           "to have done them.</p>",
-           '<div class="callout"><p><strong>Written with Claude, usable with any assistant.</strong> These tools were '
-           "written for Claude Code and tested with Claude models. Each chat prompt opens with a short preface that "
-           "tells the assistant what it cannot do in a chat and to ignore the parts about installing and configuration "
-           "files. A few lines still name Claude Code or a Claude account; if the assistant asks which Claude account "
-           "you use, say you are not using Claude Code. You can paste the prompts into ChatGPT, Gemini, Copilot or "
-           "whichever assistant you use. Their results there have not been measured: check what comes back the way "
-           "each prompt tells you to.</p></div>",
-           f"<p>A long prompt can be more than a chatbot accepts in one message.{size_note(outputs(root, table))} If a "
-           "chat will not take one, open it as text, save it, and attach the file instead of pasting it.</p>",
+           "<p>No Claude Code? Some tools also work in an ordinary chat. Open one, copy its prompt into a new chat, "
+           "and give it your material when it asks. Each prompt starts with a short note that tells the chatbot what it "
+           "cannot do in a chat, such as run commands or open your files, and never to claim it did.</p>",
+           '<div class="callout"><p><strong>Made for Claude, works in other chatbots.</strong> The tools were written '
+           "and tested with Claude. You can paste them into ChatGPT, Gemini or Copilot, but nobody has measured the "
+           "results there, so check the answers the way each prompt asks. If a chatbot asks which Claude account you "
+           "use, say you are not using Claude Code.</p></div>",
+           f"<p>A chat may refuse a long prompt.{size_note(outputs(root, table))} If it does, open the prompt as text, "
+           "save it, and attach the file.</p>",
            f'<p><a class="hero-cta" href="{ZIP}" download>Download all {len(outputs(root, table))} chat prompts (ZIP)'
            "</a> with a README that says what each one is for.</p>"]
     for fit, title, lead in (("full", "Works in a Chat", ""),
                              ("limited", "Works in a Chat, with Limits",
-                              "<p>Read each note. Where a tool starts several agents in Claude Code, one chatbot plays "
-                              "every role in a chat, so the roles are not independent and their agreement is weak "
-                              "evidence.</p>")):
+                              "<p>Read each note. Where a tool uses several agents, one chatbot plays all of them, so "
+                              "their agreement proves little.</p>")):
         names = sorted(n for n, r in table.items() if r["fit"] == fit and n in have)
         out += [f"<h3>{title}</h3>"] + ([lead] if lead else [])
         for n in names:
